@@ -1,0 +1,454 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Slide a along the axis while the page divides by (x − a). Compare what's left over with the height of the curve.">
+<title>The Leftover · What the Remainder Tells You</title>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     THE LEFTOVER — IM3 Unit 2, Module 5, What the Remainder Tells You
+     Same grammar as module-1.html: one move, and the name only after the
+     student has seen the thing and asked for it.
+
+       gold — the polynomial and its height   lead — what the division leaves
+
+     The two readouts are computed DIFFERENTLY on purpose: the height by
+     evaluating p(a), the leftover by carrying out the division coefficient
+     by coefficient -- the arithmetic long division does. They agree
+     because the theorem is true, not because the page copies one into
+     the other.
+
+     Deliberately NOT the pages' numbers. The conference lists six
+     polynomials to divide by (x − 2); #2 is a quartic with a missing
+     coefficient; #3 divides x³ + 7x² − 20x − 110 by (x ∓ 5); the mastery
+     factors 2x³ + 5x² − 6x − 9. So this is x³ − 3x² − 6x + 8.
+
+     The conference is where students discover remainders equal function
+     values. The module's intro video already states it before then, and
+     the reveal here waits for a press, so noticing stays the student's.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the whole polynomial */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the thing that decides */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lead);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sup{font-size:.68em;line-height:0;position:relative;top:-.05em}
+  .t{white-space:nowrap}
+  .lead{color:var(--lead)}
+  .gold{color:var(--gold)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup .math{color:var(--cream)}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px}
+  .panel svg{display:block;width:100%;height:auto;touch-action:pan-y}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+  .chip{
+    flex:1 1 150px;min-width:130px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.lead .v{color:var(--lead)}
+
+  /* the equation above a graph */
+  .eq{font-family:var(--serif);font-size:clamp(20px,3vw,27px);line-height:1.35;margin:2px 2px 10px;color:var(--cream)}
+  .eq .f{color:var(--lead);border-radius:5px;padding:0 1px;transition:background .2s ease}
+  .eq .f.hot{background:var(--lead-soft)}
+  .under{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--faint);margin:8px 2px 0}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:12px 18px;margin-top:12px;flex-wrap:wrap}
+  .controls > label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .slider{position:relative;flex:1;min-width:220px;padding-bottom:18px}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 4px rgba(227,179,76,.16)}
+    50%{box-shadow:0 0 0 11px rgba(227,179,76,.04)}
+  }
+  input[type=range]:not(.used)::-webkit-slider-thumb{animation:breathe 2.4s ease-in-out infinite}
+  .ticks{position:absolute;left:0;right:0;bottom:0;height:16px;pointer-events:none}
+  .ticks span{
+    position:absolute;left:calc(11px + (100% - 22px) * var(--p));transform:translateX(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;white-space:nowrap;
+  }
+  .ticks span:first-child{transform:translateX(-11px)}
+  .ticks span:last-child{transform:translateX(calc(-100% + 11px))}
+
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  button:hover{border-color:var(--dim)}
+  button:disabled{opacity:.38;cursor:default;border-color:var(--line)}
+  button.primary{color:var(--night);background:var(--gold);border-color:var(--gold);font-weight:bold}
+  button.primary:hover{filter:brightness(1.08)}
+  button.primary:active{transform:translateY(1px)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 20px}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. These pages double as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;color:var(--lead);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:#3A5272;stroke-width:1.2}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  .lens-label{fill:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.14em}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px;min-width:110px}
+    .ticktext{font-size:11px}
+    .insight p{font-size:19px}
+  }
+
+  /* ── this page ───────────────────────────────────────────────── */
+  .key{display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 2px 10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--dim)}
+  .key span{display:inline-flex;align-items:center;gap:9px}
+  .key svg{width:30px;height:8px;display:block}
+  .division{font-size:clamp(18px,2.6vw,23px);margin:12px 2px 2px}
+  .badge{
+    display:inline-block;vertical-align:.2em;margin-left:10px;font-family:var(--mono);font-size:11px;
+    letter-spacing:0;text-transform:none;font-family:var(--serif);font-size:16px;color:var(--night);background:var(--lead);
+    border-radius:999px;padding:3px 11px;animation:rise .4s ease both;
+  }
+  .factor-ring{fill:none;stroke:var(--lead);stroke-width:1.8}
+  .var{text-transform:none;font-family:var(--serif);font-style:italic;font-size:1.3em;letter-spacing:0}
+  .controls > label.var{text-transform:none;font-family:var(--serif);font-style:italic;font-size:21px;letter-spacing:0;color:var(--cream)}
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM3 &middot; Unit 2</a>
+    <div class="eyebrow">IM3 &middot; Unit 2 &middot; Module 5 &middot; What the Remainder Tells You</div>
+    <h1>The <em>Leftover</em></h1>
+    <p class="dek">Divide a polynomial by (x &minus; a), and there&rsquo;s usually something left over. It looks like scrap. <strong>It isn&rsquo;t.</strong> Slide a along the axis and catch it being something else.</p>
+    <div class="hint">Slide a. Watch both numbers.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE LEFTOVER ════════ -->
+<section class="act" id="act1">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Leftover</div>
+    <h2 class="ask">Slide a along the axis. Compare the two numbers.</h2>
+    <p class="setup">The curve is <span class="math t">p(<i>x</i>) = <i>x</i><sup>3</sup> &minus; 3<i>x</i><sup>2</sup> &minus; 6<i>x</i> + 8</span>. Each time you move <span class="math"><i>a</i></span>, the page divides <span class="math t">p(<i>x</i>)</span> by <span class="math lead t">(<i>x</i> &minus; <i>a</i>)</span> — the same arithmetic as long division — and shows what&rsquo;s left over. Separately, it measures how high the curve is at <span class="math"><i>a</i></span>.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k"><span class="var">a</span></div><div class="v" id="a1-a">2</div></div>
+      <div class="chip gold"><div class="k">Height of the curve at <span class="var">a</span></div><div class="v" id="a1-height">−8</div></div>
+      <div class="chip lead"><div class="k">Left over after dividing by <span class="var">(x − a)</span></div><div class="v" id="a1-left">−8</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 8"><line x1="1" y1="4" x2="29" y2="4" stroke="#E3B34C" stroke-width="4" stroke-linecap="round"/></svg>the height of the curve at a</span>
+        <span><svg viewBox="0 0 30 8"><line x1="1" y1="4" x2="29" y2="4" stroke="#9DB2FF" stroke-width="2" stroke-dasharray="6 5" stroke-linecap="round"/></svg>what the division leaves over</span>
+      </div>
+      <svg id="a1-svg" role="img" aria-label="The graph of p(x) with a movable point a on the x-axis, a bar for the height of the curve at a, and a dashed bar for the remainder."></svg>
+      <div class="eq division" id="a1-division" aria-live="polite"></div>
+      <div class="controls">
+        <label for="a1-range" class="var">a</label>
+        <div class="slider">
+          <input type="range" id="a1-range" min="-6" max="10" step="1" value="4" aria-valuetext="a = 2">
+          <div class="ticks" aria-hidden="true">
+            <span style="--p:0">&minus;3</span><span style="--p:.25">&minus;1</span><span style="--p:.5">1</span><span style="--p:.75">3</span><span style="--p:1">5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>The two numbers never disagreed. Divide by <span class="math lead t">(<i>x</i> &minus; <i>a</i>)</span>, and what&rsquo;s left over is exactly the height of the curve at <span class="math"><i>a</i></span> — at every <span class="math"><i>a</i></span> you tried. So wherever the curve crosses the axis, the leftover is 0, and <span class="math lead t">(<i>x</i> &minus; <i>a</i>)</span> goes in evenly: it&rsquo;s a factor. That works both ways. A division can tell you a height, and a height of 0 tells you a factor.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: the <b>Remainder Theorem</b>. <span class="name">Dividing p(x) by (x − a) leaves p(a) over. And when p(a) = 0, (x − a) is a factor.</span></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Next time something&rsquo;s left over, <em>don&rsquo;t throw it away.</em></p>
+    <div class="colophon">IM3 &middot; Unit 2 &middot; Module 5 &middot; <span>What the Remainder Tells You</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD", DIM = "#8FA0B5", FAINT = "#5C6E85",
+      LINE = "#2A3F5A", NIGHT = "#0B1526";
+  var MINUS = "−";
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+  function touched(actId){ $(actId).classList.add("touched"); }
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+  function widthOf(node){ return Math.max(260, Math.round(node.getBoundingClientRect().width)); }
+
+  /* nice tick spacing: 1, 2 or 5 times a power of ten */
+  function niceStep(span, target){
+    var raw = span / target, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+    return (r < 1.5 ? 1 : r < 3.5 ? 2 : r < 7.5 ? 5 : 10) * mag;
+  }
+  /* a number the way a person writes it: at most three decimals, a real minus sign */
+  function num(v, places){
+    var p = Math.pow(10, places == null ? 3 : places), r = Math.round(v * p) / p;
+    if (Math.abs(r) < 1e-9) r = 0;
+    return (r < 0 ? MINUS : "") + Math.abs(r).toLocaleString("en-US", {maximumFractionDigits: places == null ? 3 : places});
+  }
+  /* one term of a polynomial, e.g. term(-6, 1) -> "−6x", term(1, 2) -> "x²" */
+  function term(c, pw, first){
+    var mag = Math.abs(c), sign = c < 0 ? MINUS : "+";
+    var body = (pw === 0 || Math.abs(mag - 1) > 1e-9 ? num(mag) : "") +
+               (pw > 0 ? "<i>x</i>" + (pw > 1 ? "<sup>" + pw + "</sup>" : "") : "");
+    if (first) return (c < 0 ? MINUS : "") + body;
+    return " " + sign + " " + body;
+  }
+  function poly(cs){           /* cs[0] is the highest power */
+    var n = cs.length - 1, out = "", first = true;
+    cs.forEach(function(c, i){
+      if (Math.abs(c) < 1e-9) return;
+      out += term(c, n - i, first); first = false;
+    });
+    return out || "0";
+  }
+  function whenResized(fn){
+    var queued = false;
+    function go(){ if (queued) return; queued = true; requestAnimationFrame(function(){ queued = false; fn(); }); }
+    if (window.ResizeObserver) new ResizeObserver(go).observe(document.body);
+    else window.addEventListener("resize", go);
+  }
+
+  /* ── header sky: a curve, and a height measured two ways ────── */
+  (function(){
+    var s = $("sky"); s.setAttribute("viewBox", "0 0 960 300");
+    var base = 190, d = "";
+    function f(u){ return (u + 0.7) * (u - 0.1) * (u - 0.8); }
+    function X(u){ return 40 + 440 * (u + 1); }
+    for (var i = 0; i <= 260; i++){ var u = -1 + 2 * i / 260; d += (i ? "L" : "M") + X(u).toFixed(1) + "," + (base - 300 * f(u)).toFixed(1); }
+    el("line", {x1: 40, x2: 920, y1: base, y2: base, stroke: LINE, "stroke-width": 1.2}, s);
+    el("path", {d: d, fill: "none", stroke: GOLD, "stroke-width": 1.8, opacity: .6}, s);
+    var ua = 0.5, top = base - 300 * f(ua);
+    el("line", {x1: X(ua), x2: X(ua), y1: base, y2: top, stroke: GOLD, "stroke-width": 5, "stroke-linecap": "round", opacity: .55}, s);
+    el("line", {x1: X(ua), x2: X(ua), y1: base, y2: top, stroke: LEAD, "stroke-width": 2, "stroke-dasharray": "5 5", opacity: .8}, s);
+  })();
+
+  /* ════ ACT I — the leftover ═════════════════════════════════ */
+  (function(){
+    var svg = $("a1-svg"), range = $("a1-range"), divEl = $("a1-division");
+    var XMIN = -3.6, XMAX = 5.6, YMIN = -34, YMAX = 34, seen = {};
+    /* The height: evaluate p. */
+    function p(x){ return ((x - 3) * x - 6) * x + 8; }
+    /* The leftover: carry out the division by (x − a), coefficient by coefficient. */
+    function divide(a){
+      var b0 = 1, b1 = -3 + a * b0, b2 = -6 + a * b1, r = 8 + a * b2;
+      return {q: [b0, b1, b2], r: r};
+    }
+    function clean(v){ return Math.abs(v) < 1e-9 ? 0 : v; }
+
+    var clipRect = el("rect", {}, el("clipPath", {id: "a1-clip"}, el("defs", {}, svg)));
+    var gGrid = el("g", {}, svg), gCurve = el("g", {"clip-path": "url(#a1-clip)"}, svg), gMark = el("g", {}, svg);
+
+    function divisor(a){
+      if (a === 0) return "<i>x</i>";
+      return "(<i>x</i> " + (a > 0 ? MINUS : "+") + " " + num(Math.abs(a)) + ")";
+    }
+
+    function draw(){
+      var a = +range.value / 2, h = clean(p(a)), D = divide(a), r = clean(D.r);
+      var W = widthOf(svg), narrow = W < 560, H = Math.round(Math.max(270, Math.min(430, W * 0.5)));
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      var m = {l: narrow ? 34 : 42, r: 14, t: 12, b: 30}, pw = W - m.l - m.r, ph = H - m.t - m.b;
+      function sx(v){ return m.l + (v - XMIN) / (XMAX - XMIN) * pw; }
+      function sy(v){ return m.t + (YMAX - v) / (YMAX - YMIN) * ph; }
+      clipRect.setAttribute("x", m.l); clipRect.setAttribute("y", m.t);
+      clipRect.setAttribute("width", pw); clipRect.setAttribute("height", ph);
+
+      clear(gGrid);
+      for (var v = -30; v <= 30; v += 10){
+        if (v) el("line", {x1: m.l, x2: m.l + pw, y1: sy(v), y2: sy(v), class: "gridline"}, gGrid);
+        el("text", {x: m.l - 7, y: sy(v) + 4, "text-anchor": "end", class: "ticktext"}, gGrid, num(v));
+      }
+      el("line", {x1: m.l, x2: m.l + pw, y1: sy(0), y2: sy(0), class: "axis"}, gGrid);
+      el("line", {x1: sx(0), x2: sx(0), y1: m.t, y2: m.t + ph, class: "axis"}, gGrid);
+      for (var t = -3; t <= 5; t++){
+        el("line", {x1: sx(t), x2: sx(t), y1: sy(0) - 4, y2: sy(0) + 4, class: "axis"}, gGrid);
+        if (t && (!narrow || t % 2)) el("text", {x: sx(t), y: m.t + ph + 20, "text-anchor": "middle", class: "ticktext"}, gGrid, num(t));
+      }
+
+      clear(gCurve);
+      var N = Math.max(240, Math.round(pw)), d = "";
+      for (var i = 0; i <= N; i++){
+        var xv = XMIN + (XMAX - XMIN) * i / N, yv = sy(p(xv));
+        d += (i ? "L" : "M") + sx(xv).toFixed(1) + "," + Math.max(-3 * H, Math.min(4 * H, yv)).toFixed(1);
+      }
+      el("path", {d: d, fill: "none", stroke: GOLD, "stroke-width": 2.6, "stroke-linejoin": "round"}, gCurve);
+
+      /* Two bars from the same spot: gold for the height, lead dashes for the
+         leftover. They are drawn from two different calculations; when they
+         land on each other, that is the theorem, not a drawing trick. */
+      clear(gMark);
+      var X = sx(a), Y0 = sy(0);
+      el("line", {x1: X, x2: X, y1: Y0, y2: sy(h), stroke: GOLD, "stroke-width": 6, "stroke-linecap": "round", opacity: .9}, gMark);
+      el("line", {x1: X, x2: X, y1: Y0, y2: sy(r), stroke: LEAD, "stroke-width": 2.4, "stroke-dasharray": "6 5", "stroke-linecap": "round"}, gMark);
+      el("circle", {cx: X, cy: sy(h), r: 6, fill: GOLD, stroke: NIGHT, "stroke-width": 2}, gMark);
+      var side = h < 0 ? -1 : 1;             /* +1 puts the marker below the axis */
+      el("path", {d: "M" + (X - 6) + "," + (Y0 + side * 14) + "L" + (X + 6) + "," + (Y0 + side * 14) + "L" + X + "," + (Y0 + side * 5) + "Z", fill: LEAD}, gMark);
+      el("text", {x: X + 10, y: Y0 + side * 14 + (side > 0 ? 12 : -4), style: "fill:var(--lead);font-style:italic;font-family:var(--serif);font-size:16px"}, gMark, "a");
+      if (r === 0) el("circle", {class: "factor-ring", cx: X, cy: Y0, r: 13}, gMark);
+
+      $("a1-a").textContent = num(a);
+      $("a1-height").textContent = num(h);
+      $("a1-left").textContent = num(r);
+      range.setAttribute("aria-valuetext", "a = " + num(a) + ". Height " + num(h) + ". Left over " + num(r) + ".");
+      var rest = r === 0 ? "" : ' <span class="lead">' + (r > 0 ? "+ " : MINUS + " ") + num(Math.abs(r)) + "</span>";
+      divEl.innerHTML = '<span class="math"><i>x</i><sup>3</sup> &minus; 3<i>x</i><sup>2</sup> &minus; 6<i>x</i> + 8 = <span class="f">' +
+        divisor(a) + "</span>(" + poly(D.q) + ")" + rest + "</span>" +
+        (r === 0 ? '<span class="badge">' + divisor(a) + " is a factor</span>" : "");
+
+      seen[a] = true;
+      if (Object.keys(seen).length >= 5) touched("act1");
+    }
+    range.addEventListener("input", function(){ range.classList.add("used"); draw(); });
+    whenResized(draw);
+    draw();
+  })();
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Content arrives synchronously; motion is decoration. */
+})();
+</script>

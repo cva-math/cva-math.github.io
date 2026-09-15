@@ -1,0 +1,528 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Divide one polynomial by another two ways at once — an area diagram and long division, step by step, lit up side by side.">
+<title>The Missing Side · Dividing Polynomials</title>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     THE MISSING SIDE — IM3 Unit 2, Module 4, Dividing Polynomials
+     Same grammar as module-1.html, with one honest difference: the move
+     is a step button, so this page walks through more than it lets a
+     student discover. Its job is the one thing the module's pages can't
+     show on paper -- the diagram and long division moving in lock-step.
+
+       gold — the polynomial being divided   lead — the step you are on
+
+     Deliberately NOT the pages' numbers. #2 and #3 divide
+     x³ − 7x² − 16x + 112, 2x³ − x² − 27x + 36 and x³ − 3x² − 13x + 15;
+     the conference has 6x² − 7x − 5, 2x³ − 7x² + x + 10, 2x³ + 13x² + 16x + 5;
+     the mastery divides x³ + 10x² − 23x − 132 by (x + 11). So this is
+     x³ + 2x² − 5x − 6 ÷ (x + 1), and then x³ + 2x² − 5x − 3.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the whole polynomial */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the thing that decides */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lead);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sup{font-size:.68em;line-height:0;position:relative;top:-.05em}
+  .t{white-space:nowrap}
+  .lead{color:var(--lead)}
+  .gold{color:var(--gold)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup .math{color:var(--cream)}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px}
+  .panel svg{display:block;width:100%;height:auto;touch-action:pan-y}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+  .chip{
+    flex:1 1 150px;min-width:130px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.lead .v{color:var(--lead)}
+
+  /* the equation above a graph */
+  .eq{font-family:var(--serif);font-size:clamp(20px,3vw,27px);line-height:1.35;margin:2px 2px 10px;color:var(--cream)}
+  .eq .f{color:var(--lead);border-radius:5px;padding:0 1px;transition:background .2s ease}
+  .eq .f.hot{background:var(--lead-soft)}
+  .under{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--faint);margin:8px 2px 0}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:12px 18px;margin-top:12px;flex-wrap:wrap}
+  .controls > label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .slider{position:relative;flex:1;min-width:220px;padding-bottom:18px}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 4px rgba(227,179,76,.16)}
+    50%{box-shadow:0 0 0 11px rgba(227,179,76,.04)}
+  }
+  input[type=range]:not(.used)::-webkit-slider-thumb{animation:breathe 2.4s ease-in-out infinite}
+  .ticks{position:absolute;left:0;right:0;bottom:0;height:16px;pointer-events:none}
+  .ticks span{
+    position:absolute;left:calc(11px + (100% - 22px) * var(--p));transform:translateX(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;white-space:nowrap;
+  }
+  .ticks span:first-child{transform:translateX(-11px)}
+  .ticks span:last-child{transform:translateX(calc(-100% + 11px))}
+
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  button:hover{border-color:var(--dim)}
+  button:disabled{opacity:.38;cursor:default;border-color:var(--line)}
+  button.primary{color:var(--night);background:var(--gold);border-color:var(--gold);font-weight:bold}
+  button.primary:hover{filter:brightness(1.08)}
+  button.primary:active{transform:translateY(1px)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 20px}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. These pages double as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;color:var(--lead);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:#3A5272;stroke-width:1.2}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  .lens-label{fill:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.14em}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px;min-width:110px}
+    .ticktext{font-size:11px}
+    .insight p{font-size:19px}
+  }
+
+  /* ── this page ───────────────────────────────────────────────── */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .view{margin:0;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px 12px 16px;min-width:0;overflow-x:auto}
+  .view-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .area-line{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0 2px 10px}
+  .area-line .math{font-family:var(--serif);font-size:17px;letter-spacing:0;text-transform:none;color:var(--gold)}
+
+  .diagram{display:grid;grid-template-columns:2.4em repeat(3,minmax(3.6em,auto));width:max-content;margin:14px auto 0;font-size:20px}
+  .cell{padding:.5em .65em;text-align:center;border-right:1px solid var(--line);border-bottom:1px solid var(--line);white-space:nowrap}
+  .cell.corner{border-color:transparent}
+  .cell.top{border-top:1px solid var(--line);border-bottom:2px solid #3A5272}
+  .cell.side{border-left:1px solid var(--line);border-right:2px solid #3A5272;color:var(--cream)}
+  .leftover{text-align:center;margin-top:12px;font-family:var(--serif);font-size:18px;min-height:1.6em}
+
+  .longdiv{display:grid;grid-template-columns:auto repeat(4,auto);column-gap:0;row-gap:.18em;width:max-content;margin:14px auto 0;font-size:20px}
+  .ldc{padding:.12em .42em;white-space:nowrap}
+  .ldc.divisor{text-align:right;padding-right:.4em;color:var(--lead)}
+  .ldc.dividend{color:var(--gold)}
+  .brk-top{border-top:1.5px solid var(--dim)}
+  .brk-left{border-left:1.5px solid var(--dim);padding-left:.5em}
+  .bar{border-bottom:1px solid var(--dim)}
+  .cell.hot{border-radius:0}
+
+  /* Every step-born piece starts invisible but keeps its place. The diagram's
+     grid stays drawn from the start -- an empty table is the point of step 0 --
+     so only its text hides; long division hides its bars too. */
+  .it{transition:color .35s ease,background-color .35s ease,border-color .35s ease}
+  .cell.it:not(.on):not(.ghost),.cell.it:not(.on):not(.ghost) *{color:transparent!important}
+  .ldc.it:not(.on),.ldc.it:not(.on) *{color:transparent!important;border-color:transparent!important}
+  .leftover.it:not(.on),.leftover.it:not(.on) *{color:transparent!important}
+  .cell.it.ghost{color:var(--dim);outline:1px dashed rgba(157,178,255,.65);outline-offset:-5px}
+  .hot{background:var(--lead-soft);color:var(--lead)!important}
+
+  .caption{font-family:var(--serif);font-size:19px;line-height:1.5;margin:14px 2px 0;min-height:3.1em}
+  .caption b{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--lead);font-weight:normal;margin-right:.35em}
+  .stepno{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+  @media (max-width:640px){
+    .split{grid-template-columns:1fr}
+    .diagram,.longdiv{font-size:17px}
+    .caption{font-size:17px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM3 &middot; Unit 2</a>
+    <div class="eyebrow">IM3 &middot; Unit 2 &middot; Module 4 &middot; Dividing Polynomials</div>
+    <h1>The Missing <em>Side</em></h1>
+    <p class="dek">Multiply two polynomials and you fill in a rectangle. Divide, and someone hands you the filled-in rectangle and one side, and asks for the other. <strong>There are two ways to write that down, and they&rsquo;re secretly the same.</strong></p>
+    <div class="hint">Step through the first one. Then the second.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE MISSING SIDE ════════ -->
+<section class="act" id="act1">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Missing Side</div>
+    <h2 class="ask">Step through it. Watch both sides light up together.</h2>
+    <p class="setup">A rectangle has area <span class="math t"><i>x</i><sup>3</sup> + 2<i>x</i><sup>2</sup> &minus; 5<i>x</i> &minus; 6</span>, and one of its sides is <span class="math lead t"><i>x</i> + 1</span>. On the left, the area diagram fills in one cell at a time. On the right, long division does the same thing in lines.</p>
+
+    <div class="chips">
+      <div class="chip lead"><div class="k">The missing side, so far</div><div class="v"><span class="math" id="a1-sofar">—</span></div></div>
+    </div>
+
+    <div class="panel">
+      <p class="area-line">Area <span class="math"><i>x</i><sup>3</sup> + 2<i>x</i><sup>2</sup> &minus; 5<i>x</i> &minus; 6</span> &nbsp;·&nbsp; one side <span class="math lead"><i>x</i> + 1</span></p>
+      <div class="split">
+        <figure class="view"><figcaption class="view-k">The area diagram</figcaption>
+          <div class="diagram" id="a1-diagram"></div><div class="leftover it" id="a1-left" data-id="left"></div></figure>
+        <figure class="view"><figcaption class="view-k">Long division</figcaption>
+          <div class="longdiv" id="a1-ld"></div></figure>
+      </div>
+      <p class="caption" id="a1-caption" aria-live="polite"></p>
+      <div class="controls">
+        <button type="button" id="a1-back">&larr; Back</button>
+        <button type="button" class="primary" id="a1-next">Next step &rarr;</button>
+        <button type="button" id="a1-reset">Start over</button>
+        <span class="stepno" id="a1-stepno"></span>
+      </div>
+    </div>
+
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every step happened twice — once in a box, once in a line — and it was the same step both times. Divide: what times <span class="math"><i>x</i></span> makes the biggest term? Multiply that by the whole side. Subtract, and see what&rsquo;s still needed. The diagram keeps the pieces in boxes; long division keeps them in columns. Underneath, it&rsquo;s one idea.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: <b>polynomial division</b>. <span class="name">(x³ + 2x² − 5x − 6) ÷ (x + 1) = x² + x − 6 — the missing side. Nothing was left over, so x + 1 is a factor.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — WHEN IT DOESN&RSQUO;T FIT ════════ -->
+<section class="act" id="act2">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> When It Doesn&rsquo;t Fit</div>
+    <h2 class="ask">Same side, slightly different area. Step through to the end.</h2>
+    <p class="setup">This time the area is <span class="math t"><i>x</i><sup>3</sup> + 2<i>x</i><sup>2</sup> &minus; 5<i>x</i> &minus; 3</span> — only the last number changed. The side is still <span class="math lead t"><i>x</i> + 1</span>.</p>
+
+    <div class="chips">
+      <div class="chip lead"><div class="k">The missing side, so far</div><div class="v"><span class="math" id="a2-sofar">—</span></div></div>
+    </div>
+
+    <div class="panel">
+      <p class="area-line">Area <span class="math"><i>x</i><sup>3</sup> + 2<i>x</i><sup>2</sup> &minus; 5<i>x</i> &minus; 3</span> &nbsp;·&nbsp; one side <span class="math lead"><i>x</i> + 1</span></p>
+      <div class="split">
+        <figure class="view"><figcaption class="view-k">The area diagram</figcaption>
+          <div class="diagram" id="a2-diagram"></div><div class="leftover it" id="a2-left" data-id="left"></div></figure>
+        <figure class="view"><figcaption class="view-k">Long division</figcaption>
+          <div class="longdiv" id="a2-ld"></div></figure>
+      </div>
+      <p class="caption" id="a2-caption" aria-live="polite"></p>
+      <div class="controls">
+        <button type="button" id="a2-back">&larr; Back</button>
+        <button type="button" class="primary" id="a2-next">Next step &rarr;</button>
+        <button type="button" id="a2-reset">Start over</button>
+        <span class="stepno" id="a2-stepno"></span>
+      </div>
+    </div>
+
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Everything went exactly the same until the very last subtraction — and then 3 was left over. It doesn&rsquo;t fit in any box: a rectangle with sides <span class="math t"><i>x</i> + 1</span> and <span class="math t"><i>x</i><sup>2</sup> + <i>x</i> &minus; 6</span> covers <span class="math t"><i>x</i><sup>3</sup> + 2<i>x</i><sup>2</sup> &minus; 5<i>x</i> &minus; 6</span>, and this polynomial is 3 more than that. So <span class="math t"><i>x</i> + 1</span> goes in — with 3 to spare.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: the <b>remainder</b>. <span class="name">x³ + 2x² − 5x − 3 = (x + 1)(x² + x − 6) + 3.</span></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Two ways to write it down. <em>One idea underneath.</em></p>
+    <div class="colophon">IM3 &middot; Unit 2 &middot; Module 4 &middot; <span>Dividing Polynomials</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD", DIM = "#8FA0B5", FAINT = "#5C6E85",
+      LINE = "#2A3F5A", NIGHT = "#0B1526";
+  var MINUS = "−";
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+  function touched(actId){ $(actId).classList.add("touched"); }
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+  function widthOf(node){ return Math.max(260, Math.round(node.getBoundingClientRect().width)); }
+
+  /* nice tick spacing: 1, 2 or 5 times a power of ten */
+  function niceStep(span, target){
+    var raw = span / target, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+    return (r < 1.5 ? 1 : r < 3.5 ? 2 : r < 7.5 ? 5 : 10) * mag;
+  }
+  /* a number the way a person writes it: at most three decimals, a real minus sign */
+  function num(v, places){
+    var p = Math.pow(10, places == null ? 3 : places), r = Math.round(v * p) / p;
+    if (Math.abs(r) < 1e-9) r = 0;
+    return (r < 0 ? MINUS : "") + Math.abs(r).toLocaleString("en-US", {maximumFractionDigits: places == null ? 3 : places});
+  }
+  /* one term of a polynomial, e.g. term(-6, 1) -> "−6x", term(1, 2) -> "x²" */
+  function term(c, pw, first){
+    var mag = Math.abs(c), sign = c < 0 ? MINUS : "+";
+    var body = (pw === 0 || Math.abs(mag - 1) > 1e-9 ? num(mag) : "") +
+               (pw > 0 ? "<i>x</i>" + (pw > 1 ? "<sup>" + pw + "</sup>" : "") : "");
+    if (first) return (c < 0 ? MINUS : "") + body;
+    return " " + sign + " " + body;
+  }
+  function poly(cs){           /* cs[0] is the highest power */
+    var n = cs.length - 1, out = "", first = true;
+    cs.forEach(function(c, i){
+      if (Math.abs(c) < 1e-9) return;
+      out += term(c, n - i, first); first = false;
+    });
+    return out || "0";
+  }
+  function whenResized(fn){
+    var queued = false;
+    function go(){ if (queued) return; queued = true; requestAnimationFrame(function(){ queued = false; fn(); }); }
+    if (window.ResizeObserver) new ResizeObserver(go).observe(document.body);
+    else window.addEventListener("resize", go);
+  }
+
+  /* ── header sky: an area diagram, partly filled ──────────────── */
+  (function(){
+    var s = $("sky"); s.setAttribute("viewBox", "0 0 960 300");
+    var x0 = 600, y0 = 70, cw = 92, ch = 70;
+    for (var r = 0; r < 3; r++) for (var c = 0; c < 4; c++){
+      var fill = (r === 1 && c > 0 && c < 3) ? "rgba(157,178,255,.22)" : (r === 2 && c === 1 ? "rgba(227,179,76,.18)" : "none");
+      el("rect", {x: x0 + c * cw, y: y0 + r * ch, width: cw, height: ch, fill: fill, stroke: r === 0 || c === 0 ? GOLD : LEAD,
+                  "stroke-width": 1.2, opacity: r === 0 || c === 0 ? .45 : .5}, s);
+    }
+  })();
+
+  /* ════ the stepper, used by both acts ════════════════════════ */
+  function stepper(a, actId, D, c){
+    var diag = $(a + "-diagram"), ld = $(a + "-ld"), left = $(a + "-left"), cap = $(a + "-caption");
+    var back = $(a + "-back"), next = $(a + "-next"), reset = $(a + "-reset"), stepno = $(a + "-stepno"), sofar = $(a + "-sofar");
+    var root = $(actId);
+
+    /* The arithmetic, done once. D = [x³, x², x, 1] coefficients; divisor x + c. */
+    var q0 = D[0], p0 = [q0, q0 * c], s2 = D[1] - p0[1];
+    var q1 = s2,   p1 = [q1, q1 * c], s1 = D[2] - p1[1];
+    var q2 = s1,   p2 = [q2, q2 * c], r  = D[3] - p2[1];
+
+    function M(html){ return '<span class="math t">' + html + "</span>"; }
+    function T(cf, pw){ return term(cf, pw, true); }
+    function paren(cf, pw){ return cf < 0 ? "(" + T(cf, pw) + ")" : T(cf, pw); }
+    var X = M("<i>x</i>"), SIDE = '<span class="math t lead"><i>x</i> ' + (c < 0 ? MINUS : "+") + " " + num(Math.abs(c)) + "</span>";
+
+    function cell(html, cls, id){
+      var d = document.createElement("div");
+      d.className = "cell " + cls; if (id) d.dataset.id = id;
+      d.innerHTML = html ? '<span class="math">' + html + "</span>" : "";
+      diag.appendChild(d);
+    }
+    cell("", "corner");
+    cell(T(q0, 2), "top it", "h0"); cell(T(q1, 1), "top it", "h1"); cell(T(q2, 0), "top it", "h2");
+    cell("<i>x</i>", "side");
+    cell(T(q0, 3), "it", "c00"); cell(T(q1, 2), "it", "c01"); cell(T(q2, 1), "it", "c02");
+    cell(num(c), "side");
+    cell(T(q0 * c, 2), "it", "c10"); cell(T(q1 * c, 1), "it", "c11"); cell(T(q2 * c, 0), "it", "c12");
+    left.innerHTML = r !== 0 ? '<span class="math lead">+ ' + num(r) + "</span> left over" : '<span class="math">nothing left over</span>';
+
+    var COL = {3: 2, 2: 3, 1: 4, 0: 5};
+    function lc(html, row, pw, cls, id){
+      var d = document.createElement("div");
+      d.className = "ldc " + cls; if (id) d.dataset.id = id;
+      d.style.gridRow = row; d.style.gridColumn = pw == null ? 1 : COL[pw];
+      d.innerHTML = '<span class="math">' + html + "</span>";
+      ld.appendChild(d);
+    }
+    lc(T(q0, 2), 1, 2, "it", "q0"); lc(term(q1, 1), 1, 1, "it", "q1"); lc(term(q2, 0), 1, 0, "it", "q2");
+    lc("<i>x</i> " + (c < 0 ? MINUS : "+") + " " + num(Math.abs(c)), 2, null, "divisor");
+    lc(T(D[0], 3), 2, 3, "dividend brk-top brk-left", "d3"); lc(term(D[1], 2), 2, 2, "dividend brk-top", "d2");
+    lc(term(D[2], 1), 2, 1, "dividend brk-top", "d1"); lc(term(D[3], 0), 2, 0, "dividend brk-top", "d0");
+    lc(MINUS + "(" + T(p0[0], 3), 3, 3, "it bar", "r0a"); lc(term(p0[1], 2) + ")", 3, 2, "it bar", "r0b");
+    lc(T(s2, 2), 4, 2, "it", "s0a"); lc(term(D[2], 1), 4, 1, "it", "s0b");
+    lc(MINUS + "(" + T(p1[0], 2), 5, 2, "it bar", "r1a"); lc(term(p1[1], 1) + ")", 5, 1, "it bar", "r1b");
+    lc(T(s1, 1), 6, 1, "it", "s1a"); lc(term(D[3], 0), 6, 0, "it", "s1b");
+    lc(MINUS + "(" + T(p2[0], 1), 7, 1, "it bar", "r2a"); lc(term(p2[1], 0) + ")", 7, 0, "it bar", "r2b");
+    lc(num(r), 8, 0, "it", "rem");
+
+    var QUOT = M(poly([q0, q1, q2]));
+    var STEPS = [
+      {name: "", on: [], hot: [],
+       cap: "Nothing filled in yet. The area is " + M(poly(D)) + ", and one side is " + SIDE + ". Press <span class=\"gold\">Next step</span>."},
+      {name: "Divide", on: ["h0", "c00", "q0"], hot: ["h0", "c00", "q0", "d3"],
+       cap: "<b>Divide</b> What times " + X + " makes " + M(T(D[0], 3)) + "? " + M(T(q0, 2)) + ". That&rsquo;s the first piece of the missing side."},
+      {name: "Multiply", on: ["c10", "r0a", "r0b"], hot: ["c00", "c10", "r0a", "r0b"],
+       cap: "<b>Multiply</b> " + M(T(q0, 2)) + " times the whole side, " + SIDE + ", is " + M(T(p0[0], 3) + term(p0[1], 2)) + "."},
+      {name: "Subtract", on: ["s0a", "s0b"], ghost: ["c01"], hot: ["s0a", "s0b", "c01"],
+       cap: "<b>Subtract</b> " + M(T(D[1], 2) + " " + MINUS + " " + paren(p0[1], 2) + " = " + T(s2, 2)) + ", and " + M(T(D[2], 1)) + " comes down. The diagram still needs " + M(T(s2, 2)) + "."},
+      {name: "Divide", on: ["h1", "c01", "q1"], hot: ["h1", "c01", "q1", "s0a"],
+       cap: "<b>Divide</b> What times " + X + " makes " + M(T(s2, 2)) + "? " + M(T(q1, 1)) + ". The next piece."},
+      {name: "Multiply", on: ["c11", "r1a", "r1b"], hot: ["c01", "c11", "r1a", "r1b"],
+       cap: "<b>Multiply</b> " + M(T(q1, 1)) + " times " + SIDE + " is " + M(T(p1[0], 2) + term(p1[1], 1)) + "."},
+      {name: "Subtract", on: ["s1a", "s1b"], ghost: ["c02"], hot: ["s1a", "s1b", "c02"],
+       cap: "<b>Subtract</b> " + M(T(D[2], 1) + " " + MINUS + " " + paren(p1[1], 1) + " = " + T(s1, 1)) + ", and " + M(T(D[3], 0)) + " comes down. The diagram still needs " + M(T(s1, 1)) + "."},
+      {name: "Divide", on: ["h2", "c02", "q2"], hot: ["h2", "c02", "q2", "s1a"],
+       cap: "<b>Divide</b> What times " + X + " makes " + M(T(s1, 1)) + "? " + M(T(q2, 0)) + ". The last piece."},
+      {name: "Multiply", on: ["c12", "r2a", "r2b"], hot: ["c02", "c12", "r2a", "r2b"],
+       cap: "<b>Multiply</b> " + M(T(q2, 0)) + " times " + SIDE + " is " + M(T(p2[0], 1) + term(p2[1], 0)) + "."},
+      {name: "Subtract", on: ["rem", "left"], hot: ["rem", "left", "h0", "h1", "h2", "q0", "q1", "q2"],
+       cap: "<b>Subtract</b> " + M(T(D[3], 0) + " " + MINUS + " " + paren(p2[1], 0) + " = " + num(r)) + ". " +
+            (r === 0 ? "Nothing is left over, so the missing side is " + QUOT + "."
+                     : "That " + M(num(r)) + " is left over — nothing times " + X + " makes a plain number. The missing side is " + QUOT + ", with " + M(num(r)) + " left over.")}
+    ];
+    var LAST = STEPS.length - 1, step = 0;
+    var pieces = Array.prototype.slice.call(root.querySelectorAll("[data-id]"));
+
+    function render(){
+      var on = {}, ghost = {}, hot = {}, i;
+      for (i = 0; i <= step; i++) (STEPS[i].on || []).forEach(function(id){ on[id] = true; });
+      for (i = 0; i <= step; i++) (STEPS[i].ghost || []).forEach(function(id){ if (!on[id]) ghost[id] = true; });
+      (STEPS[step].hot || []).forEach(function(id){ hot[id] = true; });
+      pieces.forEach(function(e){
+        var id = e.dataset.id;
+        if (e.classList.contains("it")){ e.classList.toggle("on", !!on[id]); e.classList.toggle("ghost", !!ghost[id]); }
+        e.classList.toggle("hot", !!hot[id]);
+      });
+      cap.innerHTML = STEPS[step].cap;
+      stepno.textContent = step === 0 ? LAST + " steps" : "Step " + step + " of " + LAST + " · " + STEPS[step].name;
+      var qs = [step >= 1 ? q0 : 0, step >= 4 ? q1 : 0, step >= 7 ? q2 : 0];
+      sofar.innerHTML = step >= 1 ? poly(qs) : "—";
+      back.disabled = step === 0; next.disabled = step === LAST;
+      if (step === LAST) touched(actId);
+    }
+    next.addEventListener("click", function(){ if (step < LAST){ step++; render(); if (step === LAST) back.focus(); } });
+    back.addEventListener("click", function(){ if (step > 0){ step--; render(); if (step === 0) next.focus(); } });
+    reset.addEventListener("click", function(){ step = 0; render(); next.focus(); });
+    render();
+  }
+
+  stepper("a1", "act1", [1, 2, -5, -6], 1);
+  stepper("a2", "act2", [1, 2, -5, -3], 1);
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Content arrives synchronously; motion is decoration. */
+})();
+</script>

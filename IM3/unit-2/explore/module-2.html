@@ -1,0 +1,640 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drag a polynomial's zeros and watch its factors rewrite themselves. Then raise the power on one factor and see what it does to the graph up close.">
+<title>Touch and Go · Zeros and Multiplicity</title>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     TOUCH AND GO — IM3 Unit 2, Module 2, Zeros and Multiplicity
+     Same grammar as module-1.html: one move per act, and the name only
+     after the student has seen the thing and asked for it.
+
+       gold — the whole polynomial      lead — the factors, and their zeros
+
+     Deliberately NOT the pages' numbers. Practice #2 sketches
+     (x+6)(x+2)², −(x+6)²(x+2), (x+4)(x−2)³ and x³(x+4)(x−3)²; #3 expands
+     (x+1)(x−2)(x+4)(3x+7). So Act II powers (x − 1), beside (x + 3). And
+     nothing here checks "never negative" — that is the mastery's job.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the whole polynomial */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the thing that decides */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lead);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sup{font-size:.68em;line-height:0;position:relative;top:-.05em}
+  .t{white-space:nowrap}
+  .lead{color:var(--lead)}
+  .gold{color:var(--gold)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup .math{color:var(--cream)}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px}
+  .panel svg{display:block;width:100%;height:auto;touch-action:pan-y}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+  .chip{
+    flex:1 1 150px;min-width:130px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.lead .v{color:var(--lead)}
+
+  /* the equation above a graph */
+  .eq{font-family:var(--serif);font-size:clamp(20px,3vw,27px);line-height:1.35;margin:2px 2px 10px;color:var(--cream)}
+  .eq .f{color:var(--lead);border-radius:5px;padding:0 1px;transition:background .2s ease}
+  .eq .f.hot{background:var(--lead-soft)}
+  .under{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--faint);margin:8px 2px 0}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:12px 18px;margin-top:12px;flex-wrap:wrap}
+  .controls > label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .slider{position:relative;flex:1;min-width:220px;padding-bottom:18px}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 4px rgba(227,179,76,.16)}
+    50%{box-shadow:0 0 0 11px rgba(227,179,76,.04)}
+  }
+  input[type=range]:not(.used)::-webkit-slider-thumb{animation:breathe 2.4s ease-in-out infinite}
+  .ticks{position:absolute;left:0;right:0;bottom:0;height:16px;pointer-events:none}
+  .ticks span{
+    position:absolute;left:calc(11px + (100% - 22px) * var(--p));transform:translateX(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;white-space:nowrap;
+  }
+  .ticks span:first-child{transform:translateX(-11px)}
+  .ticks span:last-child{transform:translateX(calc(-100% + 11px))}
+
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  button:hover{border-color:var(--dim)}
+  button:disabled{opacity:.38;cursor:default;border-color:var(--line)}
+  button.primary{color:var(--night);background:var(--gold);border-color:var(--gold);font-weight:bold}
+  button.primary:hover{filter:brightness(1.08)}
+  button.primary:active{transform:translateY(1px)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 20px}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. These pages double as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;color:var(--lead);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:#3A5272;stroke-width:1.2}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  .lens-label{fill:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.14em}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px;min-width:110px}
+    .ticktext{font-size:11px}
+    .insight p{font-size:19px}
+  }
+
+  /* ── this page ───────────────────────────────────────────────── */
+  .dot{cursor:grab;touch-action:none;outline:none}
+  .dot:active{cursor:grabbing}
+  .dot .halo{opacity:.16;transition:opacity .2s ease}
+  .dot.active .halo,.dot:focus-visible .halo{opacity:.42}
+  .marker{fill:none;stroke:var(--lead);stroke-width:1.6}
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM3 &middot; Unit 2</a>
+    <div class="eyebrow">IM3 &middot; Unit 2 &middot; Module 2 &middot; Zeros and Multiplicity</div>
+    <h1>Touch <em>and</em> Go</h1>
+    <p class="dek">Write a polynomial as factors, and every one of them leaves a mark where the graph meets the x-axis. <strong>Not every mark looks the same.</strong> Drag the marks around and see for yourself.</p>
+    <div class="hint">Drag the dots. Then flip the switch.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE FACTORS ════════ -->
+<section class="act" id="act1">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Factors</div>
+    <h2 class="ask">Drag the dots along the line. Keep an eye on the formula.</h2>
+    <p class="setup">This polynomial is three factors multiplied together, and each blue dot belongs to one of them. Slide a dot, and the graph and the formula both change with it.</p>
+
+    <div class="chips">
+      <div class="chip lead"><div class="k">Where the graph meets the x-axis</div><div class="v" id="a1-zeros">x = −3, 1, 4</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="eq" id="a1-eq" aria-live="polite"></div>
+      <svg id="a1-svg" role="img" aria-label="The graph of a polynomial with three factors. Each factor's zero is a dot on the x-axis that can be dragged."></svg>
+      <p class="under">Drag a dot — or click one and use the arrow keys.</p>
+    </div>
+
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every factor pins the graph to the x-axis at one spot — and it isn&rsquo;t the spot the sign suggests. <span class="math lead t">(<i>x</i> &minus; 4)</span> crosses at 4, and <span class="math lead t">(<i>x</i> + 3)</span> crosses at &minus;3. A product is zero whenever any one of its pieces is zero, and <span class="math t"><i>x</i> &minus; 4</span> is zero exactly when <span class="math"><i>x</i></span> is 4. Park a dot at 0 and its factor is just <span class="math lead"><i>x</i></span>.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: the places a graph meets the x-axis are the <b>zeros</b> of the polynomial. <span class="name">A factor (x − a) makes a zero at x = a.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — THE POWER ════════ -->
+<section class="act" id="act2">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> The Power</div>
+    <h2 class="ask">Change the power on one factor. Watch what happens at x = 1.</h2>
+    <p class="setup">Now the factor <span class="math lead t">(<i>x</i> &minus; 1)</span> can repeat. Power 1 means it shows up once; power 2 means it&rsquo;s multiplied in twice. The small window zooms in close to <span class="math"><i>x</i></span> = 1.</p>
+
+    <div class="chips">
+      <div class="chip lead"><div class="k">Power on (x − 1)</div><div class="v" id="a2-k">1</div></div>
+      <div class="chip gold"><div class="k">Degree</div><div class="v" id="a2-deg">2</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="eq" id="a2-eq"></div>
+      <svg id="a2-svg" role="img" aria-label="The graph of (x + 3) times (x − 1) to a power, with a close-up window at x = 1."></svg>
+      <div class="controls">
+        <label id="a2-label">Power on (x − 1)</label>
+        <div class="seg" id="a2-seg" role="group" aria-labelledby="a2-label">
+          <button type="button" data-k="1" aria-pressed="true">1</button><button type="button" data-k="2" aria-pressed="false">2</button><button type="button" data-k="3" aria-pressed="false">3</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Power 1 goes straight through the axis. Power 2 comes down, touches it, and turns back — it never gets to the other side. Power 3 does get through, but it flattens out on the way, almost stopping. Odd powers cross. Even powers turn back. And every extra power on a factor adds one to the degree.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: the power on a factor is its <b>multiplicity</b>. <span class="name">A zero with odd multiplicity crosses the axis; a zero with even multiplicity touches it and turns back.</span></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Every factor leaves a mark on the axis. <em>Now you know how to read them.</em></p>
+    <div class="colophon">IM3 &middot; Unit 2 &middot; Module 2 &middot; <span>Zeros and Multiplicity</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD", DIM = "#8FA0B5", FAINT = "#5C6E85",
+      LINE = "#2A3F5A", NIGHT = "#0B1526";
+  var MINUS = "−";
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+  function touched(actId){ $(actId).classList.add("touched"); }
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+  function widthOf(node){ return Math.max(260, Math.round(node.getBoundingClientRect().width)); }
+
+  /* nice tick spacing: 1, 2 or 5 times a power of ten */
+  function niceStep(span, target){
+    var raw = span / target, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+    return (r < 1.5 ? 1 : r < 3.5 ? 2 : r < 7.5 ? 5 : 10) * mag;
+  }
+  /* a number the way a person writes it: at most three decimals, a real minus sign */
+  function num(v, places){
+    var p = Math.pow(10, places == null ? 3 : places), r = Math.round(v * p) / p;
+    if (Math.abs(r) < 1e-9) r = 0;
+    return (r < 0 ? MINUS : "") + Math.abs(r).toLocaleString("en-US", {maximumFractionDigits: places == null ? 3 : places});
+  }
+  /* one term of a polynomial, e.g. term(-6, 1) -> "−6x", term(1, 2) -> "x²" */
+  function term(c, pw, first){
+    var mag = Math.abs(c), sign = c < 0 ? MINUS : "+";
+    var body = (pw === 0 || Math.abs(mag - 1) > 1e-9 ? num(mag) : "") +
+               (pw > 0 ? "<i>x</i>" + (pw > 1 ? "<sup>" + pw + "</sup>" : "") : "");
+    if (first) return (c < 0 ? MINUS : "") + body;
+    return " " + sign + " " + body;
+  }
+  function poly(cs){           /* cs[0] is the highest power */
+    var n = cs.length - 1, out = "", first = true;
+    cs.forEach(function(c, i){
+      if (Math.abs(c) < 1e-9) return;
+      out += term(c, n - i, first); first = false;
+    });
+    return out || "0";
+  }
+  function whenResized(fn){
+    var queued = false;
+    function go(){ if (queued) return; queued = true; requestAnimationFrame(function(){ queued = false; fn(); }); }
+    if (window.ResizeObserver) new ResizeObserver(go).observe(document.body);
+    else window.addEventListener("resize", go);
+  }
+
+  /* ── header sky: a curve that crosses once and bounces once ─── */
+  (function(){
+    var s = $("sky"); s.setAttribute("viewBox", "0 0 960 300");
+    var base = 205, d = "";
+    for (var i = 0; i <= 260; i++){
+      var u = -1 + 2 * i / 260, x = 40 + 880 * i / 260, f = (u + 0.62) * (u - 0.3) * (u - 0.3);
+      d += (i ? "L" : "M") + x.toFixed(1) + "," + (base - 230 * f).toFixed(1);
+    }
+    el("line", {x1: 40, x2: 920, y1: base, y2: base, stroke: LINE, "stroke-width": 1.2}, s);
+    el("path", {d: d, fill: "none", stroke: GOLD, "stroke-width": 1.8, opacity: .6}, s);
+    [-0.62, 0.3].forEach(function(u){ el("circle", {cx: 40 + 440 * (u + 1), cy: base, r: 5, fill: LEAD, opacity: .85}, s); });
+  })();
+
+  /* ════ ACT I — the factors ══════════════════════════════════ */
+  (function(){
+    var svg = $("a1-svg"), eqEl = $("a1-eq"), zerosEl = $("a1-zeros");
+    var XMIN = -6, XMAX = 6, LO = -5, HI = 5;
+    var target = [-3, 1, 4];            /* the model, written synchronously */
+    var shown = target.slice();         /* what is drawn, easing toward it  */
+    var active = -1, moves = 0, anim = null, settle = null, geo = null;
+
+    var clipRect = el("rect", {}, el("clipPath", {id: "a1-clip"}, el("defs", {}, svg)));
+    var gGrid = el("g", {}, svg);
+    var curve = el("path", {fill: "none", stroke: GOLD, "stroke-width": 3, "stroke-linejoin": "round",
+                            "stroke-linecap": "round", "clip-path": "url(#a1-clip)"}, svg);
+    var gDots = el("g", {}, svg);
+    var dots = target.map(function(){
+      var g = el("g", {class: "dot", tabindex: 0, role: "slider", "aria-valuemin": LO, "aria-valuemax": HI}, gDots);
+      el("circle", {r: 22, fill: "transparent"}, g);          /* a finger-sized target */
+      el("circle", {class: "halo", r: 15, fill: LEAD}, g);
+      el("circle", {r: 8.5, fill: LEAD, stroke: NIGHT, "stroke-width": 2}, g);
+      return g;
+    });
+
+    function p(x, zs){ return (x - zs[0]) * (x - zs[1]) * (x - zs[2]); }
+    function factor(z, html){
+      var xx = html ? "<i>x</i>" : "x";
+      if (z === 0) return xx;
+      return "(" + xx + " " + (z > 0 ? MINUS + " " + z : "+ " + (-z)) + ")";
+    }
+    function order(){ return [0, 1, 2].sort(function(a, b){ return target[a] - target[b]; }); }
+    function write(){
+      eqEl.innerHTML = '<span class="math">y = ' + order().map(function(i){
+        return '<span class="f' + (i === active ? " hot" : "") + '">' + factor(target[i], true) + "</span>";
+      }).join("") + "</span>";
+      zerosEl.textContent = "x = " + order().map(function(i){ return num(target[i]); }).join(", ");
+      dots.forEach(function(g, i){
+        g.setAttribute("aria-valuenow", target[i]);
+        g.setAttribute("aria-label", "The factor " + factor(target[i], false) + ", with its zero at x = " + target[i]);
+      });
+    }
+
+    function draw(){
+      var W = widthOf(svg), H = Math.round(Math.max(260, Math.min(420, W * 0.5))), narrow = W < 560;
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      var m = {l: 16, r: 16, t: 12, b: 12}, pw = W - m.l - m.r, ph = H - m.t - m.b, axisY = m.t + ph * 0.5;
+      function sx(x){ return m.l + (x - XMIN) / (XMAX - XMIN) * pw; }
+      /* Height fits the bumps BETWEEN the outer zeros, so the middle -- where
+         the zeros are -- always fills the panel and the arms leave the top. */
+      var a = Math.min.apply(null, shown), b = Math.max.apply(null, shown), M = 0;
+      for (var k = 0; k <= 160; k++) M = Math.max(M, Math.abs(p(a + (b - a) * k / 160, shown)));
+      var Y = Math.max(M, 4) * 1.4;
+      function sy(y){ return axisY - y / Y * (ph * 0.5); }
+      geo = {sx: sx, m: m, pw: pw, W: W};
+
+      clipRect.setAttribute("x", m.l); clipRect.setAttribute("y", m.t);
+      clipRect.setAttribute("width", pw); clipRect.setAttribute("height", ph);
+      clear(gGrid);
+      el("line", {x1: sx(0), x2: sx(0), y1: m.t, y2: m.t + ph, class: "gridline"}, gGrid);
+      el("line", {x1: m.l, x2: m.l + pw, y1: axisY, y2: axisY, class: "axis"}, gGrid);
+      for (var t = XMIN; t <= XMAX; t++){
+        el("line", {x1: sx(t), x2: sx(t), y1: axisY - 4, y2: axisY + 4, class: "axis"}, gGrid);
+        if (t !== XMIN && t !== XMAX && (!narrow || t % 2 === 0))
+          el("text", {x: sx(t), y: axisY + 26, "text-anchor": "middle", class: "ticktext"}, gGrid, num(t));
+      }
+      var N = Math.max(240, Math.round(pw)), d = "";
+      for (var i = 0; i <= N; i++){
+        var x = XMIN + (XMAX - XMIN) * i / N, y = sy(p(x, shown));
+        d += (i ? "L" : "M") + sx(x).toFixed(1) + "," + Math.max(-3 * H, Math.min(4 * H, y)).toFixed(1);
+      }
+      curve.setAttribute("d", d);
+      dots.forEach(function(g, i){
+        g.setAttribute("transform", "translate(" + sx(shown[i]).toFixed(1) + "," + axisY.toFixed(1) + ")");
+        g.classList.toggle("active", i === active);
+      });
+    }
+
+    /* The dots glide to their new whole number; the model is already there. */
+    function ease(){
+      clearTimeout(settle);
+      settle = setTimeout(function(){
+        if (anim){ cancelAnimationFrame(anim); anim = null; }
+        shown = target.slice(); draw();
+      }, 700);
+      if (reduced){ shown = target.slice(); draw(); return; }
+      if (anim) return;
+      var last = performance.now();
+      anim = requestAnimationFrame(function step(now){
+        var k = 1 - Math.pow(0.001, Math.min(64, now - last) / 240), done = true;
+        last = now;
+        shown = shown.map(function(s, j){
+          var v = s + (target[j] - s) * k;
+          if (Math.abs(target[j] - v) > 0.003) done = false; else v = target[j];
+          return v;
+        });
+        draw();
+        anim = done ? null : requestAnimationFrame(step);
+      });
+    }
+    function setZero(i, n){
+      if (n == null || n === target[i]) return;
+      target[i] = n; moves++;
+      write();
+      if (moves >= 3) touched("act1");
+      ease();
+    }
+    function nearestFree(x, who){
+      var best = null, bestD = Infinity;
+      for (var n = LO; n <= HI; n++){
+        if (target.some(function(z, j){ return j !== who && z === n; })) continue;
+        if (Math.abs(n - x) < bestD){ bestD = Math.abs(n - x); best = n; }
+      }
+      return best;
+    }
+    function dataX(clientX){
+      var r = svg.getBoundingClientRect(), px = (clientX - r.left) * (geo.W / r.width);
+      return XMIN + (px - geo.m.l) / geo.pw * (XMAX - XMIN);
+    }
+    function focus(i){ active = i; write(); draw(); }
+
+    dots.forEach(function(g, i){
+      g.addEventListener("pointerdown", function(e){
+        e.preventDefault(); g.focus({preventScroll: true});
+        g.setPointerCapture(e.pointerId); focus(i);
+      });
+      g.addEventListener("pointermove", function(e){
+        if (g.hasPointerCapture && g.hasPointerCapture(e.pointerId)) setZero(i, nearestFree(dataX(e.clientX), i));
+      });
+      function release(e){ if (g.hasPointerCapture && g.hasPointerCapture(e.pointerId)) g.releasePointerCapture(e.pointerId); }
+      g.addEventListener("pointerup", release);
+      g.addEventListener("pointercancel", release);
+      g.addEventListener("keydown", function(e){
+        var dir = e.key === "ArrowRight" || e.key === "ArrowUp" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowDown" ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        var n = target[i] + dir;
+        while (n >= LO && n <= HI && target.some(function(z, j){ return j !== i && z === n; })) n += dir;
+        if (n >= LO && n <= HI) setZero(i, n);
+      });
+      g.addEventListener("focus", function(){ focus(i); });
+      g.addEventListener("blur", function(){ if (active === i){ active = -1; write(); draw(); } });
+    });
+
+    write();
+    whenResized(draw);
+    draw();
+  })();
+
+  /* ════ ACT II — the power ════════════════════════════════════ */
+  (function(){
+    var svg = $("a2-svg"), eqEl = $("a2-eq"), seg = $("a2-seg");
+    var XMIN = -4.6, XMAX = 3.6, SAMPLES = 260, k = 1, seen = {1: true}, shownY = null, anim = null, token = 0;
+    function p(x, kk){ return (x + 3) * Math.pow(x - 1, kk); }
+
+    var clipRect = el("rect", {}, el("clipPath", {id: "a2-clip"}, el("defs", {}, svg)));
+    var gGrid = el("g", {}, svg);
+    var curve = el("path", {fill: "none", stroke: GOLD, "stroke-width": 3, "stroke-linejoin": "round",
+                            "stroke-linecap": "round", "clip-path": "url(#a2-clip)"}, svg);
+    var gMark = el("g", {}, svg), gLens = el("g", {}, svg);
+    var frame = null;
+
+    function write(){
+      eqEl.innerHTML = '<span class="math">y = (<i>x</i> + 3)<span class="f">(<i>x</i> &minus; 1)' +
+                       (k > 1 ? "<sup>" + k + "</sup>" : "") + "</span></span>";
+      $("a2-k").textContent = k;
+      $("a2-deg").textContent = 1 + k;
+      Array.prototype.forEach.call(seg.querySelectorAll("button"), function(b){
+        b.setAttribute("aria-pressed", +b.dataset.k === k ? "true" : "false");
+      });
+    }
+
+    function layout(){
+      var W = widthOf(svg), narrow = W < 560,
+          H = Math.round(narrow ? Math.max(340, W) : Math.max(300, Math.min(480, W * 0.6)));
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      var m = {l: 16, r: 16, t: 12, b: 34}, pw = W - m.l - m.r, ph = H - m.t - m.b;
+      frame = {W: W, H: H, m: m, pw: pw, ph: ph, narrow: narrow};
+      clipRect.setAttribute("x", m.l); clipRect.setAttribute("y", m.t);
+      clipRect.setAttribute("width", pw); clipRect.setAttribute("height", ph);
+    }
+    /* Each power gets its own height: the part between x = −3 and x = 1 fills the panel. */
+    function yRange(kk){
+      var lo = 0, hi = 0;
+      for (var i = 0; i <= 200; i++){ var v = p(-3.3 + 4.8 * i / 200, kk); lo = Math.min(lo, v); hi = Math.max(hi, v); }
+      var pad = (hi - lo) * 0.2;
+      return [lo - pad, hi + pad];
+    }
+    function screenY(kk){
+      var f = frame, yr = yRange(kk), ys = [];
+      for (var i = 0; i <= SAMPLES; i++){
+        var x = XMIN + (XMAX - XMIN) * i / SAMPLES, y = f.m.t + (yr[1] - p(x, kk)) / (yr[1] - yr[0]) * f.ph;
+        ys.push(Math.max(-3 * f.H, Math.min(4 * f.H, y)));
+      }
+      return {ys: ys, zero: f.m.t + yr[1] / (yr[1] - yr[0]) * f.ph};
+    }
+    function sx(x){ return frame.m.l + (x - XMIN) / (XMAX - XMIN) * frame.pw; }
+    function lensBox(){
+      var f = frame, w = f.narrow ? Math.min(140, f.pw * 0.42) : Math.min(200, f.pw * 0.27), h = w * 0.62;
+      return {w: w, h: h, x: f.m.l + f.pw - w - 6, y: f.m.t + f.ph - h - 6};
+    }
+
+    function paint(ys, zeroY){
+      var f = frame, d = "";
+      for (var i = 0; i <= SAMPLES; i++) d += (i ? "L" : "M") + sx(XMIN + (XMAX - XMIN) * i / SAMPLES).toFixed(1) + "," + ys[i].toFixed(1);
+      curve.setAttribute("d", d);
+      clear(gGrid);
+      el("line", {x1: sx(0), x2: sx(0), y1: f.m.t, y2: f.m.t + f.ph, class: "gridline"}, gGrid);
+      el("line", {x1: f.m.l, x2: f.m.l + f.pw, y1: zeroY, y2: zeroY, class: "axis"}, gGrid);
+      var L = lensBox();
+      for (var t = -4; t <= 3; t++){
+        var ty = Math.min(f.m.t + f.ph + 22, zeroY + 24);
+        el("line", {x1: sx(t), x2: sx(t), y1: zeroY - 4, y2: zeroY + 4, class: "axis"}, gGrid);
+        if (sx(t) > L.x - 10 && sx(t) < L.x + L.w + 10 && ty > L.y - 4 && ty < L.y + L.h + 14) continue;
+        el("text", {x: sx(t), y: ty, "text-anchor": "middle", class: "ticktext"}, gGrid, num(t));
+      }
+      clear(gMark);
+      el("circle", {class: "marker", cx: sx(1), cy: zeroY, r: 9}, gMark);
+      drawLens(zeroY);
+    }
+
+    /* The close-up: x from 0.55 to 1.45, height fitted to what is there. */
+    function drawLens(zeroY){
+      var f = frame, L = lensBox(), lw = L.w, lh = L.h, x0 = L.x, y0 = L.y;
+      clear(gLens);
+      el("line", {x1: sx(1) + 8, y1: zeroY + 6, x2: x0 + 8, y2: y0, stroke: DIM, "stroke-width": 1, "stroke-dasharray": "2 4"}, gLens);
+      el("rect", {x: x0, y: y0, width: lw, height: lh, rx: 7, fill: "#0E1A2E", stroke: LINE}, gLens);
+      el("text", {x: x0 + 10, y: y0 + 16, class: "lens-label"}, gLens, f.narrow ? "x = 1, UP CLOSE" : "UP CLOSE AT x = 1");
+      var ix = x0 + 10, iw = lw - 20, iy = y0 + 24, ih = lh - 32, M = 0, d = "";
+      for (var i = 0; i <= 80; i++) M = Math.max(M, Math.abs(p(0.55 + 0.9 * i / 80, k)));
+      var cy = iy + ih / 2;
+      el("line", {x1: ix, x2: ix + iw, y1: cy, y2: cy, stroke: LINE, "stroke-width": 1}, gLens);
+      for (i = 0; i <= 80; i++){
+        var y = cy - p(0.55 + 0.9 * i / 80, k) / (M * 1.1) * (ih / 2);
+        d += (i ? "L" : "M") + (ix + iw * i / 80).toFixed(1) + "," + y.toFixed(1);
+      }
+      el("path", {d: d, fill: "none", stroke: GOLD, "stroke-width": 2.2, "stroke-linejoin": "round"}, gLens);
+      el("circle", {cx: ix + iw / 2, cy: cy, r: 4.5, fill: "none", stroke: LEAD, "stroke-width": 1.5}, gLens);
+    }
+
+    /* State is written first; the morph only decorates it, and a timer makes
+       sure the last frame lands even if animation never runs. */
+    function show(kk, animate){
+      var to = screenY(kk), mine = ++token;
+      if (!animate || reduced || !shownY){ shownY = to.ys; shownZero = to.zero; paint(to.ys, to.zero); return; }
+      var from = shownY, fromZero = shownZero, t0 = performance.now(), dur = 520;
+      requestAnimationFrame(function stepper(now){
+        if (mine !== token) return;
+        var e = Math.min(1, (now - t0) / dur); e = 1 - Math.pow(1 - e, 3);
+        var ys = to.ys.map(function(y, i){ return from[i] + (y - from[i]) * e; });
+        paint(ys, fromZero + (to.zero - fromZero) * e);
+        if (e < 1) requestAnimationFrame(stepper); else { shownY = to.ys; shownZero = to.zero; }
+      });
+      setTimeout(function(){ if (mine === token){ shownY = to.ys; shownZero = to.zero; paint(to.ys, to.zero); } }, dur + 150);
+    }
+    var shownZero = 0;
+
+    seg.addEventListener("click", function(e){
+      var b = e.target.closest("button"); if (!b) return;
+      k = +b.dataset.k; seen[k] = true;
+      write();
+      if (seen[1] && seen[2] && seen[3]) touched("act2");
+      show(k, true);
+    });
+
+    function relayout(){ layout(); var to = screenY(k); shownY = to.ys; shownZero = to.zero; token++; paint(to.ys, to.zero); }
+    write();
+    whenResized(relayout);
+    relayout();
+  })();
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Content arrives synchronously; motion is decoration. */
+})();
+</script>

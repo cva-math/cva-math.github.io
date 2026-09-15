@@ -1,0 +1,482 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Cut the corners out of a sheet of paper and fold it into a box. Its volume is a polynomial — and the polynomial keeps answering long after the box is gone.">
+<title>What the Algebra Doesn’t Know · Building the Model</title>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     WHAT THE ALGEBRA DOESN'T KNOW — IM3 Unit 2, Module 3, Building the Model
+     Same grammar as module-1.html: one move, and the name only after the
+     student has seen the thing and asked for it.
+
+       gold — the polynomial, V(x)    lead — the situation: the box, its rules
+
+     Deliberately NOT the pages' situations. Practice #2 folds a 5-by-7
+     sheet and the mastery fences a playground, so this is letter paper,
+     8½ by 11, and there is no fence. There is also no biggest-box readout:
+     the peak is on the graph for anyone who wonders about it.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the whole polynomial */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the thing that decides */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lead);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sup{font-size:.68em;line-height:0;position:relative;top:-.05em}
+  .t{white-space:nowrap}
+  .lead{color:var(--lead)}
+  .gold{color:var(--gold)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup .math{color:var(--cream)}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px}
+  .panel svg{display:block;width:100%;height:auto;touch-action:pan-y}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+  .chip{
+    flex:1 1 150px;min-width:130px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.lead .v{color:var(--lead)}
+
+  /* the equation above a graph */
+  .eq{font-family:var(--serif);font-size:clamp(20px,3vw,27px);line-height:1.35;margin:2px 2px 10px;color:var(--cream)}
+  .eq .f{color:var(--lead);border-radius:5px;padding:0 1px;transition:background .2s ease}
+  .eq .f.hot{background:var(--lead-soft)}
+  .under{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--faint);margin:8px 2px 0}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:12px 18px;margin-top:12px;flex-wrap:wrap}
+  .controls > label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .slider{position:relative;flex:1;min-width:220px;padding-bottom:18px}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 4px rgba(227,179,76,.16)}
+    50%{box-shadow:0 0 0 11px rgba(227,179,76,.04)}
+  }
+  input[type=range]:not(.used)::-webkit-slider-thumb{animation:breathe 2.4s ease-in-out infinite}
+  .ticks{position:absolute;left:0;right:0;bottom:0;height:16px;pointer-events:none}
+  .ticks span{
+    position:absolute;left:calc(11px + (100% - 22px) * var(--p));transform:translateX(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;white-space:nowrap;
+  }
+  .ticks span:first-child{transform:translateX(-11px)}
+  .ticks span:last-child{transform:translateX(calc(-100% + 11px))}
+
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  button:hover{border-color:var(--dim)}
+  button:disabled{opacity:.38;cursor:default;border-color:var(--line)}
+  button.primary{color:var(--night);background:var(--gold);border-color:var(--gold);font-weight:bold}
+  button.primary:hover{filter:brightness(1.08)}
+  button.primary:active{transform:translateY(1px)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 20px}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. These pages double as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;color:var(--lead);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:#3A5272;stroke-width:1.2}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  .lens-label{fill:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.14em}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px;min-width:110px}
+    .ticktext{font-size:11px}
+    .insight p{font-size:19px}
+  }
+
+  /* ── this page ───────────────────────────────────────────────── */
+  #a1-scene{margin-bottom:6px}
+  .cutlabel{fill:var(--gold);font-family:var(--serif);font-style:italic;font-size:15px}
+  .dimlabel{fill:var(--lead);font-family:var(--serif);font-size:14px}
+  .warn{fill:var(--cream);font-family:var(--serif);font-size:22px}
+  .warn-sub{fill:var(--dim);font-family:var(--body);font-size:14px}
+  .domain{fill:var(--lead-soft);opacity:0;transition:opacity .8s ease}
+  .domain-edge{stroke:var(--lead);stroke-width:1.3;stroke-dasharray:4 4;opacity:0;transition:opacity .8s ease}
+  .domain-label{fill:var(--lead);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;opacity:0;transition:opacity .8s ease}
+  .act.revealed .domain,.act.revealed .domain-edge,.act.revealed .domain-label{opacity:1}
+  .chip .v sup{font-size:.6em}
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM3 &middot; Unit 2</a>
+    <div class="eyebrow">IM3 &middot; Unit 2 &middot; Module 3 &middot; Building the Model</div>
+    <h1>What the Algebra <em>Doesn&rsquo;t</em> Know</h1>
+    <p class="dek">Cut a square out of each corner of a sheet of paper, fold up the sides, and you have a box — and a polynomial for its volume. <strong>The polynomial will answer questions the paper can&rsquo;t.</strong> Find out where.</p>
+    <div class="hint">Drag the cut. Keep going.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE BOX ════════ -->
+<section class="act" id="act1">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Box</div>
+    <h2 class="ask">Make the cut bigger and bigger. Don&rsquo;t stop when the box does.</h2>
+    <p class="setup">A sheet of letter paper, 8&frac12; by 11 inches. Cut the same size square out of each corner, fold up the four flaps, and you have an open box. The slider sets the size of the cut.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Cut</div><div class="v" id="a1-cut">1 in</div></div>
+      <div class="chip lead"><div class="k">Length × width × height</div><div class="v" id="a1-dims">9 × 6.5 × 1</div></div>
+      <div class="chip gold"><div class="k">Volume</div><div class="v" id="a1-vol">58.5 in<sup>3</sup></div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a1-scene" role="img" aria-label="A sheet of paper with a square cut from each corner, and the open box it folds into."></svg>
+      <svg id="a1-graph" role="img" aria-label="The graph of the box's volume against the size of the cut, with a dot at the current cut."></svg>
+      <div class="controls">
+        <label for="a1-range">Cut size</label>
+        <div class="slider">
+          <input type="range" id="a1-range" min="0" max="600" step="5" value="100" aria-valuetext="1 inch">
+          <div class="ticks" aria-hidden="true">
+            <span style="--p:0">0 in</span><span style="--p:.16667">1</span><span style="--p:.33333">2</span><span style="--p:.5">3</span><span style="--p:.66667">4</span><span style="--p:.83333">5</span><span style="--p:1">6 in</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>The picture builds the polynomial. A cut of <span class="math"><i>x</i></span> makes the box <span class="math"><i>x</i></span> tall, <span class="math t">11 &minus; 2<i>x</i></span> long and <span class="math t">8&frac12; &minus; 2<i>x</i></span> wide, and the volume is those three multiplied. But the picture also makes the rules: past a 4&frac14;-inch cut, the corners overlap and there&rsquo;s no box left. The algebra doesn&rsquo;t notice. It keeps handing you volumes — negative ones, then positive ones again — for boxes nobody could ever fold.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: the <b>domain</b> — the inputs that make sense for the situation. <span class="name">The polynomial V(x) = x(11 − 2x)(8½ − 2x) works for any x. The box only works for 0 &lt; x &lt; 4¼.</span></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">The algebra will answer anything. <em>Knowing which answers count</em> is up to you.</p>
+    <div class="colophon">IM3 &middot; Unit 2 &middot; Module 3 &middot; <span>Building the Model</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD", DIM = "#8FA0B5", FAINT = "#5C6E85",
+      LINE = "#2A3F5A", NIGHT = "#0B1526";
+  var MINUS = "−";
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+  function touched(actId){ $(actId).classList.add("touched"); }
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+  function widthOf(node){ return Math.max(260, Math.round(node.getBoundingClientRect().width)); }
+
+  /* nice tick spacing: 1, 2 or 5 times a power of ten */
+  function niceStep(span, target){
+    var raw = span / target, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+    return (r < 1.5 ? 1 : r < 3.5 ? 2 : r < 7.5 ? 5 : 10) * mag;
+  }
+  /* a number the way a person writes it: at most three decimals, a real minus sign */
+  function num(v, places){
+    var p = Math.pow(10, places == null ? 3 : places), r = Math.round(v * p) / p;
+    if (Math.abs(r) < 1e-9) r = 0;
+    return (r < 0 ? MINUS : "") + Math.abs(r).toLocaleString("en-US", {maximumFractionDigits: places == null ? 3 : places});
+  }
+  /* one term of a polynomial, e.g. term(-6, 1) -> "−6x", term(1, 2) -> "x²" */
+  function term(c, pw, first){
+    var mag = Math.abs(c), sign = c < 0 ? MINUS : "+";
+    var body = (pw === 0 || Math.abs(mag - 1) > 1e-9 ? num(mag) : "") +
+               (pw > 0 ? "<i>x</i>" + (pw > 1 ? "<sup>" + pw + "</sup>" : "") : "");
+    if (first) return (c < 0 ? MINUS : "") + body;
+    return " " + sign + " " + body;
+  }
+  function poly(cs){           /* cs[0] is the highest power */
+    var n = cs.length - 1, out = "", first = true;
+    cs.forEach(function(c, i){
+      if (Math.abs(c) < 1e-9) return;
+      out += term(c, n - i, first); first = false;
+    });
+    return out || "0";
+  }
+  function whenResized(fn){
+    var queued = false;
+    function go(){ if (queued) return; queued = true; requestAnimationFrame(function(){ queued = false; fn(); }); }
+    if (window.ResizeObserver) new ResizeObserver(go).observe(document.body);
+    else window.addEventListener("resize", go);
+  }
+
+  /* ── header sky: a sheet, cut and scored ─────────────────────── */
+  (function(){
+    var s = $("sky"); s.setAttribute("viewBox", "0 0 960 300");
+    var x0 = 575, y0 = 62, w = 320, h = 226, c = 58;
+    el("rect", {x: x0, y: y0, width: w, height: h, fill: "none", stroke: LEAD, "stroke-width": 1.4, opacity: .5}, s);
+    [[x0, y0], [x0 + w - c, y0], [x0, y0 + h - c], [x0 + w - c, y0 + h - c]].forEach(function(q){
+      el("rect", {x: q[0], y: q[1], width: c, height: c, fill: NIGHT, stroke: GOLD, "stroke-width": 1.2, "stroke-dasharray": "5 5", opacity: .7}, s);
+    });
+    el("rect", {x: x0 + c, y: y0 + c, width: w - 2 * c, height: h - 2 * c, fill: "none", stroke: LEAD, "stroke-width": 1.2, "stroke-dasharray": "6 6", opacity: .55}, s);
+  })();
+
+  /* ════ ACT I — the box ═══════════════════════════════════════ */
+  (function(){
+    var scene = $("a1-scene"), graph = $("a1-graph"), range = $("a1-range");
+    var LONG = 11, SHORT = 8.5, EDGE = SHORT / 2;      /* past 4¼ the corners overlap */
+    function V(x){ return x * (LONG - 2 * x) * (SHORT - 2 * x); }
+    function poly4(pts, attrs, parent){ attrs.points = pts.map(function(p){ return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" "); return el("polygon", attrs, parent); }
+
+    function drawSheet(r, x){
+      el("text", {x: r.x + 4, y: r.y + 12, class: "lens-label"}, scene, "THE SHEET");
+      var top = r.y + 24, aw = r.w - 44, ah = r.h - 24 - 26;
+      var s = Math.min(aw / LONG, ah / SHORT), SW = LONG * s, SH = SHORT * s;
+      var ox = r.x + 26 + (aw - SW) / 2, oy = top + (ah - SH) / 2;
+      var c = x * s, over = x > EDGE + 1e-9;
+      el("rect", {x: ox, y: oy, width: SW, height: SH, fill: "#1A2B44", stroke: "#3A5272", "stroke-width": 1.2}, scene);
+      if (c > 0.5){
+        [[ox, oy], [ox + SW - c, oy], [ox, oy + SH - c], [ox + SW - c, oy + SH - c]].forEach(function(q){
+          el("rect", {x: q[0], y: q[1], width: c, height: c, fill: NIGHT, "fill-opacity": .92, stroke: DIM,
+                      "stroke-width": 1, "stroke-dasharray": "4 4"}, scene);
+        });
+      }
+      if (c > 0.5 && !over)
+        el("rect", {x: ox + c, y: oy + c, width: SW - 2 * c, height: SH - 2 * c, fill: "none", stroke: LEAD,
+                    "stroke-width": 1.4, "stroke-dasharray": "6 5"}, scene);
+      el("text", {x: ox + SW / 2, y: oy + SH + 18, "text-anchor": "middle", class: "ticktext"}, scene, "11 in");
+      el("text", {x: ox - 10, y: oy + SH / 2, "text-anchor": "middle", class: "ticktext",
+                  transform: "rotate(-90 " + (ox - 10).toFixed(1) + " " + (oy + SH / 2).toFixed(1) + ")"}, scene, "8½ in");
+      if (c > 18 && !over) el("text", {x: ox + c / 2, y: oy + c / 2 + 5, "text-anchor": "middle", class: "cutlabel"}, scene, "x");
+      if (over){
+        var bw = Math.min(SW - 10, 250), bh = 58;
+        el("rect", {x: ox + SW / 2 - bw / 2, y: oy + SH / 2 - 28, width: bw, height: bh, rx: 8,
+                    fill: NIGHT, "fill-opacity": .9, stroke: LINE}, scene);
+        el("text", {x: ox + SW / 2, y: oy + SH / 2 - 2, "text-anchor": "middle", class: "warn"}, scene, "The cuts overlap.");
+        el("text", {x: ox + SW / 2, y: oy + SH / 2 + 20, "text-anchor": "middle", class: "warn-sub"}, scene, "There’s nothing left to fold.");
+      }
+    }
+
+    function message(r, big, small){
+      var cx = r.x + r.w / 2, cy = r.y + r.h / 2 + 6;
+      el("text", {x: cx, y: cy - 4, "text-anchor": "middle", class: "warn"}, scene, big);
+      el("text", {x: cx, y: cy + 20, "text-anchor": "middle", class: "warn-sub"}, scene, small);
+    }
+
+    function drawBox(r, x){
+      el("text", {x: r.x + 4, y: r.y + 12, class: "lens-label"}, scene, "THE BOX");
+      var L = LONG - 2 * x, Wd = SHORT - 2 * x, Hh = x, area = {x: r.x, y: r.y + 24, w: r.w, h: r.h - 24};
+      if (Hh < 0.001) return message(area, "A flat sheet.", "No cut, so there are no flaps to fold up.");
+      if (Wd < 0.001){
+        return message(area, "No box.", L < 0.001
+          ? "It would be " + num(L, 2) + " in long and " + num(Wd, 2) + " in wide."
+          : "It would be " + num(Wd, 2) + " inches wide.");
+      }
+      /* One fixed scale for every cut, so the box visibly grows and shrinks. */
+      var DEP = 0.55, ca = Math.cos(Math.PI / 6), sa = Math.sin(Math.PI / 6);
+      var k = Math.min(area.w / (LONG + SHORT * DEP * ca + 2.4), area.h / (EDGE + SHORT * DEP * sa + 2.2));
+      var dx = Wd * DEP * ca * k, dy = -Wd * DEP * sa * k, bw = L * k, bh = Hh * k;
+      var bx = area.x + (area.w - (bw + dx)) / 2, by = area.y + area.h - 24;
+      var FBL = [bx, by], FBR = [bx + bw, by], FTL = [bx, by - bh], FTR = [bx + bw, by - bh];
+      var BBL = [bx + dx, by + dy], BBR = [bx + bw + dx, by + dy], BTL = [bx + dx, by + dy - bh], BTR = [bx + bw + dx, by + dy - bh];
+      poly4([BBL, BBR, BTR, BTL], {fill: "#13233A", stroke: LINE, "stroke-width": 1}, scene);
+      poly4([FBL, BBL, BTL, FTL], {fill: "#112036", stroke: LINE, "stroke-width": 1}, scene);
+      poly4([FBL, FBR, BBR, BBL], {fill: "#1A2B44", stroke: LINE, "stroke-width": 1}, scene);
+      poly4([FBR, BBR, BTR, FTR], {fill: "rgba(157,178,255,.10)", stroke: LEAD, "stroke-width": 1.4}, scene);
+      poly4([FBL, FBR, FTR, FTL], {fill: "rgba(157,178,255,.17)", stroke: LEAD, "stroke-width": 1.4}, scene);
+      poly4([FTL, FTR, BTR, BTL], {fill: "none", stroke: LEAD, "stroke-width": 1.8}, scene);
+      el("text", {x: FBL[0] - 9, y: by - bh / 2 + 5, "text-anchor": "end", class: "cutlabel"}, scene, "x");
+      el("text", {x: bx + bw / 2, y: by + 18, "text-anchor": "middle", class: "dimlabel"}, scene, "11 − 2x");
+      el("text", {x: FBR[0] + dx / 2 + 10, y: by + dy / 2 + 12, "text-anchor": "start", class: "dimlabel"}, scene, "8½ − 2x");
+    }
+
+    function drawScene(x){
+      var W = widthOf(scene), narrow = W < 560;
+      var H = Math.round(narrow ? W * 1.2 : Math.max(240, Math.min(330, W * 0.36)));
+      scene.setAttribute("viewBox", "0 0 " + W + " " + H);
+      clear(scene);
+      if (narrow){
+        drawSheet({x: 0, y: 0, w: W, h: H * 0.5 - 6}, x);
+        drawBox({x: 0, y: H * 0.5 + 6, w: W, h: H * 0.5 - 6}, x);
+      } else {
+        drawSheet({x: 0, y: 0, w: W * 0.47, h: H}, x);
+        drawBox({x: W * 0.5, y: 0, w: W * 0.5, h: H}, x);
+      }
+    }
+
+    function drawGraph(x){
+      var W = widthOf(graph), narrow = W < 560, H = Math.round(Math.max(220, Math.min(320, W * 0.38)));
+      graph.setAttribute("viewBox", "0 0 " + W + " " + H);
+      clear(graph);
+      var m = {l: narrow ? 36 : 44, r: 14, t: 12, b: 30}, pw = W - m.l - m.r, ph = H - m.t - m.b;
+      var XMIN = 0, XMAX = 6, YMIN = -15, YMAX = 75;
+      function sx(v){ return m.l + (v - XMIN) / (XMAX - XMIN) * pw; }
+      function sy(v){ return m.t + (YMAX - v) / (YMAX - YMIN) * ph; }
+      el("rect", {class: "domain", x: sx(0), y: m.t, width: sx(EDGE) - sx(0), height: ph}, graph);
+      [0, 20, 40, 60].forEach(function(v){
+        if (v) el("line", {x1: m.l, x2: m.l + pw, y1: sy(v), y2: sy(v), class: "gridline"}, graph);
+        el("text", {x: m.l - 8, y: sy(v) + 4, "text-anchor": "end", class: "ticktext"}, graph, String(v));
+      });
+      el("text", {x: m.l + 6, y: m.t + 12, class: "lens-label"}, graph, "VOLUME, IN³");
+      el("line", {x1: m.l, x2: m.l + pw, y1: sy(0), y2: sy(0), class: "axis"}, graph);
+      el("line", {x1: sx(0), x2: sx(0), y1: m.t, y2: m.t + ph, class: "axis"}, graph);
+      for (var t = 1; t <= 6; t++)
+        el("text", {x: sx(t), y: m.t + ph + 20, "text-anchor": "middle", class: "ticktext"}, graph, t === 6 ? "6 in" : String(t));
+      el("line", {class: "domain-edge", x1: sx(EDGE), x2: sx(EDGE), y1: m.t, y2: m.t + ph}, graph);
+      el("text", {class: "domain-label", x: sx(EDGE / 2), y: m.t + ph - 8, "text-anchor": "middle"}, graph, narrow ? "REAL BOXES" : "THE BOXES YOU CAN FOLD");
+      var N = Math.max(240, Math.round(pw)), d = "";
+      for (var i = 0; i <= N; i++){
+        var v = XMIN + (XMAX - XMIN) * i / N;
+        d += (i ? "L" : "M") + sx(v).toFixed(1) + "," + sy(V(v)).toFixed(1);
+      }
+      el("path", {d: d, fill: "none", stroke: GOLD, "stroke-width": 3, "stroke-linejoin": "round"}, graph);
+      el("line", {x1: sx(x), x2: sx(x), y1: sy(0), y2: sy(V(x)), stroke: DIM, "stroke-width": 1, "stroke-dasharray": "3 4"}, graph);
+      el("circle", {cx: sx(x), cy: sy(V(x)), r: 6.5, fill: GOLD, stroke: NIGHT, "stroke-width": 2}, graph);
+    }
+
+    function update(){
+      var x = +range.value / 100, L = LONG - 2 * x, Wd = SHORT - 2 * x;
+      $("a1-cut").textContent = num(x, 2) + " in";
+      $("a1-dims").textContent = num(L, 2) + " × " + num(Wd, 2) + " × " + num(x, 2);
+      $("a1-vol").innerHTML = num(V(x), 1) + " in<sup>3</sup>";
+      range.setAttribute("aria-valuetext", num(x, 2) + " inch cut, volume " + num(V(x), 1) + " cubic inches");
+      drawScene(x);
+      drawGraph(x);
+      if (x >= EDGE - 1e-9) touched("act1");
+    }
+    range.addEventListener("input", function(){ range.classList.add("used"); update(); });
+    whenResized(update);
+    update();
+  })();
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Content arrives synchronously; motion is decoration. */
+})();
+</script>
