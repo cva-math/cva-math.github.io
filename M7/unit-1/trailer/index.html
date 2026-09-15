@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ten Squares Long</title>
+<meta name="description" content="One number carries a whole house onto a sheet of paper. Five instruments cut from M7 Unit 1 — count the squares, find the factor, catch the cheat, and learn why tiny is so tiny.">
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     TEN SQUARES LONG — the trailer for M7 Unit 1, Scaled Drawings
+     Cut from the finished unit: Modules 1–4 plus the Applications.
+     Same night room as The Shape of Money and The Crossover. Here the
+     light source is the drawing: cream linework on dark, the way a
+     blueprint reads. Gold is the measure (the tape, the number doing
+     the work); sage is the second dimension (area, which rides twice);
+     the burnt tone marks the drawing that lies.
+
+     SHARED SHELL. Everything from :root down to the svg-shared block is
+     byte-identical to the other two trailers — that block is the
+     candidate for extraction into trailer-shell.css. Below it, and only
+     below it, is this trailer's own instrument.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised instrument panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text — warm paper, and the linework */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the measure — the tape, the factor */
+    --gold-soft:rgba(227,179,76,.14);
+    --late:#C97B3F;         /* the drawing that lies */
+    --sage:#7FB89F;         /* area — the reading that rides twice */
+    --sage-soft:rgba(127,184,159,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.5}
+  .eyebrow{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;
+    color:var(--dim);text-transform:uppercase;
+  }
+  h1{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 30px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--gold);font-weight:normal}
+  .act.sage-act .act-eyebrow b{color:var(--sage)}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup code,.notation code{
+    font-family:var(--mono);font-size:.86em;color:var(--cream);
+    background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap;
+  }
+
+  /* the instrument panel */
+  .panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:18px 18px 14px;
+  }
+  .panel svg{display:block;width:100%;height:auto}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .chip{
+    flex:1 1 140px;min-width:130px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.sage .v{color:var(--sage)}
+  .chip.still .v{color:var(--cream)}
+  .chip.still .k::after{content:" — never moves";letter-spacing:.06em;color:var(--gold);text-transform:none}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:16px;margin-top:14px;flex-wrap:wrap}
+  .controls label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  input[type=range]{
+    flex:1;min-width:200px;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  .sage-act input[type=range]::-webkit-slider-thumb{border-color:var(--sage);box-shadow:0 0 0 4px rgba(127,184,159,.15)}
+  .sage-act input[type=range]::-moz-range-thumb{border-color:var(--sage);box-shadow:0 0 0 4px rgba(127,184,159,.15)}
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:10px 16px;cursor:pointer;
+  }
+  button:hover{border-color:var(--dim)}
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+  /* discovery + notation */
+  .insight{
+    margin:26px 0 0;max-width:37em;
+    opacity:0;transform:translateY(8px);transition:opacity .7s ease,transform .7s ease;
+  }
+  .act.touched .insight{opacity:1;transform:none}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .sage-act .insight .tag{color:var(--sage)}
+  .insight p{
+    font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;
+    border-left:2px solid var(--gold);padding-left:18px;
+  }
+  .sage-act .insight p{border-color:var(--sage)}
+  .notation{
+    margin:22px 0 0;color:var(--faint);font-size:15px;
+    opacity:0;transition:opacity .7s ease .35s;
+  }
+  .act.touched .notation{opacity:1}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  .punch{
+    display:none;margin-top:16px;background:var(--gold-soft);
+    border:1px solid rgba(227,179,76,.35);border-radius:8px;padding:14px 18px;
+    font-family:var(--serif);font-size:19px;line-height:1.45;
+  }
+  .punch b{color:var(--gold);font-weight:normal}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{
+    font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;
+    max-width:22em;margin:0 auto;text-wrap:balance;
+  }
+  .thesis em{color:var(--gold)}
+  .colophon{
+    margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--faint);
+  }
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:var(--line);stroke-width:1}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:14px}
+  .axistitle{fill:var(--dim);font-family:var(--mono);font-size:12.5px;letter-spacing:.18em;text-transform:uppercase}
+  @media (max-width:600px){
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 24px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px;min-width:104px}
+  }
+
+  /* ════ this trailer's own instrument ══════════════════════════ */
+  /* the drawing is the light source */
+  .pw{stroke:var(--cream);stroke-width:3;fill:none;stroke-linecap:square}
+  .pi{stroke:var(--cream);stroke-width:1.8;fill:none;stroke-linecap:square;opacity:.75}
+  .pf{stroke:var(--faint);stroke-width:1.2;fill:none}
+  .pg{stroke:var(--line-soft);stroke-width:1;fill:none}
+  .pd{stroke:var(--dim);stroke-width:1.1;fill:none;stroke-dasharray:10 4 2 4}
+  .pfill{fill:var(--panel-2)}
+  .plabel{fill:var(--faint);font-family:var(--mono);font-size:9.5px;letter-spacing:.18em}
+  .tape{stroke:var(--gold);stroke-width:2.2;fill:none}
+  .tapechip{fill:var(--night);stroke:var(--gold);stroke-opacity:.55}
+  .tapetext{fill:var(--gold);font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+  .wrongline{stroke:var(--late)}
+  .figure{stroke:var(--cream);fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  .figurehead{fill:var(--cream)}
+  .ground{stroke:var(--line)}
+
+  /* tappable walls */
+  .hit{cursor:pointer}
+  .hit rect{fill:transparent}
+  .glow{stroke:var(--gold);stroke-width:8;opacity:0;transition:opacity .2s;fill:none;stroke-linecap:round}
+  .hit:hover .glow,.hit:focus-visible .glow{opacity:.35}
+  .hit:focus-visible{outline:none}
+
+  /* act III — the pair */
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:620px){ .pair{grid-template-columns:1fr} }
+  .pair .cap{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--faint);text-align:center;margin-top:10px;
+  }
+  .pair .cap.bad{color:var(--late)}
+  .verdict{
+    display:none;margin-top:16px;background:rgba(201,123,63,.12);
+    border:1px solid rgba(201,123,63,.4);border-radius:8px;padding:14px 18px;
+    font-family:var(--serif);font-size:19px;line-height:1.45;
+  }
+  .verdict b{color:var(--late);font-weight:normal}
+
+  /* act IV — the floor */
+  .tilefill{fill:var(--sage-soft);stroke:var(--sage);stroke-width:1}
+  .sq{stroke:var(--sage);stroke-width:2.4;fill:none}
+
+  /* act V — the ruler card */
+  .rulercard{
+    margin-top:18px;display:flex;gap:26px;flex-wrap:wrap;align-items:center;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:18px 20px;
+  }
+  .rulercard .big{
+    font-family:var(--mono);font-size:clamp(20px,3.4vw,28px);color:var(--gold);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .rulercard .say{color:var(--dim);font-size:16px;max-width:30em}
+</style>
+
+<header>
+  <svg class="sky" id="skysvg" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <div class="eyebrow">M7 &middot; Unit 1 &middot; Scaled Drawings</div>
+    <h1>Ten Squares <em>Long</em></h1>
+    <p class="dek">A whole house, on one sheet of paper, and still exactly right. That only works because of <strong>one number doing all of the work.</strong> This page is built so you can find it — five instruments, one house.</p>
+    <div class="hint">Everything on this page can be dragged or tapped</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE SHRINK ════════ -->
+<section class="act" id="act1">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Shrink</div>
+    <h2 class="ask">On paper this house is five inches long. In the world it is twenty feet. Turn it up.</h2>
+    <p class="setup">You stay the same size the whole time. Only the drawing changes — and every length in it changes by the <em>same</em> number at once.</p>
+
+    <div class="chips">
+      <div class="chip gold"><div class="k">Multiply by</div><div class="v" id="a1-k">&times;1</div></div>
+      <div class="chip"><div class="k">Long wall</div><div class="v" id="a1-len">5 in</div></div>
+      <div class="chip"><div class="k">Compared to you</div><div class="v" id="a1-vs">pocket-sized</div></div>
+      <div class="chip still"><div class="k">The shape</div><div class="v">identical</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a1-svg" viewBox="0 0 920 380" role="img" aria-label="A tiny house floor plan growing from paper size to full size beside a standing person"></svg>
+      <div class="controls">
+        <label for="a1-range">Scale</label>
+        <input type="range" id="a1-range" min="1" max="48" step="1" value="1" aria-label="Multiply every length by, 1 to 48">
+      </div>
+    </div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every wall got longer by the same multiplier at the same moment, so the house never went crooked. That one number is the whole trick &mdash; and it is the only thing standing between a drawing and a building.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: the <code>scale factor</code>. <span class="name">&mdash; for this drawing it is 48, because the house is 48 times the paper, everywhere.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — THE GRID ════════ -->
+<section class="act" id="act2">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> The Grid</div>
+    <h2 class="ask">Nobody wrote a single measurement on this plan. Every size you need is still on it.</h2>
+    <p class="setup">One grid square stands for two feet. Tap any wall and count with it &mdash; the grid is doing the translating for you.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Walls measured</div><div class="v" id="a2-count">0 of 4</div></div>
+      <div class="chip gold"><div class="k">Last reading</div><div class="v" id="a2-last">&mdash;</div></div>
+      <div class="chip still"><div class="k">The rule</div><div class="v">&times; 2 ft</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a2-svg" viewBox="0 0 920 400" role="img" aria-label="An unlabelled tiny house floor plan on a two-foot grid, with four tappable walls"></svg>
+    </div>
+
+    <div class="punch" id="a2-punch"></div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Four different walls, one rule, every time &mdash; even the bathroom, which lands at two and a half squares and does not care that it missed the line. That is what makes it a <em>scale</em> rather than four separate facts.</p>
+    </div>
+    <p class="notation">Written the way an architect writes it: <code>1 square = 2 ft</code>. <span class="name">&mdash; the drawing carries its own key, so anyone can read it without you standing there.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT III — THE CHEAT ════════ -->
+<section class="act" id="act3">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act III</b> The Cheat</div>
+    <h2 class="ask">One of these is a scaled drawing. One of them is a lie about a house. Which is which?</h2>
+    <p class="setup">Both were made from the same plan. One multiplied every length by 1.5. The other used 2 on the long walls and 1.2 on the short ones &mdash; two numbers instead of one.</p>
+
+    <div class="panel">
+      <div class="pair">
+        <div>
+          <svg id="a3-a" viewBox="0 0 420 200" role="img" aria-label="The plan enlarged uniformly"></svg>
+          <div class="cap" id="a3-capa">Drawing A</div>
+        </div>
+        <div>
+          <svg id="a3-b" viewBox="0 0 420 200" role="img" aria-label="The plan enlarged by two different amounts, distorted"></svg>
+          <div class="cap" id="a3-capb">Drawing B</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="a3-reveal" type="button">Show me which</button>
+      </div>
+    </div>
+
+    <div class="verdict" id="a3-verdict"></div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>You knew before you could explain it. Your eye is already holding the rule: <em>same number, every length.</em> Break that and the doors stop fitting the walls, and nobody can build from the page.</p>
+    </div>
+    <p class="notation">The word for the good one: <code>scaled copy</code>. <span class="name">&mdash; same shape, different size. The other one has no name, because it is not a drawing of anything.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT IV — THE FLOOR ════════ -->
+<section class="act sage-act" id="act4">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act IV</b> The Floor</div>
+    <h2 class="ask">Now scale a room instead of a wall. The sides do one thing. The floor does another.</h2>
+    <p class="setup">Start with one square of floor and stretch its sides. Count the tiles that fit inside as you go &mdash; that count is the surprise of this whole unit.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Sides</div><div class="v" id="a4-side">&times; 1</div></div>
+      <div class="chip sage"><div class="k">Floor tiles</div><div class="v" id="a4-area">&times; 1</div></div>
+      <div class="chip"><div class="k">Real floor</div><div class="v" id="a4-real">4 sq ft</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a4-svg" viewBox="0 0 920 340" role="img" aria-label="A square of floor scaled up, with the tiles inside it counted"></svg>
+      <div class="controls">
+        <label for="a4-range">Stretch the sides</label>
+        <input type="range" id="a4-range" min="1" max="5" step="1" value="1" aria-label="Multiply each side by, 1 to 5">
+      </div>
+    </div>
+
+    <div class="punch" id="a4-punch"></div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>A length rides the scale factor <em>once</em>. A floor rides it <em>twice</em>. That is exactly why a tiny house is so tiny: shrink every length of an ordinary house to a third and the floor does not fall to a third &mdash; it falls to a ninth.</p>
+    </div>
+    <p class="notation">The name, last as always: area scales by <code>k&sup2;</code>. <span class="name">&mdash; two directions got multiplied, so the multiplier lands twice.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT V — THE RULER (CODA) ════════ -->
+<section class="act" id="act5">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act V</b> The Ruler</div>
+    <h2 class="ask">Every drawing you just read was made at one setting. Here it is, written the way the trade writes it.</h2>
+    <p class="setup">Half an inch on the page. Two feet in the world. Put both in the same unit before you compare them &mdash; and then just divide.</p>
+
+    <div class="panel">
+      <svg id="a5-svg" viewBox="0 0 920 230" role="img" aria-label="Half an inch of paper set against twenty-four inches of world, and the factor between them"></svg>
+      <div class="controls">
+        <button id="a5-flip" type="button">Read it the other way</button>
+      </div>
+    </div>
+
+    <div class="rulercard">
+      <div class="big" id="a5-big">&frac14;&Prime; = 1&prime;-0&Prime;</div>
+      <div class="say" id="a5-say">Architects say it out loud as <em>quarter-inch scale</em>, and write it <strong>1:48</strong>. Same number you found in Act I &mdash; it just took the trade three hundred years to agree on how to print it.</div>
+    </div>
+
+    <div class="insight"><span class="tag">Where this goes</span>
+      <p>By the end of the unit you will not be reading somebody else&rsquo;s plan. You will pick your own scale, draw your own house at it, and hand the page to a person with a ruler &mdash; and find out whether they can read it back.</p>
+    </div>
+    <p class="notation">And the one you will have to answer: <code>does it all fit?</code> <span class="name">&mdash; eight feet wide, the length is your call, and everything you own is about to argue for floor space.</span></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">I can fit what matters into <em>the space I have.</em></p>
+    <div class="colophon">M7 &middot; Unit 1 &middot; <span>Scaled Drawings</span> &mdash; Mr. Kim</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+
+/* reveal an act's insight + notation once it has been touched */
+function touch(id){ var a = $(id); if(a) a.classList.add('touched'); }
+
+/* ════════════════════════════════════════════════════════════════
+   THE PLAN. 8 ft deep x 20 ft long, in feet. x runs the length,
+   y runs front (0) to back (8). On screen the front is at the
+   bottom, so Y = (8 - y) * s. Same house as assets/floor-plan.py.
+   ════════════════════════════════════════════════════════════════ */
+function plan(s, opt){
+  opt = opt || {};
+  var L = opt.len || 20;
+  var ve = opt.ve ? ' vector-effect="non-scaling-stroke"' : '';
+  var X = function(x){ return (x*s).toFixed(2); };
+  var Y = function(y){ return ((8-y)*s).toFixed(2); };
+  var o = [], i, j;
+
+  if(opt.grid !== false){
+    var g = [];
+    for(i=1;i<L/2;i++) g.push('<line class="pg"'+ve+' x1="'+X(i*2)+'" y1="'+Y(8)+'" x2="'+X(i*2)+'" y2="'+Y(0)+'"/>');
+    for(j=1;j<4;j++)  g.push('<line class="pg"'+ve+' x1="'+X(0)+'" y1="'+Y(j*2)+'" x2="'+X(L)+'" y2="'+Y(j*2)+'"/>');
+    o.push('<g class="L-grid">'+g.join('')+'</g>');
+  }
+
+  if(opt.fixtures !== false){
+    var f = [];
+    function fr(x0,y0,x1,y1){
+      f.push('<rect class="pf"'+ve+' x="'+X(x0)+'" y="'+Y(y1)+'" width="'+((x1-x0)*s).toFixed(2)+
+             '" height="'+((y1-y0)*s).toFixed(2)+'"/>');
+    }
+    function fc(cx,cy,r){ f.push('<circle class="pf"'+ve+' cx="'+X(cx)+'" cy="'+Y(cy)+'" r="'+(r*s).toFixed(2)+'"/>'); }
+    function fl(x0,y0,x1,y1){ f.push('<line class="pf"'+ve+' x1="'+X(x0)+'" y1="'+Y(y0)+'" x2="'+X(x1)+'" y2="'+Y(y1)+'"/>'); }
+    fr(0.2,3.5,1.7,4.85); fl(0.2,3.5,1.7,4.85);          /* shower */
+    fr(0.2,1.9,0.8,2.9); fc(1.25,2.4,0.42);              /* toilet */
+    fr(3.6,0.2,4.85,1.15); fc(4.2,0.67,0.28);            /* sink   */
+    fl(0.45,6.6,4.55,6.6);                               /* closet rail */
+    fl(5,6.5,12,6.5); fr(5.1,6.4,6.5,7.9); fl(5.1,6.4,6.5,7.9);   /* counter + fridge */
+    fr(7.3,6.85,8.5,7.75);                               /* sink   */
+    fr(9.15,6.6,10.95,7.9); fc(9.6,6.98,0.24); fc(10.5,6.98,0.24);
+    fc(9.6,7.55,0.24); fc(10.5,7.55,0.24);               /* stove  */
+    fl(12.35,5.2,12.35,7.9); fl(13.65,5.2,13.65,7.9);
+    for(i=0;i<5;i++) fl(12.35,5.5+i*0.55,13.65,5.5+i*0.55);       /* ladder */
+    fr(5.9,0.2,9.1,1.4); fl(5.9,0.95,9.1,0.95);          /* couch  */
+    fr(9.6,3.1,11.4,4.5);                                /* table  */
+    if(L>16){ fr(17.3,0.2,19.8,1.45); fc(18.5,1.95,0.38); }       /* desk   */
+    o.push('<g class="L-fix">'+f.join('')+'</g>');
+  }
+
+  /* loft outline */
+  if(opt.loft !== false && L > 16){
+    o.push('<rect class="pd"'+ve+' x="'+X(L-5.8)+'" y="'+Y(7.8)+'" width="'+(5.6*s).toFixed(2)+
+           '" height="'+(7.6*s).toFixed(2)+'"/>');
+  }
+
+  /* interior walls */
+  var w = [];
+  function seg(x0,y0,x1,y1){ w.push('<line class="pi"'+ve+' x1="'+X(x0)+'" y1="'+Y(y0)+'" x2="'+X(x1)+'" y2="'+Y(y1)+'"/>'); }
+  seg(5,0,5,1); seg(5,3.5,5,5.6); seg(5,7,5,8);
+  seg(0,5,5,5);
+  if(L>16) seg(14,0,14,8);
+  o.push('<g class="L-walls">'+w.join('')+'</g>');
+
+  /* outer shell, with the front-door gap */
+  o.push('<path class="pw'+(opt.draw?' draw':'')+'"'+ve+' d="M '+X(9.6)+' '+Y(0)+
+         ' L '+X(0)+' '+Y(0)+' L '+X(0)+' '+Y(8)+' L '+X(L)+' '+Y(8)+
+         ' L '+X(L)+' '+Y(0)+' L '+X(12.1)+' '+Y(0)+'"/>');
+
+  return o.join('');
+}
+
+/* ════ ACT I — the shrink ════════════════════════════════════ */
+(function(){
+  var W=920,H=380, groundY=336, personH=168, px=838;
+  var pxPerFt = personH/5.75;                 /* a 5'9" student */
+  var baseS   = 20*pxPerFt/20;                /* px per foot at full size */
+  var svg=['<svg viewBox="0 0 '+W+' '+H+'">'];
+  svg.push('<line class="ground" x1="18" y1="'+groundY+'" x2="'+(W-18)+'" y2="'+groundY+'" stroke-width="1.5"/>');
+  svg.push('<g id="a1-house"><g transform="translate(0,'+(-8*baseS)+')">'+plan(baseS,{ve:true})+'</g></g>');
+  var py=groundY-personH;
+  svg.push('<g transform="translate('+px+','+py+')">'
+    +'<circle class="figurehead" cx="0" cy="13" r="11"/>'
+    +'<path class="figure" d="M 0 28 L 0 92 M 0 42 L -22 72 M 0 42 L 22 72 M 0 92 L -15 166 M 0 92 L 15 166"/></g>');
+  svg.push('<text class="plabel" text-anchor="middle" x="'+px+'" y="'+(groundY+20)+'">YOU</text>');
+  svg.push('</svg>');
+  $('a1-svg').innerHTML=svg.join('');
+
+  var house=$('a1-house'), r=$('a1-range');
+  var kEl=$('a1-k'), lenEl=$('a1-len'), vsEl=$('a1-vs');
+  var vs=[[1,'pocket-sized'],[4,'a shoebox'],[10,'a skateboard'],[20,'taller than you'],[36,'a car'],[48,'you fit inside']];
+  function render(k){
+    var f=k/48;
+    house.setAttribute('transform','translate(52,'+groundY+') scale('+f+')');
+    /* detail tiers — a drawing this small has no fixtures to show */
+    var tiers=[['L-grid',k>=40],['L-fix',k>=18],['L-walls',k>=8]];
+    tiers.forEach(function(t){
+      var el=house.querySelectorAll('.'+t[0]);
+      for(var i=0;i<el.length;i++){ el[i].style.transition='opacity .45s'; el[i].style.opacity=t[1]?'1':'0'; }
+    });
+    kEl.innerHTML='&times;'+k;
+    var inches=5*k;
+    lenEl.textContent = inches<24 ? (inches%1?inches.toFixed(1):inches)+' in'
+                                  : (inches/12).toFixed(inches/12%1?1:0)+' ft';
+    var word=vs[0][1];
+    for(var i=0;i<vs.length;i++) if(k>=vs[i][0]) word=vs[i][1];
+    vsEl.textContent=word;
+    if(k>=44) touch('act1');
+  }
+  r.addEventListener('input',function(){ render(+r.value); });
+  render(1);
+})();
+
+/* ════ ACT II — the grid ════════════════════════════════════ */
+(function(){
+  var s=32, ox=104, oy=52, W=920, H=400;
+  var X=function(x){return ox+x*s}, Y=function(y){return oy+(8-y)*s};
+  var svg=['<svg viewBox="0 0 '+W+' '+H+'">'];
+  svg.push('<g transform="translate('+ox+','+oy+')">'+plan(s)+'</g>');
+  svg.push('<text class="plabel" text-anchor="middle" x="'+X(17)+'" y="'+(Y(4)+4)+'">SLEEPING LOFT ABOVE</text>');
+
+  function tape(id,x1,y1,x2,y2,label){
+    var mx=(x1+x2)/2,my=(y1+y2)/2,vert=Math.abs(x2-x1)<1,t=8;
+    var w=label.length*7.6+20;
+    return '<g id="tape-'+id+'" style="opacity:0;transition:opacity .4s">'
+      +'<line class="tape" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'"/>'
+      +(vert
+        ? '<line class="tape" x1="'+(x1-t)+'" y1="'+y1+'" x2="'+(x1+t)+'" y2="'+y1+'"/>'
+         +'<line class="tape" x1="'+(x2-t)+'" y1="'+y2+'" x2="'+(x2+t)+'" y2="'+y2+'"/>'
+        : '<line class="tape" x1="'+x1+'" y1="'+(y1-t)+'" x2="'+x1+'" y2="'+(y1+t)+'"/>'
+         +'<line class="tape" x1="'+x2+'" y1="'+(y2-t)+'" x2="'+x2+'" y2="'+(y2+t)+'"/>')
+      +'<rect class="tapechip" rx="4" x="'+(mx-w/2)+'" y="'+(my-12)+'" width="'+w+'" height="24"/>'
+      +'<text class="tapetext" text-anchor="middle" x="'+mx+'" y="'+(my+4)+'">'+label+'</text></g>';
+  }
+  svg.push(tape('long', X(0),Y(0)+34, X(20),Y(0)+34, '10 squares = 20 ft'));
+  svg.push(tape('end',  X(0)-40,Y(0), X(0)-40,Y(8),  '4 sq = 8 ft'));
+  svg.push(tape('loft', X(14),Y(8)-26, X(20),Y(8)-26,'3 sq = 6 ft'));
+  svg.push(tape('bath', X(5)+30,Y(0), X(5)+30,Y(5),  '2½ sq = 5 ft'));
+
+  function hit(id,x,y,w,h,gx1,gy1,gx2,gy2,name){
+    return '<g class="hit" id="hit-'+id+'" tabindex="0" role="button" aria-label="Measure '+name+'">'
+      +'<line class="glow" x1="'+gx1+'" y1="'+gy1+'" x2="'+gx2+'" y2="'+gy2+'"/>'
+      +'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'"/></g>';
+  }
+  svg.push(hit('long',X(0),Y(0)-14,20*s,58, X(0),Y(0),X(20),Y(0),'the long wall'));
+  svg.push(hit('end', X(0)-56,Y(8),66,8*s,  X(0),Y(8),X(0),Y(0),'the end wall'));
+  svg.push(hit('loft',X(14),Y(8)-42,6*s,54, X(14),Y(8),X(20),Y(8),'the loft'));
+  svg.push(hit('bath',X(5)-16,Y(5),56,5*s,  X(5),Y(5),X(5),Y(0),'the bathroom wall'));
+  svg.push('</svg>');
+  $('a2-svg').innerHTML=svg.join('');
+
+  var got={}, N=4;
+  var reads={long:'20 ft',end:'8 ft',loft:'6 ft',bath:'5 ft'};
+  function measure(id){
+    if(got[id]) return;
+    got[id]=true;
+    var t=$('tape-'+id); if(t) t.style.opacity='1';
+    $('a2-count').textContent=Object.keys(got).length+' of '+N;
+    $('a2-last').textContent=reads[id];
+    if(Object.keys(got).length===N){
+      var p=$('a2-punch');
+      p.style.display='block';
+      p.innerHTML='Every one of them came out of the same move: <b>count the squares, multiply by two.</b> '
+                 +'The bathroom is two and a half squares wide and the rule did not blink.';
+      touch('act2');
+    }
+  }
+  var stage=$('a2-svg');
+  stage.addEventListener('click',function(e){
+    var g=e.target.closest('.hit'); if(g) measure(g.id.slice(4));
+  });
+  stage.addEventListener('keydown',function(e){
+    if(e.key!=='Enter'&&e.key!==' ') return;
+    var g=e.target.closest('.hit'); if(g){ e.preventDefault(); measure(g.id.slice(4)); }
+  });
+})();
+
+/* ════ ACT III — the cheat ═══════════════════════════════════ */
+(function(){
+  /* A: uniform x1.5.  B: x2 along, x1.2 deep. Same source plan. */
+  /* One source plan, two enlargements. A multiplies both directions by the
+     same number; B uses a bigger one along and a smaller one deep. Sizes are
+     stated in px-per-foot so the distortion is the ratio between them and
+     nothing else -- 20 against 12 is the lie, and it has to be big enough on
+     the page to be caught by eye, which is the whole act.
+
+     Fill the <svg> itself, never its parent: the caption div is that parent's
+     other child, and writing innerHTML there deletes it. */
+  var base=15;
+  function draw(svg,fx,fy,wrong){
+    var sx=fx/base, sy=fy/base, w=20*fx, h=8*fy;
+    svg.innerHTML='<g transform="translate('+((420-w)/2).toFixed(1)+','+((200-h)/2).toFixed(1)
+                 +') scale('+sx.toFixed(4)+','+sy.toFixed(4)+')">'+plan(base,{ve:true})+'</g>';
+    if(wrong){
+      svg.querySelectorAll('.pw,.pi').forEach(function(n){ n.style.stroke='var(--late)'; });
+      svg.querySelectorAll('.pf,.pd').forEach(function(n){ n.style.stroke='var(--late)'; n.style.opacity='.7'; });
+    }
+  }
+  draw($('a3-a'),15,15,false);   /* x1.5 both ways */
+  draw($('a3-b'),20,12,true);    /* x2 along, x1.2 deep */
+
+  $('a3-reveal').addEventListener('click',function(){
+    $('a3-capa').textContent='Drawing A — one number, ×1.5';
+    $('a3-capb').textContent='Drawing B — ×2 long, ×1.2 deep';
+    $('a3-capb').classList.add('bad');
+    var v=$('a3-verdict');
+    v.style.display='block';
+    v.innerHTML='<b>B is the lie.</b> Look at the bathroom: it was square on the real plan and it is a letterbox here. '
+               +'A builder working from B would cut every long wall right and every short wall wrong, '
+               +'and the doors would arrive at the wrong size.';
+    this.disabled=true; this.textContent='A is the scaled copy';
+    touch('act3');
+  });
+})();
+
+/* ════ ACT IV — the floor ═══════════════════════════════════ */
+(function(){
+  var W=920,H=340,u=52,baseY=H-56,lx=96,fx=330;
+  function render(k){
+    var svg=['<svg viewBox="0 0 '+W+' '+H+'">'];
+    svg.push('<text class="axistitle" x="'+lx+'" y="34">One side</text>');
+    svg.push('<line class="tape" x1="'+lx+'" y1="'+baseY+'" x2="'+lx+'" y2="'+(baseY-k*u)+'"/>');
+    for(var t=0;t<=k;t++)
+      svg.push('<line class="tape" x1="'+(lx-9)+'" y1="'+(baseY-t*u)+'" x2="'+(lx+9)+'" y2="'+(baseY-t*u)+'"/>');
+    svg.push('<text class="tapetext" x="'+(lx+18)+'" y="'+(baseY-k*u/2+4)+'">'+k+(k===1?' square':' squares')+'</text>');
+
+    svg.push('<text class="axistitle" x="'+fx+'" y="34">The floor</text>');
+    var n=0;
+    for(var r=0;r<k;r++) for(var c=0;c<k;c++){
+      svg.push('<rect class="tilefill" x="'+(fx+c*u)+'" y="'+(baseY-(r+1)*u)+'" width="'+u+'" height="'+u+'"/>');
+      n++;
+    }
+    svg.push('<rect class="sq" x="'+fx+'" y="'+(baseY-k*u)+'" width="'+(k*u)+'" height="'+(k*u)+'"/>');
+    svg.push('<text class="tapetext" style="fill:var(--sage)" x="'+(fx+k*u+18)+'" y="'+(baseY-k*u/2+4)+'">'
+             +(k*k)+(k===1?' tile':' tiles')+'</text>');
+    svg.push('</svg>');
+    $('a4-svg').innerHTML=svg.join('');
+    $('a4-side').innerHTML='&times; '+k;
+    $('a4-area').innerHTML='&times; '+(k*k);
+    $('a4-real').textContent=(4*k*k)+' sq ft';
+    if(k>=3){
+      var p=$('a4-punch');
+      p.style.display='block';
+      p.innerHTML='Sides &times;'+k+'. Floor &times;<b>'+(k*k)+'</b>. '
+                 +'An ordinary family house is about 1,440 square feet &mdash; shrink its lengths to a third '
+                 +'and you land on <b>160</b>, which is exactly the house you have been reading all page.';
+      touch('act4');
+    }
+  }
+  $('a4-range').addEventListener('input',function(){ render(+this.value); });
+  render(1);
+})();
+
+/* ════ ACT V — the ruler ════════════════════════════════════ */
+(function(){
+  /* H has to clear the world box AND the caption under it: the label sits at
+     cy + size/2 + 46, so 120 + 85 + 46 = 251. At 230 it fell outside the
+     viewBox and the unit line vanished -- the one line the act is about. */
+  var W=920,H=280,cy=120;
+  var pcx=190, u=40;          /* half an inch of paper, drawn big enough to read */
+  var wcx=690, wu=170;        /* two feet of world */
+  function build(dir){
+    var o=['<svg viewBox="0 0 '+W+' '+H+'">'];
+    function box(cx,size,label,sub){
+      o.push('<rect class="sq" style="stroke:var(--cream)" x="'+(cx-size/2)+'" y="'+(cy-size/2)+
+             '" width="'+size+'" height="'+size+'"/>');
+      o.push('<line class="tape" x1="'+(cx-size/2)+'" y1="'+(cy+size/2+20)+'" x2="'+(cx+size/2)+'" y2="'+(cy+size/2+20)+'"/>');
+      o.push('<line class="tape" x1="'+(cx-size/2)+'" y1="'+(cy+size/2+13)+'" x2="'+(cx-size/2)+'" y2="'+(cy+size/2+27)+'"/>');
+      o.push('<line class="tape" x1="'+(cx+size/2)+'" y1="'+(cy+size/2+13)+'" x2="'+(cx+size/2)+'" y2="'+(cy+size/2+27)+'"/>');
+      o.push('<text class="tapetext" text-anchor="middle" x="'+cx+'" y="'+(cy+size/2+46)+'">'+label+'</text>');
+      o.push('<text class="plabel" text-anchor="middle" x="'+cx+'" y="'+(cy-size/2-16)+'">'+sub+'</text>');
+    }
+    box(pcx,u,'½ inch','ON THE PAPER');
+    box(wcx,wu,'2 feet = 24 inches','IN THE WORLD');
+    /* The head sits at the END the arrow travels TO, and its triangle is drawn
+       back from that tip. Paper -> house runs left to right, so the tip is x2. */
+    var x1=pcx+u/2+38, x2=wcx-wu/2-38;
+    var tip = dir ? x1 : x2, back = dir ? 13 : -13;
+    o.push('<line x1="'+x1+'" y1="'+cy+'" x2="'+x2+'" y2="'+cy+'" stroke="var(--dim)" stroke-width="2"/>');
+    o.push('<path d="M '+tip+' '+cy+' l '+back+' -8 l 0 16 z" fill="var(--dim)"/>');
+    var w=118, label = dir ? '× 1/48' : '× 48';
+    var math = dir ? '½ ÷ 24 = 1/48' : '24 ÷ ½ = 48';
+    o.push('<rect class="tapechip" rx="6" x="'+((x1+x2)/2-w/2)+'" y="'+(cy-46)+'" width="'+w+'" height="32"/>');
+    o.push('<text class="tapetext" style="font-size:16px" text-anchor="middle" x="'+((x1+x2)/2)+'" y="'+(cy-24)+'">'+label+'</text>');
+    o.push('<text class="plabel" text-anchor="middle" x="'+((x1+x2)/2)+'" y="'+(cy+30)+'">'+math+'</text>');
+    o.push('</svg>');
+    $('a5-svg').innerHTML=o.join('');
+  }
+  var flipped=false;
+  build(false);
+  $('a5-flip').addEventListener('click',function(){
+    flipped=!flipped;
+    build(flipped);
+    $('a5-big').innerHTML = flipped ? '1 : 48' : '&frac14;&Prime; = 1&prime;-0&Prime;';
+    $('a5-say').innerHTML = flipped
+      ? 'Read house-to-paper it is <strong>1:48</strong> &mdash; smaller than 1, because the drawing is the small one. Same ratio, read the other way round.'
+      : 'Architects say it out loud as <em>quarter-inch scale</em>, and write it <strong>1:48</strong>. Same number you found in Act I &mdash; it just took the trade three hundred years to agree on how to print it.';
+    this.textContent = flipped ? 'Read it paper to house' : 'Read it the other way';
+    touch('act5');
+  });
+  /* the coda earns its reveal on arrival, not on a drag */
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ touch('act5'); io.disconnect(); } });
+    },{threshold:.4});
+    io.observe($('act5'));
+  } else { touch('act5'); }
+})();
+
+/* ════ header: a faint two-foot grid, receding ══════════════ */
+(function(){
+  var el=$('skysvg'); if(!el) return;
+  var W=1200,H=460,s=42,o=['<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMax slice">'];
+  for(var x=0;x<=W;x+=s)
+    o.push('<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'" stroke="var(--line-soft)" stroke-width="1" opacity="'+(0.15+0.5*(x/W))+'"/>');
+  for(var y=H;y>=0;y-=s)
+    o.push('<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'" stroke="var(--line-soft)" stroke-width="1" opacity="'+(0.15+0.6*(y/H))+'"/>');
+  o.push('</svg>');
+  el.outerHTML=o.join('').replace('<svg ','<svg class="sky" id="skysvg" aria-hidden="true" ');
+})();
+
+})();
+</script>

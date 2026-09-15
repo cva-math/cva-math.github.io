@@ -1,0 +1,765 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Two people, same graduating class — one goes through college, one goes straight to work. Find the year the lead changes hands, then break it.">
+<title>The Crossover</title>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     THE CROSSOVER — the trailer for IM 1/2H Unit 1, Is College Worth It?
+     Cut from the finished unit: Modules 1–4 plus the Case.
+
+     Same night room as The Shape of Money. The palette assignment is
+     the pedagogy: GOLD is the degree path, SAGE is the direct path,
+     and they are EQUALS — the unit's thesis is that the answer depends
+     on which trade-off you can live with, so neither colour may read
+     as the right one. (--late, "the investor who waited" in the IM3
+     trailer, is deliberately unused here: it would smuggle a verdict.)
+
+     Sage owns Act II (the head start). Gold owns Act III onward
+     (the climb catching up). Act III is the handoff — which is
+     exactly where the crossover sits.
+
+     Numbers: BLS Occupational Outlook Handbook wages, federal average
+     debt, 10-year standard repayment. Same figures as Application 2.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised instrument panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text — warm paper */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the degree path */
+    --gold-soft:rgba(227,179,76,.14);
+    --sage:#7FB89F;         /* the direct path */
+    --sage-soft:rgba(127,184,159,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.5}
+  .eyebrow{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;
+    color:var(--dim);text-transform:uppercase;
+  }
+  h1{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 30px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--gold);font-weight:normal}
+  .act.sage-act .act-eyebrow b{color:var(--sage)}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup code,.notation code{
+    font-family:var(--mono);font-size:.86em;color:var(--cream);
+    background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap;
+  }
+  .setup b.gold{color:var(--gold);font-weight:normal}
+  .setup b.sage{color:var(--sage);font-weight:normal}
+
+  /* the instrument panel */
+  .panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:18px 18px 14px;
+  }
+  .panel svg{display:block;width:100%;height:auto}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .chip{
+    flex:1 1 140px;min-width:130px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.sage .v{color:var(--sage)}
+  .chip.still .v{color:var(--cream)}
+  .chip.still .k::after{content:" — never moves";letter-spacing:.06em;color:var(--gold);text-transform:none}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:16px;margin-top:14px;flex-wrap:wrap}
+  .controls label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  input[type=range]{
+    flex:1;min-width:200px;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  .sage-act input[type=range]::-webkit-slider-thumb{border-color:var(--sage);box-shadow:0 0 0 4px rgba(127,184,159,.15)}
+  .sage-act input[type=range]::-moz-range-thumb{border-color:var(--sage);box-shadow:0 0 0 4px rgba(127,184,159,.15)}
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:10px 16px;cursor:pointer;
+  }
+  button:hover{border-color:var(--dim)}
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+  /* discovery + notation */
+  .insight{
+    margin:26px 0 0;max-width:37em;
+    opacity:0;transform:translateY(8px);transition:opacity .7s ease,transform .7s ease;
+  }
+  .act.touched .insight{opacity:1;transform:none}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .sage-act .insight .tag{color:var(--sage)}
+  .insight p{
+    font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;
+    border-left:2px solid var(--gold);padding-left:18px;
+  }
+  .sage-act .insight p{border-color:var(--sage)}
+  .notation{
+    margin:22px 0 0;color:var(--faint);font-size:15px;
+    opacity:0;transition:opacity .7s ease .35s;
+  }
+  .act.touched .notation{opacity:1}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  /* punchline cards */
+  .punch{
+    display:none;margin-top:16px;background:var(--gold-soft);
+    border:1px solid rgba(227,179,76,.35);border-radius:8px;padding:14px 18px;
+    font-family:var(--serif);font-size:19px;line-height:1.45;
+  }
+  .punch b{color:var(--gold);font-weight:normal}
+  .act.crossed .punch{display:block}
+  .act.found .punch{display:block}
+
+  /* act IV — the sandbox */
+  .rigs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+  .rig{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:15px 16px 12px;border-left:3px solid var(--rc)}
+  .rig .rig-name{
+    font-family:var(--serif);font-size:20px;color:var(--rc);
+    background:transparent;border:0;border-bottom:1px dashed var(--line);
+    width:100%;padding:0 0 3px;
+  }
+  .rig .rig-name:focus{outline:none;border-bottom-color:var(--rc)}
+  .rig .rig-school{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-top:6px}
+  .knob{margin-top:12px}
+  .knob .kr{display:flex;justify-content:space-between;align-items:baseline}
+  .knob .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .knob .kv{font-family:var(--mono);font-size:15px;color:var(--cream);font-variant-numeric:tabular-nums}
+  .knob input[type=range]{width:100%;min-width:0;height:26px}
+  /* each rig's knobs wear that path's colour, so the control you are
+     dragging and the line it moves are never a guess */
+  .rig input[type=range]::-webkit-slider-thumb{
+    border-color:var(--rc);box-shadow:0 0 0 4px color-mix(in srgb,var(--rc) 16%,transparent);
+  }
+  .rig input[type=range]::-moz-range-thumb{
+    border-color:var(--rc);box-shadow:0 0 0 4px color-mix(in srgb,var(--rc) 16%,transparent);
+  }
+  .rig input[type=range]:focus-visible{outline-color:var(--rc)}
+  .presets{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px}
+
+  .verdict{
+    margin-top:16px;background:var(--panel-2);border:1px solid var(--line);
+    border-left:3px solid var(--gold);border-radius:9px;padding:16px 20px 17px;
+  }
+  .verdict .vk{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .verdict .vh{font-family:var(--serif);font-size:22px;line-height:1.3;margin:6px 0 6px;text-wrap:balance}
+  .verdict .vs{color:var(--dim);font-size:16px;max-width:44em}
+  .verdict .vs b{color:var(--cream);font-weight:normal}
+
+  /* coda */
+  .cav{list-style:none;max-width:38em;margin-top:8px}
+  .cav li{position:relative;padding-left:20px;margin-bottom:12px;color:var(--dim)}
+  .cav li::before{content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+  .cav li b{color:var(--cream);font-weight:normal;font-style:italic}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{
+    font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;
+    max-width:22em;margin:0 auto;text-wrap:balance;
+  }
+  .thesis em{color:var(--gold)}
+  .colophon{
+    margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--faint);
+  }
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:var(--line);stroke-width:1}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:14px}
+  .axistitle{fill:var(--dim);font-family:var(--mono);font-size:12.5px;letter-spacing:.18em;text-transform:uppercase}
+  .plabel{font-family:var(--mono);font-size:13px;letter-spacing:.1em}
+  .startnote{fill:var(--faint);font-family:var(--mono);font-size:11.5px}
+
+  @media (max-width:700px){ .rigs{grid-template-columns:1fr} }
+  @media (max-width:600px){
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 24px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px;min-width:104px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="skysvg" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <div class="eyebrow">IM 1/2H &middot; Unit 1 &middot; Is College Worth It?</div>
+    <h1>The <em>Crossover</em></h1>
+    <p class="dek">Two people, same graduating class. One goes through college; one goes straight to work. This unit runs on one sentence: <strong>whether college is worth it depends on which trade-off you can live with.</strong> Nobody settles that by being told. This page is built so you can watch it — four instruments, two lines.</p>
+    <div class="hint">Everything on this page can be dragged</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE HOLE ════════ -->
+<section class="act" id="act1">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Hole</div>
+    <h2 class="ask">Drag time forward. Watch where her line starts — and how it climbs out.</h2>
+    <p class="setup">A registered nurse. Four years at UCLA, <b class="gold">$22,500</b> owed the day she finishes, then about <b class="gold">$60,000</b> a year take-home. The dashed stretch is school; the solid line starts the year she starts earning.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Year</div><div class="v" id="a1-year">0</div></div>
+      <div class="chip"><div class="k">Age</div><div class="v" id="a1-age">18</div></div>
+      <div class="chip gold"><div class="k">What she has</div><div class="v" id="a1-bal">$0</div></div>
+      <div class="chip still"><div class="k">The climb</div><div class="v">+$60,000/yr</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a1-svg" role="img" aria-label="One line: a nurse's real dollars over twenty years after high school, dipping into debt during four years of school then climbing"></svg>
+      <div class="controls">
+        <label for="a1-range">Years</label>
+        <input type="range" id="a1-range" min="0" max="20" step="1" value="0" aria-label="Years after high school, 0 to 20">
+      </div>
+    </div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>A line is a life. Where it <em>starts</em> is what school cost you and how long it took. How steep it <em>climbs</em> is what a year of work adds. Every argument in this unit is built out of those two numbers.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: <code>y = 60000(t &minus; 4) &minus; 22500</code> &nbsp;<span class="name">&mdash; the 4 is the years in school; the 22,500 is the hole she climbs out of.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — THE HEAD START ════════ -->
+<section class="act sage-act" id="act2">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> The Head Start</div>
+    <h2 class="ask">Now put someone next to her. Drag again &mdash; and notice who is winning.</h2>
+    <p class="setup">An <b class="sage">HVAC technician</b> from the same graduating class. One year at LA Trade&#8209;Tech, <b class="sage">$3,000</b> owed, earning <b class="sage">$38,000</b> by year one &mdash; three years of paychecks before she has cashed a single one.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Year</div><div class="v" id="a2-year">0</div></div>
+      <div class="chip gold"><div class="k">Nurse</div><div class="v" id="a2-rn">$0</div></div>
+      <div class="chip sage"><div class="k">HVAC tech</div><div class="v" id="a2-hv">$0</div></div>
+      <div class="chip"><div class="k">Ahead by</div><div class="v" id="a2-gap">&mdash;</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a2-svg" role="img" aria-label="Two lines compared: a nurse and an HVAC technician, real dollars over twenty years after high school"></svg>
+      <div class="controls">
+        <label for="a2-range">Years</label>
+        <input type="range" id="a2-range" min="0" max="20" step="1" value="0" aria-label="Years after high school, 0 to 20">
+      </div>
+    </div>
+
+    <div class="punch"><b>You just watched the lead change hands.</b> For ten straight years, the one who skipped college was ahead &mdash; and then she wasn&rsquo;t. Act III finds the exact year.</div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>The head start is real: less debt, three more years of paychecks. So is the steeper climb. <em>Who&rsquo;s ahead now</em> and <em>who ends up ahead</em> are two different questions, and most arguments about college quietly answer only one of them.</p>
+    </div>
+    <p class="notation">Two lives, one set of axes: <code>y = 60000(t &minus; 4) &minus; 22500</code> and <code>y = 38000(t &minus; 1) &minus; 3000</code> &nbsp;<span class="name">&mdash; two equations sharing one t. That is a system.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT III — THE CROSSOVER ════════ -->
+<section class="act" id="act3">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act III</b> The Crossover</div>
+    <h2 class="ask">Hunt for the year they are dead even. Drag until the gap hits zero.</h2>
+    <p class="setup">The graph says &ldquo;somewhere around ten.&rdquo; Around ten is not an answer you can argue with. Close the gap by hand first &mdash; then look at what the algebra gives you.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Your guess</div><div class="v" id="a3-year">0.0</div></div>
+      <div class="chip gold"><div class="k">Nurse</div><div class="v" id="a3-rn">$0</div></div>
+      <div class="chip sage"><div class="k">HVAC tech</div><div class="v" id="a3-hv">$0</div></div>
+      <div class="chip"><div class="k">Gap</div><div class="v" id="a3-gap">&mdash;</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a3-svg" role="img" aria-label="The same two lines with a movable year marker and a readout of the gap between them, closing to zero at the crossover"></svg>
+      <div class="controls">
+        <label for="a3-range">Year</label>
+        <input type="range" id="a3-range" min="0" max="20" step="0.1" value="0" aria-label="Year guess, 0 to 20 in tenths">
+      </div>
+    </div>
+
+    <div class="punch"><b>Year 10.1. She is 28.</b> Both of them are sitting on about $342,000 &mdash; and from here on, the gap only opens one way.</div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>One point belongs to both lives at once. That is what solving a system <em>means</em> &mdash; not two answers, but the single moment where two different stories agree. Before it, the head start wins. After it, the climb does.</p>
+    </div>
+    <p class="notation">Set them equal and solve: <code>60000(t &minus; 4) &minus; 22500 = 38000(t &minus; 1) &minus; 3000</code> &nbsp;<span class="name">&mdash; one unknown, one line of algebra, t &asymp; 10.1.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT IV — BREAK IT ════════ -->
+<section class="act" id="act4">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act IV</b> Break It</div>
+    <h2 class="ask">Now make the crossover disappear. There is more than one way &mdash; and they mean different things.</h2>
+    <p class="setup">These are the real numbers, and they are yours to move. Change a wage, a year of school, a debt &mdash; or put your own two careers in and use wages from the <b class="gold">BLS Occupational Outlook Handbook</b>. The verdict underneath rewrites itself as you drag.</p>
+
+    <div class="presets">
+      <button type="button" data-preset="parallel">Make them parallel</button>
+      <button type="button" data-preset="identical">Make them identical</button>
+      <button type="button" data-preset="reset">Back to the real numbers</button>
+    </div>
+
+    <div class="rigs">
+      <div class="rig" style="--rc:#E3B34C" id="rigA"></div>
+      <div class="rig" style="--rc:#7FB89F" id="rigB"></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a4-svg" role="img" aria-label="The two career lines, redrawn live as the wage, schooling and debt controls change"></svg>
+    </div>
+
+    <div class="verdict" id="a4-verdict">
+      <div class="vk" id="a4-vk"></div>
+      <div class="vh" id="a4-vh"></div>
+      <div class="vs" id="a4-vs"></div>
+    </div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p><em>One, none, or infinitely many</em> is not a classification exercise. It is three different answers to the question this unit asks: it pays off in year X &mdash; it never pays off in dollars at all &mdash; or the money is a wash and something else has to decide.</p>
+    </div>
+    <p class="notation">Same climb, different start &rarr; <code>no solution</code>. &nbsp;Same climb, same start &rarr; <code>infinitely many</code>. &nbsp;<span class="name">The shape of the answer is itself an answer.</span></p>
+  </div>
+</section>
+
+<!-- ════════ CODA ════════ -->
+<section class="act" id="act5">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Coda</b> The Part the Graph Can&rsquo;t See</div>
+    <h2 class="ask">Every number on this page is true. None of it is the whole story.</h2>
+    <ul class="cav">
+      <li><b>AI is changing entry-level pay.</b> A lot of work that used to need a degree is getting compressed. Wage data from 2023 may overstate what someone starting today actually earns over the next ten years.</li>
+      <li><b>Real careers don&rsquo;t run in straight lines.</b> Both of these assume the same raise-free wage for thirty years. Nobody has that &mdash; there are promotions, layoffs, career changes, years off.</li>
+      <li><b>Money is one variable.</b> Neither line says anything about what kind of life each path makes possible, and that is usually the part people actually decide on.</li>
+    </ul>
+    <div class="insight" style="opacity:1;transform:none"><span class="tag">Which is the assignment</span>
+      <p>At the end of this unit you make the case &mdash; your two paths, your crossover, your call &mdash; to someone who knows you. The math is the evidence. The verdict is yours.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">&ldquo;Whether college is worth it depends on which trade-off <em>I</em> can live with.&rdquo;</p>
+    <p class="colophon">Mr. Kim &middot; Cambridge Virtual Academy &middot; <span>IM 1/2H Unit 1</span></p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+var SVGNS = "http://www.w3.org/2000/svg";
+
+/* ── the two paths ─────────────────────────────────────────────── */
+var GOLD = "#E3B34C", SAGE = "#7FB89F";
+var DEF = {
+  A:{ name:"Registered Nurse", tag:"RN",   school:"4 yrs · UCLA (BSN)",   wage:60000, years:4, debt:22500, color:GOLD },
+  B:{ name:"HVAC Technician",  tag:"HVAC", school:"1 yr · LA Trade-Tech", wage:38000, years:1, debt:3000,  color:SAGE }
+};
+function clone(p){ return {name:p.name,tag:p.tag,school:p.school,wage:p.wage,years:p.years,debt:p.debt,color:p.color}; }
+var RIG = { A:clone(DEF.A), B:clone(DEF.B) };
+
+/* Where a person stands, in real dollars, t years after high school.
+   In school the debt accrues; from graduation the wage climbs. */
+function pos(p,t){
+  if(p.years <= 0) return p.wage*t - p.debt;
+  return t < p.years ? -p.debt*(t/p.years) : p.wage*(t-p.years) - p.debt;
+}
+
+/* ── formatting ────────────────────────────────────────────────── */
+function money(n){
+  var s = Math.abs(Math.round(n)).toLocaleString("en-US");
+  return (n < -0.5 ? "−$" : "$") + s;
+}
+function moneyK(n){
+  if(n === 0) return "$0";
+  return (n < 0 ? "−$" : "$") + Math.round(Math.abs(n)/1000) + "K";
+}
+function yrTxt(t){ var v = Math.round(t*10)/10; return v % 1 === 0 ? v.toFixed(0) : v.toFixed(1); }
+function yrsTxt(n){ return yrTxt(n) + (n === 1 ? " yr" : " yrs"); }
+
+/* ── svg helpers ───────────────────────────────────────────────── */
+function mk(tag, attrs, parent){
+  var e = document.createElementNS(SVGNS, tag);
+  for(var k in attrs) e.setAttribute(k, attrs[k]);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+function niceStep(x){
+  var p = Math.pow(10, Math.floor(Math.log10(x)));
+  var ms = [1,2,2.5,5,10];
+  for(var i=0;i<ms.length;i++){ if(p*ms[i] >= x) return p*ms[i]; }
+  return p*10;
+}
+
+/* Draw axes + grid into svg; return the scale functions. */
+function frame(svg, tMax, yMin, yMax, h){
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  var W = 920, H = h || 400, ML = 82, MR = 84, MT = 22, MB = 52;
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  var X = function(t){ return ML + t/tMax*(W-ML-MR); };
+  var Y = function(v){ return MT + (yMax-v)/(yMax-yMin)*(H-MT-MB); };
+
+  var step = niceStep((yMax-yMin)/5);
+  var v = Math.ceil(yMin/step)*step;
+  for(; v <= yMax + 1e-6; v += step){
+    var y = Y(v), zero = Math.abs(v) < 1e-6;
+    mk("line", {"class": zero ? "axis" : "gridline", x1:ML, y1:y, x2:W-MR, y2:y}, svg);
+    mk("text", {"class":"ticktext", x:ML-11, y:y+5, "text-anchor":"end"}, svg)
+      .textContent = moneyK(v);
+  }
+  for(var t=0; t<=tMax+1e-9; t+=5){
+    var x = X(t);
+    mk("line", {"class":"gridline", x1:x, y1:H-MB, x2:x, y2:H-MB+6}, svg);
+    mk("text", {"class":"ticktext", x:x, y:H-MB+24, "text-anchor":"middle"}, svg)
+      .textContent = t;
+  }
+  mk("text", {"class":"axistitle", x:(ML+W-MR)/2, y:H-10, "text-anchor":"middle"}, svg)
+    .textContent = "YEARS AFTER HIGH SCHOOL";
+  return {X:X, Y:Y, W:W, H:H, ML:ML, MR:MR, MT:MT, MB:MB};
+}
+
+/* Auto-fit the vertical window to whoever is on stage. */
+function windowFor(paths, tMax){
+  var lo = 0, hi = 0;
+  for(var i=0;i<paths.length;i++){
+    for(var t=0;t<=tMax+1e-9;t+=0.5){
+      var v = pos(paths[i], t);
+      if(v < lo) lo = v; if(v > hi) hi = v;
+    }
+  }
+  var padHi = niceStep(Math.max(hi,1)/5);
+  /* The hole needs visible depth. Scaled off the debt alone it lands a
+     pixel or two above the axis, because the debt is tiny next to thirty
+     years of wages — so the floor is scaled off the whole span too. */
+  var padLo = Math.max(niceStep(Math.max(-lo,1)/2)*0.4, (hi-lo)*0.05);
+  return { yMin: lo - padLo, yMax: hi + padHi*0.5 };
+}
+
+/* One person's track: dashed through school, solid once earning. */
+function track(svg, S, p, tMax, opts){
+  opts = opts || {};
+  if(p.years > 0){
+    mk("line", {
+      x1:S.X(0), y1:S.Y(0), x2:S.X(p.years), y2:S.Y(-p.debt),
+      stroke:p.color, "stroke-width":2.2, "stroke-dasharray":"6 6",
+      opacity:.45, "stroke-linecap":"round"
+    }, svg);
+  }
+  mk("line", {
+    x1:S.X(p.years), y1:S.Y(-p.debt), x2:S.X(tMax), y2:S.Y(pos(p,tMax)),
+    stroke:p.color, "stroke-width":3, "stroke-linecap":"round"
+  }, svg);
+  mk("circle", {cx:S.X(p.years), cy:S.Y(-p.debt), r:6, fill:p.color, stroke:"#0B1526", "stroke-width":2}, svg);
+  if(opts.startNote){
+    /* Left of the dot, over the faint school segment — which is what the
+       number describes anyway. Centred-below hits the x-axis tick labels
+       (the start sits near $0); centred-above hits the line climbing out
+       of it. Left is the only clear quadrant, so only Act I — one line,
+       room to spare — carries these at all. */
+    mk("text", {"class":"startnote", x:S.X(p.years)-2, y:S.Y(-p.debt)-16, "text-anchor":"end"}, svg)
+      .textContent = p.debt > 0 ? "owes " + money(p.debt) : "owes nothing";
+  }
+  if(opts.label !== false){
+    mk("text", {"class":"plabel", x:S.X(tMax)+10, y:S.Y(pos(p,tMax))+5, fill:p.color}, svg)
+      .textContent = p.tag;
+  }
+}
+
+/* The vertical "now" marker plus a dot on each track. */
+function marker(svg, S, t, paths, tMax){
+  mk("line", {x1:S.X(t), y1:S.MT, x2:S.X(t), y2:S.H-S.MB, stroke:"#F2EBDD", "stroke-width":1, opacity:.3}, svg);
+  for(var i=0;i<paths.length;i++){
+    mk("circle", {cx:S.X(t), cy:S.Y(pos(paths[i],t)), r:5.5, fill:paths[i].color, stroke:"#0B1526", "stroke-width":2}, svg);
+  }
+}
+
+function touch(id){ document.getElementById(id).classList.add("touched"); }
+
+/* ════════ the header sky — two faint lines, crossing ════════ */
+(function sky(){
+  var svg = document.getElementById("skysvg");
+  var W = 1200, H = 380;
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  for(var i=0;i<7;i++){
+    mk("line", {x1:0, y1:H-i*46, x2:W, y2:H-i*46, stroke:"#223650", "stroke-width":1, opacity:.5}, svg);
+  }
+  mk("line", {x1:120, y1:H-18, x2:1080, y2:56, stroke:GOLD, "stroke-width":2, opacity:.26, "stroke-linecap":"round"}, svg);
+  mk("line", {x1:120, y1:H-96, x2:1080, y2:150, stroke:SAGE, "stroke-width":2, opacity:.26, "stroke-linecap":"round"}, svg);
+  /* the dot sits where those two actually cross — solved, not eyeballed */
+  mk("circle", {cx:555, cy:223, r:5, fill:"#F2EBDD", opacity:.3}, svg);
+})();
+
+/* ════════ ACT I ════════ */
+(function actI(){
+  var svg = document.getElementById("a1-svg"), rng = document.getElementById("a1-range");
+  var tMax = 20;
+  function draw(){
+    var t = +rng.value;
+    var win = windowFor([DEF.A], tMax);
+    var S = frame(svg, tMax, win.yMin, win.yMax);
+    track(svg, S, DEF.A, tMax, {startNote:true});
+    marker(svg, S, t, [DEF.A], tMax);
+    document.getElementById("a1-year").textContent = t;
+    document.getElementById("a1-age").textContent = 18 + t;
+    document.getElementById("a1-bal").textContent = money(pos(DEF.A, t));
+  }
+  rng.addEventListener("input", function(){ touch("act1"); draw(); });
+  draw();
+})();
+
+/* ════════ ACT II ════════ */
+(function actII(){
+  var svg = document.getElementById("a2-svg"), rng = document.getElementById("a2-range");
+  var tMax = 20, act = document.getElementById("act2");
+  function draw(){
+    var t = +rng.value;
+    var win = windowFor([DEF.A, DEF.B], tMax);
+    var S = frame(svg, tMax, win.yMin, win.yMax);
+    track(svg, S, DEF.A, tMax);
+    track(svg, S, DEF.B, tMax);
+    marker(svg, S, t, [DEF.A, DEF.B], tMax);
+    var a = pos(DEF.A,t), b = pos(DEF.B,t), d = a-b;
+    document.getElementById("a2-year").textContent = t;
+    document.getElementById("a2-rn").textContent = money(a);
+    document.getElementById("a2-hv").textContent = money(b);
+    var gap = document.getElementById("a2-gap");
+    if(Math.abs(d) < 1000){ gap.textContent = "dead even"; gap.style.color = "#F2EBDD"; }
+    else if(d > 0){ gap.textContent = "RN " + money(d); gap.style.color = GOLD; }
+    else { gap.textContent = "HVAC " + money(-d); gap.style.color = SAGE; }
+    act.classList.toggle("crossed", t >= 11);
+  }
+  rng.addEventListener("input", function(){ touch("act2"); draw(); });
+  draw();
+})();
+
+/* ════════ ACT III ════════ */
+(function actIII(){
+  var svg = document.getElementById("a3-svg"), rng = document.getElementById("a3-range");
+  var tMax = 20, act = document.getElementById("act3");
+  function draw(){
+    var t = +rng.value;
+    var win = windowFor([DEF.A, DEF.B], tMax);
+    var S = frame(svg, tMax, win.yMin, win.yMax);
+    track(svg, S, DEF.A, tMax);
+    track(svg, S, DEF.B, tMax);
+
+    var a = pos(DEF.A,t), b = pos(DEF.B,t), d = a-b;
+    /* the gap, drawn as the thing you are closing */
+    if(Math.abs(d) > 400){
+      mk("line", {x1:S.X(t), y1:S.Y(a), x2:S.X(t), y2:S.Y(b),
+        stroke:(d>0?GOLD:SAGE), "stroke-width":6, opacity:.35, "stroke-linecap":"round"}, svg);
+    }
+    marker(svg, S, t, [DEF.A, DEF.B], tMax);
+
+    /* Both lines have to be real before "even" means anything. At t = 0 they
+       are both at $0 — neither has started earning — and a naked gap test
+       reads that as the crossover, handing over the answer before the
+       student has dragged anything. Same domain rule Act IV's "one on
+       paper, none in life" verdict is built to teach. */
+    var earning = Math.max(DEF.A.years, DEF.B.years);
+    var found = t >= earning && Math.abs(d) < 1500;
+    if(found){
+      var cy = S.Y((a+b)/2);
+      mk("circle", {cx:S.X(t), cy:cy, r:11, fill:"none", stroke:"#F2EBDD", "stroke-width":1.5, opacity:.5}, svg);
+      mk("circle", {cx:S.X(t), cy:cy, r:6, fill:"#F2EBDD", stroke:"#0B1526", "stroke-width":2}, svg);
+    }
+    document.getElementById("a3-year").textContent = yrTxt(t);
+    document.getElementById("a3-rn").textContent = money(a);
+    document.getElementById("a3-hv").textContent = money(b);
+    var gap = document.getElementById("a3-gap");
+    if(found){ gap.textContent = "≈ $0 — even"; gap.style.color = "#F2EBDD"; }
+    else { gap.textContent = money(Math.abs(d)); gap.style.color = (d>0?GOLD:SAGE); }
+    act.classList.toggle("found", found);
+  }
+  rng.addEventListener("input", function(){ touch("act3"); draw(); });
+  draw();
+})();
+
+/* ════════ ACT IV ════════ */
+(function actIV(){
+  var svg = document.getElementById("a4-svg"), act = document.getElementById("act4");
+  var tMax = 20;
+  var KNOBS = [
+    {f:"wage",  k:"Take-home pay",    min:20000, max:120000, step:1000, fmt:function(v){ return money(v) + " / yr"; }},
+    {f:"years", k:"Years in school",  min:0,     max:6,      step:0.5,  fmt:function(v){ return yrsTxt(v); }},
+    {f:"debt",  k:"Owes at the finish",min:0,    max:80000,  step:500,  fmt:function(v){ return money(v); }}
+  ];
+
+  function buildRig(key){
+    var p = RIG[key], host = document.getElementById("rig" + key), html = "";
+    html += '<input class="rig-name" data-k="' + key + '" value="' + p.name.replace(/"/g,"&quot;") + '" maxlength="26" aria-label="Path name">';
+    html += '<div class="rig-school">' + p.school + '</div>';
+    for(var i=0;i<KNOBS.length;i++){
+      var n = KNOBS[i];
+      html += '<div class="knob"><div class="kr"><span class="kk">' + n.k + '</span>' +
+              '<span class="kv" id="' + key + n.f + 'V">' + n.fmt(p[n.f]) + '</span></div>' +
+              '<input type="range" id="' + key + n.f + '" data-k="' + key + '" data-f="' + n.f + '" ' +
+              'min="' + n.min + '" max="' + n.max + '" step="' + n.step + '" value="' + p[n.f] + '" ' +
+              'aria-label="' + n.k + '"></div>';
+    }
+    host.innerHTML = html;
+  }
+  function syncRig(){
+    ["A","B"].forEach(function(key){
+      var p = RIG[key];
+      KNOBS.forEach(function(n){
+        document.getElementById(key + n.f + "V").textContent = n.fmt(p[n.f]);
+        document.getElementById(key + n.f).value = p[n.f];
+      });
+    });
+  }
+
+  /* The system of the two solid lines: y = w*t - c, with c = w*a + d. */
+  function solve(){
+    var A = RIG.A, B = RIG.B;
+    var cA = A.wage*A.years + A.debt, cB = B.wage*B.years + B.debt;
+    var dw = A.wage - B.wage;
+    if(Math.abs(dw) < 0.5){
+      if(Math.abs(cA-cB) < 600) return {kind:"same"};
+      return {kind:"parallel", gap:Math.abs(cA-cB), leader:(cA < cB ? "A" : "B")};
+    }
+    var t = (cA-cB)/dw, y = A.wage*t - cA;
+    var leader = dw > 0 ? "A" : "B";
+    if(t < Math.max(A.years, B.years) - 1e-9) return {kind:"paper", t:t, y:y, leader:leader};
+    if(t <= tMax) return {kind:"one", t:t, y:y, leader:leader};
+    return {kind:"far", t:t, y:y, leader:leader};
+  }
+
+  function draw(){
+    var win = windowFor([RIG.A, RIG.B], tMax);
+    var S = frame(svg, tMax, win.yMin, win.yMax);
+    track(svg, S, RIG.A, tMax);
+    track(svg, S, RIG.B, tMax);
+    var sys = solve();
+    if(sys.kind === "one"){
+      mk("circle", {cx:S.X(sys.t), cy:S.Y(sys.y), r:11, fill:"none", stroke:"#F2EBDD", "stroke-width":1.5, opacity:.5}, svg);
+      mk("circle", {cx:S.X(sys.t), cy:S.Y(sys.y), r:6, fill:"#F2EBDD", stroke:"#0B1526", "stroke-width":2}, svg);
+      mk("text", {"class":"plabel", x:S.X(sys.t), y:S.Y(sys.y)-20, "text-anchor":"middle", fill:"#F2EBDD"}, svg)
+        .textContent = "even · year " + yrTxt(sys.t);
+    }
+    verdict(sys);
+  }
+
+  function verdict(sys){
+    var nm = function(k){ return "<b>" + RIG[k].name + "</b>"; };
+    var kind, head, sub;
+    if(sys.kind === "one"){
+      kind = "One solution";
+      head = "They meet at year " + yrTxt(sys.t) + " — and only there.";
+      sub = "Both paths sit near " + money(Math.round(sys.y/1000)*1000) + " at age " + Math.round(18+sys.t) +
+            ". Before that point the head start wins; after it, the climb does — " + nm(sys.leader) +
+            " takes the lead and keeps it.";
+    } else if(sys.kind === "far"){
+      kind = "One solution — off this chart";
+      head = "They do meet — at year " + yrTxt(sys.t) + ".";
+      sub = "That is age " + Math.round(18+sys.t) + ", most of a career away. The algebra still returns exactly one answer. " +
+            "Whether a payoff that far out should decide anything is a different question, and it is yours.";
+    } else if(sys.kind === "parallel"){
+      kind = "No solution";
+      head = "Parallel lines. They never meet.";
+      sub = "Same climb, different start — the gap locks in at <b>" + money(sys.gap) + "</b> and never closes. " +
+            "When the slopes match, the whole decision is the starting point: what school costs and how long it takes. " +
+            nm(sys.leader) + " keeps the lead forever.";
+    } else if(sys.kind === "same"){
+      kind = "Infinitely many solutions";
+      head = "The same line, twice.";
+      sub = "Every year is a meeting point — in money terms these are the same life. " +
+            "Which means the money cannot decide this one. Something the graph can’t see has to.";
+    } else {
+      kind = "One on paper — none in life";
+      head = "Algebra finds year " + yrTxt(sys.t) + ". Real life throws it out.";
+      sub = "The lines “cross” before both people have even finished school — outside the years where these " +
+            "equations are true. In the years that actually happen, " + nm(sys.leader) + " leads from day one. " +
+            "Solving the system is half the work; reading the domain is the other half.";
+    }
+    document.getElementById("a4-vk").innerHTML = kind;
+    document.getElementById("a4-vh").innerHTML = head;
+    document.getElementById("a4-vs").innerHTML = sub;
+  }
+
+  document.querySelector(".rigs").addEventListener("input", function(e){
+    var t = e.target;
+    if(t.matches("input[type=range]")){
+      RIG[t.dataset.k][t.dataset.f] = +t.value;
+      touch("act4"); syncRig(); draw();
+    } else if(t.matches(".rig-name")){
+      var k = t.dataset.k, v = t.value.trim() || DEF[k].name;
+      RIG[k].name = v;
+      RIG[k].tag = (v === DEF[k].name) ? DEF[k].tag : v.split(/\s+/)[0].slice(0,10).toUpperCase();
+      touch("act4"); draw();
+    }
+  });
+
+  document.querySelector(".presets").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-preset]"); if(!b) return;
+    var which = b.dataset.preset;
+    if(which === "reset"){ RIG.A = clone(DEF.A); RIG.B = clone(DEF.B); }
+    else if(which === "parallel"){ RIG.A = clone(DEF.A); RIG.B = clone(DEF.B); RIG.A.wage = RIG.B.wage; }
+    else if(which === "identical"){ RIG.A = clone(DEF.A); RIG.B = clone(DEF.B);
+      RIG.A.wage = RIG.B.wage; RIG.A.years = RIG.B.years; RIG.A.debt = RIG.B.debt; }
+    buildRig("A"); buildRig("B"); touch("act4"); draw();
+  });
+
+  buildRig("A"); buildRig("B"); draw();
+})();
+</script>

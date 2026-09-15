@@ -1,0 +1,107 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The units of IM 1/2H on CVA Math.">
+<title>IM 1/2H · Is College Worth It? · CVA Math</title>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     CVA MATH — the front page of cva-math.github.io
+
+     The words on this page are yours to edit here: the title, the dek,
+     each class's name and theme, the footer. go-live.command fills in
+     the rest when it publishes — each class's list of units, plus every
+     class page and unit page, all drawn with this <style>.
+
+     Each class sits between <!-- course:FOLDER --> and <!-- /course -->.
+     A class with nothing public yet is left off the site automatically,
+     so all five can stay here. FOLDER must match the folder in Courses/
+     exactly, capitals included: it becomes the address.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526; --panel:#101E33; --line:#2A3F5A; --line-soft:#223650;
+    --cream:#F2EBDD; --dim:#8FA0B5; --faint:#5C6E85; --gold:#E3B34C;
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px}
+
+  header{padding:90px 0 46px;border-bottom:1px solid var(--line-soft)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(40px,8vw,64px);
+    line-height:1.05;letter-spacing:-.01em;margin:16px 0 20px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:32em;color:var(--dim);font-size:18px}
+
+  .course{padding:44px 0 0}
+  .course-name{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:16px;
+  }
+  .list{display:flex;flex-direction:column;gap:12px}
+  a.card{
+    display:block;text-decoration:none;color:inherit;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:20px 22px;transition:border-color .2s ease,transform .2s ease;
+  }
+  a.card:hover{border-color:var(--gold);transform:translateY(-2px)}
+  a.card:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .card-unit{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .card-title{font-family:var(--serif);font-size:26px;line-height:1.2;margin:5px 0 7px}
+  .card-title .arrow{color:var(--gold)}
+  .card-note{color:var(--dim);font-size:15.5px;line-height:1.5}
+  .card-note:empty{display:none}
+
+  footer{padding:72px 0 90px}
+  .note{color:var(--faint);font-size:14.5px;max-width:34em;border-left:2px solid var(--line);padding-left:16px}
+
+  @media (prefers-reduced-motion:reduce){ a.card{transition:none} a.card:hover{transform:none} }
+  @media (max-width:600px){
+    header{padding:60px 0 38px}
+    .course{padding:34px 0 0}
+    .card-title{font-size:23px}
+  }
+</style>
+
+<header>
+  <div class="wrap">
+    <a class="up" href="../">&larr; CVA Math</a>
+    <div class="eyebrow">IM 1/2H</div>
+    <h1>Is College Worth It?</h1>
+  </div>
+</header>
+
+<main>
+  <section class="course">
+    <div class="wrap">
+      <div class="course-name">Units</div>
+      <div class="list">
+        <a class="card" href="unit-1/">
+          <div class="card-unit">Unit 1</div>
+          <div class="card-title">Is College Worth It? <span class="arrow">&rarr;</span></div>
+          <p class="card-note">Trailer — The Crossover</p>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="note">These pages are open to anyone — no login, nothing to install. They work on a Chromebook and on a phone.</p>
+  </div>
+</footer>

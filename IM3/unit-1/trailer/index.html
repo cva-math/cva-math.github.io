@@ -1,0 +1,718 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Five instruments, one curve: how money multiplies, what a ten-year wait costs, and the flip that turns an exponent into a logarithm.">
+<title>The Shape of Money</title>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     THE SHAPE OF MONEY — the trailer for IM3 Unit 1, The Compound Effect
+     Cut from the finished unit: Modules 1–4 plus a teaser for e.
+     A committed single-theme night design — the page is a dark chart
+     room where the curve is the light source. Gold reads money forward
+     (exponential); sage reads time backward (logarithm).
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised instrument panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text — warm paper */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* money, growth, the forward reading */
+    --gold-soft:rgba(227,179,76,.14);
+    --late:#C97B3F;         /* the investor who waited */
+    --sage:#7FB89F;         /* time, the backward reading (the log) */
+    --sage-soft:rgba(127,184,159,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);
+    color:var(--cream);
+    font-family:var(--body);
+    font-size:17px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.5}
+  .eyebrow{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;
+    color:var(--dim);text-transform:uppercase;
+  }
+  h1{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 30px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--gold);font-weight:normal}
+  .act.sage-act .act-eyebrow b{color:var(--sage)}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup code,.notation code{
+    font-family:var(--mono);font-size:.86em;color:var(--cream);
+    background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap;
+  }
+
+  /* the instrument panel */
+  .panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:18px 18px 14px;
+  }
+  .panel svg{display:block;width:100%;height:auto}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .chip{
+    flex:1 1 140px;min-width:130px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.late .v{color:var(--late)}
+  .chip.sage .v{color:var(--sage)}
+  .chip.still .v{color:var(--cream)}
+  .chip.still .k::after{content:" — never moves";letter-spacing:.06em;color:var(--gold);text-transform:none}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:16px;margin-top:14px;flex-wrap:wrap}
+  .controls label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  input[type=range]{
+    flex:1;min-width:200px;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  .sage-act input[type=range]::-webkit-slider-thumb{border-color:var(--sage);box-shadow:0 0 0 4px rgba(127,184,159,.15)}
+  .sage-act input[type=range]::-moz-range-thumb{border-color:var(--sage);box-shadow:0 0 0 4px rgba(127,184,159,.15)}
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:10px 16px;cursor:pointer;
+  }
+  button:hover{border-color:var(--dim)}
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  button.primary{color:var(--night);background:var(--sage);border-color:var(--sage);font-weight:bold}
+  button.primary:hover{filter:brightness(1.08)}
+  .seg{display:flex;gap:0;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+
+  /* discovery + notation */
+  .insight{
+    margin:26px 0 0;max-width:37em;
+    opacity:0;transform:translateY(8px);transition:opacity .7s ease,transform .7s ease;
+  }
+  .act.touched .insight{opacity:1;transform:none}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .sage-act .insight .tag{color:var(--sage)}
+  .insight p{
+    font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;
+    border-left:2px solid var(--gold);padding-left:18px;
+  }
+  .sage-act .insight p{border-color:var(--sage)}
+  .notation{
+    margin:22px 0 0;color:var(--faint);font-size:15px;
+    opacity:0;transition:opacity .7s ease .35s;
+  }
+  .act.touched .notation{opacity:1}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  /* punchline card (act II) */
+  .punch{
+    display:none;margin-top:16px;background:var(--gold-soft);
+    border:1px solid rgba(227,179,76,.35);border-radius:8px;padding:14px 18px;
+    font-family:var(--serif);font-size:19px;line-height:1.45;
+  }
+  .punch b{color:var(--gold);font-weight:normal}
+  .act.at65 .punch{display:block}
+
+  /* act III flip stage */
+  .flipstage{perspective:1600px}
+  .flipper{position:relative;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.4,0,.2,1)}
+  .flipper.flipped{transform:rotateY(180deg)}
+  .face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .face.back{position:absolute;inset:0;transform:rotateY(180deg)}
+  @media (prefers-reduced-motion:reduce){.flipper{transition:none}}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{
+    font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;
+    max-width:22em;margin:0 auto;text-wrap:balance;
+  }
+  .thesis em{color:var(--gold)}
+  .colophon{
+    margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--faint);
+  }
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:var(--line);stroke-width:1}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:14px}
+  .axistitle{fill:var(--dim);font-family:var(--mono);font-size:12.5px;letter-spacing:.18em;text-transform:uppercase}
+
+  @media (max-width:600px){
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 24px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px;min-width:104px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="skysvg" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <div class="eyebrow">IM3 &middot; Unit 1 &middot; The Compound Effect</div>
+    <h1>The Shape of <em>Money</em></h1>
+    <p class="dek">This unit runs on one sentence: <strong>time is the most valuable thing you have with money.</strong> Nobody believes that sentence by being told it. This page is built so you can see it — five instruments, one curve.</p>
+    <div class="hint">Everything on this page can be dragged</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE MACHINE ════════ -->
+<section class="act" id="act1">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Machine</div>
+    <h2 class="ask">Drag time forward. Watch what the money does — and watch what never changes.</h2>
+    <p class="setup">$1,000 goes in once, at 7% a year. The faint straight line is what most people <em>expect</em> — the same $70 added every year. The bars are what actually happens.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Year</div><div class="v" id="a1-year">0</div></div>
+      <div class="chip gold"><div class="k">Balance</div><div class="v" id="a1-bal">$1,000</div></div>
+      <div class="chip"><div class="k">Growth this year</div><div class="v" id="a1-jump">—</div></div>
+      <div class="chip still"><div class="k">The rule</div><div class="v">&times;1.07</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a1-svg" viewBox="0 0 920 400" role="img" aria-label="Bar chart: $1,000 compounding at 7% for 40 years, against a straight line adding $70 a year"></svg>
+      <div class="controls">
+        <label for="a1-range">Years</label>
+        <input type="range" id="a1-range" min="0" max="40" step="1" value="0" aria-label="Years invested, 0 to 40">
+      </div>
+    </div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>The dollars added get bigger every single year — but the rule never changes. Money doesn&rsquo;t grow by adding. It grows by multiplying, and multiplication compounds.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: <code>A = 1000(1.07)<sup>t</sup></code> &nbsp;<span class="name">— the 1.07 is the machine; t is how long you let it run.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — THE WAIT ════════ -->
+<section class="act" id="act2">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> The Wait</div>
+    <h2 class="ask">Two of you. Same $5,000, same 7%. One starts at 18. One waits until 28.</h2>
+    <p class="setup">Drag your age to 65. The shaded region is what the ten-year wait costs — not in effort, not in extra deposits. Just in time.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Age</div><div class="v" id="a2-age">18</div></div>
+      <div class="chip gold"><div class="k">Started at 18</div><div class="v" id="a2-early">$5,000</div></div>
+      <div class="chip late"><div class="k">Started at 28</div><div class="v" id="a2-late">waiting&hellip;</div></div>
+      <div class="chip"><div class="k">The gap</div><div class="v" id="a2-gap">$0</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a2-svg" viewBox="0 0 920 420" role="img" aria-label="Two curves: $5,000 invested at 18 versus at 28, both at 7%, with the widening gap shaded"></svg>
+      <div class="controls">
+        <label for="a2-range">Your age</label>
+        <input type="range" id="a2-range" min="18" max="65" step="1" value="18" aria-label="Age, 18 to 65">
+      </div>
+    </div>
+
+    <div class="punch" id="a2-punch"></div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Both of you paid the same $5,000. The first ten years did more work than any ten that followed — because everything after them multiplied what they built.</p>
+    </div>
+    <p class="notation">Same machine, run twice: <code>5000(1.07)<sup>47</sup></code> vs <code>5000(1.07)<sup>37</sup></code>. <span class="name">The exponent is the only thing that changed.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT III — THE FLIP ════════ -->
+<section class="act sage-act" id="act3">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act III</b> The Flip</div>
+    <h2 class="ask">New question. Not <i>&ldquo;what will I have in 30 years?&rdquo;</i> — <i>&ldquo;when will I hit $8,000?&rdquo;</i></h2>
+    <p class="setup">$1,000 at 7% again. Slide the target to a dollar amount you care about, and watch the curve answer with a <em>time</em>. You&rsquo;re reading the curve backwards. Then press the button.</p>
+
+    <div class="chips">
+      <div class="chip gold"><div class="k">Target</div><div class="v" id="a3-money">$8,000</div></div>
+      <div class="chip sage"><div class="k">The curve answers</div><div class="v" id="a3-time">30.7 years</div></div>
+    </div>
+
+    <div class="flipstage">
+      <div class="flipper" id="a3-flipper">
+        <div class="panel face front">
+          <svg id="a3-front" viewBox="0 0 920 420" role="img" aria-label="Exponential curve read forwards: time in, money out — with a horizontal target line finding its year"></svg>
+        </div>
+        <div class="panel face back">
+          <svg id="a3-back" viewBox="0 0 920 420" role="img" aria-label="The same curve flipped over the diagonal: money in, time out — the logarithm"></svg>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <label for="a3-range">Target</label>
+      <input type="range" id="a3-range" min="1000" max="16000" step="100" value="8000" aria-label="Target dollars, 1,000 to 16,000">
+      <button class="primary" id="a3-flipbtn">Flip the axes</button>
+    </div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>That&rsquo;s the whole secret of this unit. You didn&rsquo;t learn a new function — you turned the old one sideways. The backwards reading has a name: the <em>logarithm</em>. Exponents answer <i>how much</i>. Logs answer <i>how long</i>.</p>
+    </div>
+    <p class="notation">The name for the flip: <code>t = log(8) / log(1.07) &approx; 30.7</code> <span class="name">— log is the button that reads the curve backwards. Your calculator has it. Now you know what it&rsquo;s pressing.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT IV — THE RULER ════════ -->
+<section class="act" id="act4">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act IV</b> The Investor&rsquo;s Ruler</div>
+    <h2 class="ask">Same money. New ruler. Stop counting dollars — start comparing them.</h2>
+    <p class="setup">The normal axis counts: $20k is one step above $10k, and $30k one step above that. The <em>ratio ruler</em> compares: one step means &ldquo;&times;2,&rdquo; wherever you stand. Switch and watch the curve.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Investment</div><div class="v">$5,000 at 7%</div></div>
+      <div class="chip gold"><div class="k">Every doubling takes</div><div class="v" id="a4-dbl">10.24 years</div></div>
+      <div class="chip"><div class="k">Investor&rsquo;s shortcut</div><div class="v">72 &divide; 7 &asymp; 10.3</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a4-svg" viewBox="0 0 920 430" role="img" aria-label="The same growth drawn on a dollar axis, then on a ratio axis where it becomes a straight line with equal doubling stripes"></svg>
+      <div class="controls">
+        <label>Axis</label>
+        <div class="seg" role="group" aria-label="Choose the vertical axis">
+          <button id="a4-lin" aria-pressed="true">Counting &middot; dollars</button>
+          <button id="a4-log" aria-pressed="false">Comparing &middot; ratios</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>On the ratio ruler, steady multiplication is a <em>straight line</em> — and every doubling takes the same 10.2 years. This is the axis every serious market chart is drawn on. You can read those charts now.</p>
+    </div>
+    <p class="notation">The ratio ruler&rsquo;s real name: <span class="name">a logarithmic scale — the log from Act III, used as a lens instead of a button.</span></p>
+  </div>
+</section>
+
+<!-- ════════ CODA — THE SPEED LIMIT ════════ -->
+<section class="act" id="act5">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Coda</b> The Speed Limit</div>
+    <h2 class="ask">One dollar. 100% interest. One year. Compound it more and more often — where does it stop?</h2>
+    <p class="setup">Once a year turns $1 into $2. Twice a year does better. Every day, better still. It looks like it should run to infinity. It doesn&rsquo;t.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Compounded</div><div class="v" id="a5-label">once a year</div></div>
+      <div class="chip gold"><div class="k">$1 becomes</div><div class="v" id="a5-val">$2.00000</div></div>
+    </div>
+
+    <div class="panel">
+      <svg id="a5-svg" viewBox="0 0 920 320" role="img" aria-label="Dots for compounding once, monthly, weekly, daily, hourly — converging on a dashed ceiling at e, about 2.71828"></svg>
+      <div class="controls">
+        <div class="seg" id="a5-seg" role="group" aria-label="How often to compound">
+          <button data-n="1" aria-pressed="true">Yearly</button>
+          <button data-n="12" aria-pressed="false">Monthly</button>
+          <button data-n="52" aria-pressed="false">Weekly</button>
+          <button data-n="365" aria-pressed="false">Daily</button>
+          <button data-n="8760" aria-pressed="false">Hourly</button>
+          <button data-n="inf" aria-pressed="false">Continuously</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Compounding has a natural ceiling. Push the frequency to infinity and $1 lands on 2.71828&hellip; — a number the universe picked, not a person. Its name is <em>e</em>, and it&rsquo;s waiting for you in Module 3.</p>
+    </div>
+    <p class="notation">The name for the ceiling: <code>e &approx; 2.71828</code> <span class="name">— the base of every continuously-growing thing: money, populations, spread.</span></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">You now own the two directions of one curve: <em>how much</em>, and <em>how long</em>. The rest of the unit is learning to point them at your own life.</p>
+    <div class="colophon">The Investor&rsquo;s Casebook &middot; <span>Follow the Money</span> &middot; IM3 Edition</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function fmt$(v){ return "$" + Math.round(v).toLocaleString("en-US"); }
+  function touched(actId){
+    var a = $(actId);
+    if (!a.classList.contains("touched")) a.classList.add("touched");
+  }
+  var GOLD = "#E3B34C", LATE = "#C97B3F", SAGE = "#7FB89F",
+      CREAM = "#F2EBDD", DIM = "#8FA0B5", FAINT = "#5C6E85",
+      LINE = "#2A3F5A", SOFT = "#223650";
+
+  /* ── header sky: a faint destiny curve ─────────────────────── */
+  (function(){
+    var s = $("skysvg"); s.setAttribute("viewBox","0 0 960 300");
+    var pts = [];
+    for (var t=0; t<=42; t++){
+      var x = 40 + t*(880/42);
+      var y = 290 - 12*Math.pow(1.07, t)*1.55;
+      pts.push(x+","+y);
+    }
+    el("polyline",{points:pts.join(" "),fill:"none",stroke:GOLD,"stroke-width":1.5,opacity:.5},s);
+    for (var i=0; i<=42; i+=6){
+      var x2 = 40 + i*(880/42), y2 = 290 - 12*Math.pow(1.07,i)*1.55;
+      el("circle",{cx:x2,cy:y2,r:2.6,fill:GOLD,opacity:.75},s);
+    }
+  })();
+
+  /* ════ ACT I — the machine ═══════════════════════════════════ */
+  (function(){
+    var svg = $("a1-svg"), W=920, H=400,
+        m = {l:74, r:18, t:22, b:44},
+        T = 40, P = 1000, r = 0.07,
+        max = P*Math.pow(1+r,T)*1.04;
+    var X = function(t){ return m.l + t*(W-m.l-m.r)/T; },
+        Y = function(v){ return H-m.b - v*(H-m.t-m.b)/max; };
+    [0,3000,6000,9000,12000,15000].forEach(function(v){
+      el("line",{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),class:"gridline"},svg);
+      el("text",{x:m.l-10,y:Y(v)+4,"text-anchor":"end",class:"ticktext"},svg,"$"+(v/1000)+(v?"k":""));
+    });
+    el("line",{x1:m.l,x2:W-m.r,y1:H-m.b,y2:H-m.b,class:"axis"},svg);
+    [0,10,20,30,40].forEach(function(t){
+      el("text",{x:X(t),y:H-m.b+22,"text-anchor":"middle",class:"ticktext"},svg,"yr "+t);
+    });
+    el("text",{x:W-m.r,y:H-m.b+40,"text-anchor":"end",class:"axistitle"},svg,"Time →");
+    el("line",{x1:X(0),y1:Y(P),x2:X(T),y2:Y(P+P*r*T),stroke:DIM,"stroke-width":1.8,"stroke-dasharray":"5 6",opacity:.9},svg);
+    el("text",{x:X(T)-6,y:Y(P+P*r*T)-12,"text-anchor":"end",fill:DIM,"font-family":"var(--mono)","font-size":"14px"},svg,"adding +$70 a year → $3,800");
+    var bw = (W-m.l-m.r)/(T+1) - 4.5, bars=[];
+    for (var t=0; t<=T; t++){
+      var v = P*Math.pow(1+r,t), x = X(t)-bw/2;
+      el("rect",{x:x,y:Y(v),width:bw,height:(H-m.b)-Y(v),fill:GOLD,opacity:.10,rx:2},svg);
+      bars.push(el("rect",{x:x,y:Y(v),width:bw,height:(H-m.b)-Y(v),fill:GOLD,opacity:0,rx:2},svg));
+    }
+    var tip = el("text",{x:0,y:0,"text-anchor":"middle",fill:GOLD,"font-family":"var(--mono)","font-size":"14px","font-weight":"bold",opacity:0},svg,"");
+    var range = $("a1-range");
+    function draw(){
+      var yr = +range.value, v = P*Math.pow(1+r,yr);
+      bars.forEach(function(b,i){ b.setAttribute("opacity", i<=yr ? .92 : 0); });
+      $("a1-year").textContent = yr;
+      $("a1-bal").textContent = fmt$(v);
+      $("a1-jump").textContent = yr===0 ? "—" : "+"+fmt$(v - P*Math.pow(1+r,yr-1));
+      if (yr>0){ tip.setAttribute("opacity",1); tip.setAttribute("x",X(yr)); tip.setAttribute("y",Y(v)-10); tip.textContent = fmt$(v); }
+      else tip.setAttribute("opacity",0);
+    }
+    range.addEventListener("input", function(){ touched("act1"); draw(); });
+    draw();
+  })();
+
+  /* ════ ACT II — the wait ═════════════════════════════════════ */
+  (function(){
+    var svg = $("a2-svg"), W=920, H=420,
+        m = {l:82, r:18, t:24, b:46},
+        P=5000, r=.07, A0=18, A1=28, END=65,
+        max = P*Math.pow(1+r,END-A0)*1.05;
+    var X = function(a){ return m.l + (a-A0)*(W-m.l-m.r)/(END-A0); },
+        Y = function(v){ return H-m.b - v*(H-m.t-m.b)/max; };
+    [0,25000,50000,75000,100000,125000].forEach(function(v){
+      el("line",{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),class:"gridline"},svg);
+      el("text",{x:m.l-10,y:Y(v)+4,"text-anchor":"end",class:"ticktext"},svg,"$"+(v/1000)+"k");
+    });
+    el("line",{x1:m.l,x2:W-m.r,y1:H-m.b,y2:H-m.b,class:"axis"},svg);
+    [18,28,38,48,58,65].forEach(function(a){
+      el("text",{x:X(a),y:H-m.b+22,"text-anchor":"middle",class:"ticktext"},svg,"age "+a);
+    });
+    var gap = el("polygon",{fill:GOLD,opacity:.13},svg);
+    var early = el("polyline",{fill:"none",stroke:GOLD,"stroke-width":2.6},svg);
+    var late  = el("polyline",{fill:"none",stroke:LATE,"stroke-width":2.6},svg);
+    var de = el("circle",{r:5,fill:GOLD,stroke:"#0B1526","stroke-width":2},svg);
+    var dl = el("circle",{r:5,fill:LATE,stroke:"#0B1526","stroke-width":2,opacity:0},svg);
+    var lbE = el("text",{fill:GOLD,"font-family":"var(--mono)","font-size":"13px","font-weight":"bold","text-anchor":"end"},svg,"");
+    var lbL = el("text",{fill:LATE,"font-family":"var(--mono)","font-size":"13px","font-weight":"bold","text-anchor":"end"},svg,"");
+    var range = $("a2-range"), punch=$("a2-punch");
+    function val(start,a){ return a<start ? 0 : P*Math.pow(1+r, a-start); }
+    function draw(){
+      var age = +range.value, pe=[], pl=[], gp=[];
+      for (var a=A0; a<=age; a++) pe.push(X(a)+","+Y(val(A0,a)));
+      early.setAttribute("points", pe.join(" "));
+      if (age>=A1){
+        for (var a2=A1; a2<=age; a2++) pl.push(X(a2)+","+Y(val(A1,a2)));
+        late.setAttribute("points", pl.join(" "));
+        for (var a3=A1; a3<=age; a3++) gp.push(X(a3)+","+Y(val(A0,a3)));
+        for (var a4=age; a4>=A1; a4--) gp.push(X(a4)+","+Y(val(A1,a4)));
+        gap.setAttribute("points", gp.join(" "));
+        dl.setAttribute("opacity",1);
+        dl.setAttribute("cx",X(age)); dl.setAttribute("cy",Y(val(A1,age)));
+      } else { late.setAttribute("points",""); gap.setAttribute("points",""); dl.setAttribute("opacity",0); }
+      de.setAttribute("cx",X(age)); de.setAttribute("cy",Y(val(A0,age)));
+      var ve=val(A0,age), vl=val(A1,age);
+      lbE.setAttribute("x",X(age)-10); lbE.setAttribute("y",Y(ve)-10); lbE.textContent = age>A0 ? fmt$(ve) : "";
+      lbL.setAttribute("x",X(age)-10); lbL.setAttribute("y",Y(vl)+22); lbL.textContent = age>A1 ? fmt$(vl) : "";
+      $("a2-age").textContent = age;
+      $("a2-early").textContent = fmt$(ve);
+      $("a2-late").textContent = age<A1 ? "waiting…" : fmt$(vl);
+      $("a2-gap").textContent = fmt$(Math.max(0, ve-vl));
+      var act = $("act2");
+      if (age===END){
+        act.classList.add("at65");
+        var g = ve-vl;
+        punch.innerHTML = "At 65 the gap is <b>"+fmt$(g)+"</b> — more than <b>"+Math.floor(g/P)+"&times;</b> everything either of you ever put in. The money was identical. The ten years weren’t.";
+      } else act.classList.remove("at65");
+    }
+    range.addEventListener("input", function(){ touched("act2"); draw(); });
+    draw();
+  })();
+
+  /* ════ ACT III — the flip ════════════════════════════════════ */
+  (function(){
+    var W=920, H=420, P=1000, r=.07, T=42,
+        MMAX = 17000;
+    var f = $("a3-front"), fm={l:78,r:20,t:24,b:46};
+    var fX = function(t){ return fm.l + t*(W-fm.l-fm.r)/T; },
+        fY = function(v){ return H-fm.b - v*(H-fm.t-fm.b)/MMAX; };
+    [0,4000,8000,12000,16000].forEach(function(v){
+      el("line",{x1:fm.l,x2:W-fm.r,y1:fY(v),y2:fY(v),class:"gridline"},f);
+      el("text",{x:fm.l-10,y:fY(v)+4,"text-anchor":"end",class:"ticktext"},f,"$"+(v/1000)+(v?"k":""));
+    });
+    el("line",{x1:fm.l,x2:W-fm.r,y1:H-fm.b,y2:H-fm.b,class:"axis"},f);
+    [0,10,20,30,40].forEach(function(t){
+      el("text",{x:fX(t),y:H-fm.b+22,"text-anchor":"middle",class:"ticktext"},f,"yr "+t);
+    });
+    el("text",{x:W-fm.r,y:H-fm.b+40,"text-anchor":"end",class:"axistitle"},f,"Time in →");
+    el("text",{x:fm.l,y:14,class:"axistitle"},f,"↑ Money out");
+    var fpts=[];
+    for (var t=0;t<=T;t+=.5) fpts.push(fX(t)+","+fY(P*Math.pow(1+r,t)));
+    el("polyline",{points:fpts.join(" "),fill:"none",stroke:GOLD,"stroke-width":2.6},f);
+    var fTarget = el("line",{stroke:SAGE,"stroke-width":1.6,"stroke-dasharray":"6 6"},f);
+    var fDrop = el("line",{stroke:SAGE,"stroke-width":1.6,"stroke-dasharray":"2 5"},f);
+    var fDot = el("circle",{r:6,fill:SAGE,stroke:"#0B1526","stroke-width":2},f);
+    var fLbl = el("text",{fill:SAGE,"font-family":"var(--mono)","font-size":"13.5px","font-weight":"bold","text-anchor":"middle"},f,"");
+
+    var b = $("a3-back"), bm={l:78,r:20,t:24,b:46};
+    var bX = function(v){ return bm.l + v*(W-bm.l-bm.r)/MMAX; },
+        bY = function(t){ return H-bm.b - t*(H-bm.t-bm.b)/T; };
+    [0,4000,8000,12000,16000].forEach(function(v){
+      el("line",{x1:bX(v),x2:bX(v),y1:bm.t,y2:H-bm.b,class:"gridline"},b);
+      el("text",{x:bX(v),y:H-bm.b+22,"text-anchor":"middle",class:"ticktext"},b,"$"+(v/1000)+(v?"k":""));
+    });
+    [0,10,20,30,40].forEach(function(t2){
+      el("line",{x1:bm.l,x2:W-bm.r,y1:bY(t2),y2:bY(t2),class:"gridline"},b);
+      el("text",{x:bm.l-10,y:bY(t2)+4,"text-anchor":"end",class:"ticktext"},b,t2+" yr");
+    });
+    el("line",{x1:bm.l,x2:W-bm.r,y1:H-bm.b,y2:H-bm.b,class:"axis"},b);
+    el("text",{x:W-bm.r,y:H-bm.b+40,"text-anchor":"end",class:"axistitle"},b,"Money in →");
+    el("text",{x:bm.l,y:14,class:"axistitle"},b,"↑ Time out — the same curve, read sideways");
+    var bpts=[];
+    for (var v=P; v<=MMAX; v+=100) bpts.push(bX(v)+","+bY(Math.log(v/P)/Math.log(1+r)));
+    el("polyline",{points:bpts.join(" "),fill:"none",stroke:SAGE,"stroke-width":2.6},b);
+    var bUp = el("line",{stroke:GOLD,"stroke-width":1.6,"stroke-dasharray":"6 6"},b);
+    var bAcross = el("line",{stroke:GOLD,"stroke-width":1.6,"stroke-dasharray":"2 5"},b);
+    var bDot = el("circle",{r:6,fill:GOLD,stroke:"#0B1526","stroke-width":2},b);
+    var bLbl = el("text",{fill:GOLD,"font-family":"var(--mono)","font-size":"13.5px","font-weight":"bold","text-anchor":"start"},b,"");
+
+    var range = $("a3-range");
+    function draw(){
+      var Mv = +range.value,
+          tv = Math.log(Mv/P)/Math.log(1+r);
+      $("a3-money").textContent = fmt$(Mv);
+      $("a3-time").textContent = tv.toFixed(1)+" years";
+      fTarget.setAttribute("x1",fm.l); fTarget.setAttribute("x2",fX(tv));
+      fTarget.setAttribute("y1",fY(Mv)); fTarget.setAttribute("y2",fY(Mv));
+      fDrop.setAttribute("x1",fX(tv)); fDrop.setAttribute("x2",fX(tv));
+      fDrop.setAttribute("y1",fY(Mv)); fDrop.setAttribute("y2",H-fm.b);
+      fDot.setAttribute("cx",fX(tv)); fDot.setAttribute("cy",fY(Mv));
+      fLbl.setAttribute("x",Math.min(fX(tv), W-90)); fLbl.setAttribute("y",fY(Mv)-14);
+      fLbl.textContent = tv.toFixed(1)+" yrs";
+      bUp.setAttribute("x1",bX(Mv)); bUp.setAttribute("x2",bX(Mv));
+      bUp.setAttribute("y1",H-bm.b); bUp.setAttribute("y2",bY(tv));
+      bAcross.setAttribute("x1",bX(Mv)); bAcross.setAttribute("x2",bm.l);
+      bAcross.setAttribute("y1",bY(tv)); bAcross.setAttribute("y2",bY(tv));
+      bDot.setAttribute("cx",bX(Mv)); bDot.setAttribute("cy",bY(tv));
+      bLbl.setAttribute("x",Math.min(bX(Mv)+12, W-110)); bLbl.setAttribute("y",bY(tv)-12);
+      bLbl.textContent = tv.toFixed(1)+" yrs";
+    }
+    range.addEventListener("input", function(){ touched("act3"); draw(); });
+    var flipped = false;
+    $("a3-flipbtn").addEventListener("click", function(){
+      flipped = !flipped;
+      $("a3-flipper").classList.toggle("flipped", flipped);
+      this.textContent = flipped ? "Flip it back" : "Flip the axes";
+      touched("act3");
+    });
+    draw();
+  })();
+
+  /* ════ ACT IV — the ruler ════════════════════════════════════ */
+  (function(){
+    var svg = $("a4-svg"), W=920, H=430,
+        m={l:86,r:18,t:26,b:46},
+        P=5000, r=.07, T=45,
+        VMIN=4000, VMAX=P*Math.pow(1+r,T)*1.06;
+    var X = function(t){ return m.l + t*(W-m.l-m.r)/T; };
+    function yLin(v){ return H-m.b - (v-0)*(H-m.t-m.b)/VMAX; }
+    function yLog(v){
+      var a=Math.log(VMIN), z=Math.log(VMAX);
+      return H-m.b - (Math.log(v)-a)*(H-m.t-m.b)/(z-a);
+    }
+    var blend = 0;
+    function yMix(v){ return yLin(v)*(1-blend) + yLog(v)*blend; }
+    var g = el("g",{},svg);
+    el("line",{x1:m.l,x2:W-m.r,y1:H-m.b,y2:H-m.b,class:"axis"},svg);
+    [0,10,20,30,40].forEach(function(t){
+      el("text",{x:X(t),y:H-m.b+22,"text-anchor":"middle",class:"ticktext"},svg,"yr "+t);
+    });
+    var dbl = Math.log(2)/Math.log(1+r);
+    $("a4-dbl").textContent = dbl.toFixed(2)+" years";
+    var LEVELS = [5000,10000,20000,40000,80000];
+    function draw(){
+      while (g.firstChild) g.removeChild(g.firstChild);
+      for (var i=0;i<LEVELS.length-1;i++){
+        var y1=yMix(LEVELS[i+1]), y2=yMix(LEVELS[i]);
+        el("rect",{x:m.l,y:y1,width:W-m.l-m.r,height:Math.max(0,y2-y1),
+          fill:GOLD,opacity: i%2 ? .05 : .10},g);
+      }
+      LEVELS.forEach(function(v,i){
+        var y=yMix(v);
+        el("line",{x1:m.l,x2:W-m.r,y1:y,y2:y,class:"gridline"},g);
+        el("text",{x:m.l-10,y:y+4,"text-anchor":"end",class:"ticktext"},g,"$"+(v/1000)+"k");
+        if (i>0){
+          el("text",{x:W-m.r-6,y:y+16,"text-anchor":"end",fill:FAINT,
+            "font-family":"var(--mono)","font-size":"11px","letter-spacing":".14em"},g,"×2");
+        }
+      });
+      var pts=[];
+      for (var t=0;t<=T;t+=.5){
+        var v=P*Math.pow(1+r,t);
+        pts.push(X(t)+","+yMix(v));
+      }
+      el("polyline",{points:pts.join(" "),fill:"none",stroke:GOLD,"stroke-width":2.6},g);
+      for (var k=0;k<=4;k++){
+        var tk=k*dbl, vk=P*Math.pow(2,k);
+        if (tk<=T) el("circle",{cx:X(tk),cy:yMix(vk),r:4.5,fill:"#0B1526",stroke:GOLD,"stroke-width":2},g);
+      }
+      el("text",{x:m.l+14,y:m.t+16,fill:DIM,"font-family":"var(--mono)","font-size":"12.5px"},g,
+        blend>.5 ? "a straight line — steady ×1.07, every year alike" : "the hockey stick — late years dwarf early ones");
+    }
+    function setAxis(target){
+      $("a4-lin").setAttribute("aria-pressed", target===0 ? "true":"false");
+      $("a4-log").setAttribute("aria-pressed", target===1 ? "true":"false");
+      touched("act4");
+      if (reduced){ blend=target; draw(); return; }
+      var from=blend, t0=performance.now(), D=650;
+      function step(now){
+        var p=Math.min(1,(now-t0)/D), e=p<.5 ? 2*p*p : 1-Math.pow(-2*p+2,2)/2;
+        blend = from + (target-from)*e;
+        draw();
+        if (p<1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    $("a4-lin").addEventListener("click", function(){ setAxis(0); });
+    $("a4-log").addEventListener("click", function(){ setAxis(1); });
+    draw();
+  })();
+
+  /* ════ CODA — the speed limit ════════════════════════════════ */
+  (function(){
+    var svg=$("a5-svg"), W=920, H=320,
+        m={l:86,r:24,t:30,b:44};
+    var Ns=[1,12,52,365,8760,"inf"],
+        LBL={1:"once a year",12:"every month",52:"every week",365:"every day",8760:"every hour",inf:"continuously"};
+    function amount(n){ return n==="inf" ? Math.E : Math.pow(1+1/n, n); }
+    var X=function(i){ return m.l + i*(W-m.l-m.r)/(Ns.length-1); },
+        Y=function(v){ return H-m.b - (v-1.9)*(H-m.t-m.b)/(2.85-1.9); };
+    el("line",{x1:m.l,x2:W-m.r,y1:Y(Math.E),y2:Y(Math.E),stroke:SAGE,"stroke-width":1.6,"stroke-dasharray":"7 6"},svg);
+    el("text",{x:W-m.r,y:Y(Math.E)-10,"text-anchor":"end",fill:SAGE,"font-family":"var(--mono)","font-size":"13px","font-weight":"bold"},svg,"e = 2.71828… — the ceiling");
+    [2.0,2.25,2.5,2.75].forEach(function(v){
+      el("line",{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),class:"gridline"},svg);
+      el("text",{x:m.l-10,y:Y(v)+4,"text-anchor":"end",class:"ticktext"},svg,"$"+v.toFixed(2));
+    });
+    el("line",{x1:m.l,x2:W-m.r,y1:H-m.b,y2:H-m.b,class:"axis"},svg);
+    var dots=[];
+    Ns.forEach(function(n,i){
+      el("text",{x:X(i),y:H-m.b+22,"text-anchor":"middle",class:"ticktext"},svg,
+        n==="inf" ? "∞" : "×"+n);
+      dots.push(el("circle",{cx:X(i),cy:Y(amount(n)),r:6,fill:GOLD,opacity:.22,stroke:"none"},svg));
+    });
+    var halo=el("circle",{r:11,fill:"none",stroke:GOLD,"stroke-width":1.4,opacity:0},svg);
+    var seg=$("a5-seg");
+    function pick(n, btn){
+      Array.prototype.forEach.call(seg.querySelectorAll("button"), function(b2){
+        b2.setAttribute("aria-pressed", b2===btn ? "true":"false");
+      });
+      var i=Ns.indexOf(n==="inf" ? "inf" : +n);
+      dots.forEach(function(d,j){ d.setAttribute("opacity", j<=i ? (j===i?1:.55) : .22); });
+      halo.setAttribute("opacity",1);
+      halo.setAttribute("cx",X(i)); halo.setAttribute("cy",Y(amount(Ns[i])));
+      $("a5-label").textContent = LBL[Ns[i]];
+      $("a5-val").textContent = "$"+amount(Ns[i]).toFixed(5);
+      touched("act5");
+    }
+    seg.addEventListener("click", function(ev){
+      var b3=ev.target.closest("button"); if(!b3) return;
+      pick(b3.dataset.n, b3);
+    });
+    dots[0].setAttribute("opacity",1);
+  })();
+
+  /* No scroll-triggered reveals: an instrument must never be able to get
+     stuck invisible. Content arrives synchronously; motion is decoration. */
+})();
+</script>

@@ -1,0 +1,765 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Zoom out until a busy polynomial turns into its first term. Then scramble the middles of four polynomials and watch the ends refuse to move.">
+<title>From Far Enough Away · Degree and Shape</title>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     FROM FAR ENOUGH AWAY — IM3 Unit 2, Module 1, Degree and Shape
+     Built in the trailer's grammar (IM3/unit-1/trailer): one move per
+     act, and the name only after the student has seen the thing -- and
+     asked for it. Public at cva-math.github.io/IM3/unit-2/explore/module-1.html
+
+     Two colours carry the whole argument, and each means one thing:
+       gold      — the whole polynomial, the thing you are looking at
+       lead      — its leading term, and the ends, which belong to it
+     Everything a student can press or drag acts on the polynomial, so
+     the controls are gold. Everything the page concludes is about the
+     leading term, so the conclusions are lead.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the whole polynomial */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the leading term, and the ends */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lead);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sup{font-size:.68em;line-height:0;position:relative;top:-.05em}
+  .t{white-space:nowrap}
+  .lead{color:var(--lead)}
+  .gold{color:var(--gold)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup .math{color:var(--cream)}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px}
+  .panel svg{display:block;width:100%;height:auto;touch-action:pan-y}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+  .chip{
+    flex:1 1 150px;min-width:130px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.lead .v{color:var(--lead)}
+
+  /* the pull meter */
+  .meter{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px 16px 11px;margin:0 0 16px}
+  .meter-top{display:flex;justify-content:space-between;align-items:baseline;gap:6px 16px;flex-wrap:wrap}
+  .meter-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .meter-v{font-family:var(--serif);font-size:19px;color:var(--cream)}
+  .meter-v b{
+    font-family:var(--mono);font-weight:normal;color:var(--lead);font-size:22px;
+    font-variant-numeric:tabular-nums;display:inline-block;min-width:4.2ch;text-align:right;
+  }
+  .bar{
+    position:relative;height:10px;border-radius:6px;margin-top:10px;overflow:hidden;
+    background:repeating-linear-gradient(135deg,rgba(227,179,76,.30) 0 5px,rgba(227,179,76,.16) 5px 10px);
+  }
+  .bar-lead{
+    position:absolute;left:0;top:0;bottom:0;width:27%;border-radius:6px;
+    background:linear-gradient(90deg,rgba(157,178,255,.55),var(--lead));
+    box-shadow:0 0 14px rgba(157,178,255,.35);
+  }
+  .legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.04em}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:7px;vertical-align:-1px}
+  .sw.lead{background:var(--lead)}
+  .sw.rest{background:repeating-linear-gradient(135deg,rgba(227,179,76,.55) 0 3px,rgba(227,179,76,.28) 3px 6px)}
+
+  /* curve key, inside the panel */
+  .key{display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 2px 10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--dim)}
+  .key span{display:inline-flex;align-items:center;gap:9px}
+  .key svg{width:30px;height:8px;display:block}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:12px 18px;margin-top:12px;flex-wrap:wrap}
+  .controls > label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .slider{position:relative;flex:1;min-width:220px;padding-bottom:18px}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 4px rgba(227,179,76,.16)}
+    50%{box-shadow:0 0 0 11px rgba(227,179,76,.04)}
+  }
+  #a1-range:not(.used)::-webkit-slider-thumb{animation:breathe 2.4s ease-in-out infinite}
+  .ticks{position:absolute;left:0;right:0;bottom:0;height:16px;pointer-events:none}
+  .ticks span{
+    position:absolute;left:calc(11px + (100% - 22px) * var(--p));transform:translateX(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;white-space:nowrap;
+  }
+  .ticks span:first-child{transform:translateX(-11px)}
+  .ticks span:last-child{transform:translateX(calc(-100% + 11px))}
+
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  button.primary{color:var(--night);background:var(--gold);border-color:var(--gold);font-weight:bold}
+  button.primary:hover{filter:brightness(1.08)}
+  button.primary:active{transform:translateY(1px)}
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);transition:opacity .6s ease}
+  .act.touched .nudge{opacity:0}
+
+  /* the four small graphs */
+  .minis{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .mini{margin:0;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 10px 4px;min-width:0}
+  .formula{font-size:16px;line-height:1.4;color:var(--dim);min-height:2.9em;padding:0 4px 4px}
+  .formula .rest{color:var(--dim)}
+  .mini svg{display:block;width:100%;height:auto}
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. This page doubles as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;color:var(--lead);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:#3A5272;stroke-width:1.2}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  .lens-label{fill:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.14em}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px;min-width:110px}
+    .minis{gap:8px}
+    .mini{padding:8px 6px 2px}
+    .formula{font-size:13px;min-height:3.2em}
+    .ticktext{font-size:11px}
+    .insight p{font-size:19px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM3 &middot; Unit 2</a>
+    <div class="eyebrow">IM3 &middot; Unit 2 &middot; Module 1 &middot; Degree and Shape</div>
+    <h1>From <em>Far Enough</em> Away</h1>
+    <p class="dek">Up close, a polynomial can look like almost anything — dips, bumps, turns. <strong>From far enough away, every one of them is simple.</strong> Nobody believes that by being told it, so this page doesn&rsquo;t tell you. It lets you watch.</p>
+    <div class="hint">Drag the first one. Press the second.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE ZOOM ════════ -->
+<section class="act" id="act1">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Zoom</div>
+    <h2 class="ask">Zoom out, and keep your eye on the dashed curve.</h2>
+    <p class="setup">The solid curve is <span class="math t">y = <span class="lead"><i>x</i><sup>4</sup></span> &minus; 2<i>x</i><sup>3</sup> &minus; 7<i>x</i><sup>2</sup> + 8<i>x</i> + 12</span>. Up close it&rsquo;s busy — it dips, climbs, and dips again. The dashed curve is only its first piece, <span class="math lead"><i>x</i><sup>4</sup></span>, all by itself. Right now the two look nothing alike.</p>
+
+    <div class="chips">
+      <div class="chip gold"><div class="k">Zoom</div><div class="v" id="a1-zoom">&times;1</div></div>
+      <div class="chip"><div class="k">Looking at x from</div><div class="v" id="a1-win">&minus;2.5 to 2.5</div></div>
+    </div>
+
+    <div class="meter">
+      <div class="meter-top">
+        <span class="meter-k">Who&rsquo;s pulling hardest at the edges</span>
+        <span class="meter-v"><span class="math lead"><i>x</i><sup>4</sup></span> is doing <b id="a1-share">27%</b> of the pulling</span>
+      </div>
+      <div class="bar" aria-hidden="true"><div class="bar-lead" id="a1-bar"></div></div>
+      <div class="legend" aria-hidden="true">
+        <span><span class="sw lead"></span>x⁴</span>
+        <span><span class="sw rest"></span>the other four terms, all together</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 8"><line x1="1" y1="4" x2="29" y2="4" stroke="#E3B34C" stroke-width="3" stroke-linecap="round"/></svg>the whole polynomial</span>
+        <span><svg viewBox="0 0 30 8"><line x1="1" y1="4" x2="29" y2="4" stroke="#9DB2FF" stroke-width="2" stroke-dasharray="6 5" stroke-linecap="round"/></svg>just x⁴</span>
+      </div>
+      <svg id="a1-svg" role="img" aria-label="Graph of y = x to the fourth minus 2x cubed minus 7x squared plus 8x plus 12, drawn solid, with y = x to the fourth drawn dashed. Zooming out makes the two curves land on top of each other."></svg>
+      <div class="controls">
+        <label for="a1-range">Zoom out</label>
+        <div class="slider">
+          <input type="range" id="a1-range" min="0" max="1000" step="1" value="0" aria-valuetext="Zoom ×1: x⁴ is doing 27% of the pulling">
+          <div class="ticks" aria-hidden="true">
+            <span style="--p:0">&times;1</span><span style="--p:.33333">&times;10</span><span style="--p:.66667">&times;100</span><span style="--p:1">&times;1,000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>The farther out you look, the less the middle matters. The dips and bumps never actually go away — the little window shows they&rsquo;re still there. They just get too small to see next to <span class="math lead"><i>x</i><sup>4</sup></span>, which outgrows every other term put together. From far enough away, you can&rsquo;t tell this polynomial from <span class="math lead"><i>x</i><sup>4</sup></span>.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: <span class="math lead"><i>x</i><sup>4</sup></span> is the <b>leading term</b> — the piece with the highest power. <span class="name">Up close, every term matters. Out at the ends, it&rsquo;s the only one that does.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — THE ENDS ════════ -->
+<section class="act" id="act2">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> The Ends</div>
+    <h2 class="ask">Scramble the middles. Watch what doesn&rsquo;t change.</h2>
+    <p class="setup">Four polynomials. Each one&rsquo;s first term is locked in place — everything after it is random, and changes every time you press. The arrows show which way each graph is heading as it leaves the picture.</p>
+
+    <div class="chips">
+      <div class="chip gold"><div class="k">Middles scrambled</div><div class="v" id="a2-count">0</div></div>
+      <div class="chip lead"><div class="k">Ends that moved</div><div class="v" id="a2-moved">0</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="minis">
+        <figure class="mini" data-n="4" data-s="1"><figcaption class="formula"></figcaption><svg role="img"></svg></figure>
+        <figure class="mini" data-n="5" data-s="1"><figcaption class="formula"></figcaption><svg role="img"></svg></figure>
+        <figure class="mini" data-n="4" data-s="-1"><figcaption class="formula"></figcaption><svg role="img"></svg></figure>
+        <figure class="mini" data-n="5" data-s="-1"><figcaption class="formula"></figcaption><svg role="img"></svg></figure>
+      </div>
+      <div class="controls">
+        <button class="primary" id="a2-go">Scramble the middles</button>
+        <span class="nudge" id="a2-nudge" aria-live="polite">Press it a few times.</span>
+      </div>
+    </div>
+
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every middle came out different. Not one end moved. The ends belong to the leading term, and only two things about it matter: is its power even or odd, and is the number in front positive or negative? An even power sends both ends the same way. An odd power sends them opposite ways. A negative out front flips the whole picture over.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: <b>end behavior</b> — which way a graph heads as <span class="math"><i>x</i></span> runs off to the left and to the right. <span class="name">The leading term decides it. The rest of the polynomial doesn&rsquo;t get a vote.</span></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Find the <em>leading term</em>, and you know where the graph is headed — before you graph anything.</p>
+    <div class="colophon">IM3 &middot; Unit 2 &middot; Module 1 &middot; <span>Degree and Shape</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD", DIM = "#8FA0B5", FAINT = "#5C6E85";
+  var MINUS = "−";
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+  function touched(actId){ $(actId).classList.add("touched"); }
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+  function widthOf(node){ return Math.max(260, Math.round(node.getBoundingClientRect().width)); }
+
+  /* nice tick spacing: 1, 2 or 5 times a power of ten */
+  function niceStep(span, target){
+    var raw = span / target, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+    return (r < 1.5 ? 1 : r < 3.5 ? 2 : r < 7.5 ? 5 : 10) * mag;
+  }
+  function one(x){ return (Math.round(x * 10) / 10).toLocaleString("en-US"); }
+  /* big numbers in words — "40 trillion" reads, "4e13" doesn't */
+  function fmt(v, step, short){
+    var a = Math.abs(v), s = v < 0 ? MINUS : "";
+    if (a < 1e-9) return "0";
+    if (a >= 1e12) return s + one(a / 1e12) + (short ? "T" : " trillion");
+    if (a >= 1e9)  return s + one(a / 1e9)  + (short ? "B" : " billion");
+    if (a >= 1e6)  return s + one(a / 1e6)  + (short ? "M" : " million");
+    if (short && a >= 1e4) return s + one(a / 1e3) + "K";
+    var dec = step && step < 1 ? Math.min(2, Math.ceil(-Math.log10(step) - 1e-9)) : 0;
+    return s + a.toLocaleString("en-US", {minimumFractionDigits: dec, maximumFractionDigits: dec});
+  }
+  function whenResized(fn){
+    var queued = false;
+    function go(){ if (queued) return; queued = true; requestAnimationFrame(function(){ queued = false; fn(); }); }
+    if (window.ResizeObserver) new ResizeObserver(go).observe(document.body);
+    else window.addEventListener("resize", go);
+  }
+
+  /* ── header sky: a busy polynomial hugging its own leading term ── */
+  (function(){
+    var s = $("sky"); s.setAttribute("viewBox", "0 0 960 300");
+    var d1 = "", d2 = "";
+    for (var i = 0; i <= 260; i++){
+      var u = -1 + 2 * i / 260, x = 40 + 880 * i / 260, base = Math.pow(u, 4);
+      var wig = 0.08 * Math.sin(u * 12) * Math.exp(-7 * u * u);
+      d1 += (i ? "L" : "M") + x.toFixed(1) + "," + (290 - 236 * base).toFixed(1);
+      d2 += (i ? "L" : "M") + x.toFixed(1) + "," + (290 - 236 * (base + wig)).toFixed(1);
+    }
+    el("path", {d: d2, fill: "none", stroke: GOLD, "stroke-width": 1.8, opacity: .55}, s);
+    el("path", {d: d1, fill: "none", stroke: LEAD, "stroke-width": 1.5, "stroke-dasharray": "6 6", opacity: .6}, s);
+  })();
+
+  /* ════ ACT I — the zoom ═════════════════════════════════════ */
+  (function(){
+    var svg = $("a1-svg"), range = $("a1-range");
+    var X0 = 2.5, ZMAX = 1000;
+    function p(x){ return (((x - 2) * x - 7) * x + 8) * x + 12; }   // x⁴ − 2x³ − 7x² + 8x + 12
+    function lead(x){ var q = x * x; return q * q; }                 // x⁴
+    /* how hard each term pulls at |x| = X — the same at both edges */
+    function pulls(X){ return [X*X*X*X, 2*X*X*X, 7*X*X, 8*X, 12]; }
+
+    var defs = el("defs", {}, svg);
+    var clipRect = el("rect", {}, el("clipPath", {id: "a1-clip"}, defs));
+    var gGrid = el("g", {}, svg);
+    var gPlot = el("g", {"clip-path": "url(#a1-clip)"}, svg);
+    var glow  = el("path", {fill: "none", stroke: LEAD, "stroke-width": 9, "stroke-linecap": "round", "stroke-linejoin": "round", opacity: .07}, gPlot);
+    var poly  = el("path", {fill: "none", stroke: GOLD, "stroke-width": 3, "stroke-linecap": "round", "stroke-linejoin": "round"}, gPlot);
+    var ghost = el("path", {fill: "none", stroke: LEAD, "stroke-width": 2.2, "stroke-dasharray": "8 7", "stroke-linecap": "round"}, gPlot);
+    var gLens = el("g", {}, svg);
+    gLens.style.transition = "opacity .6s ease";
+    gLens.style.opacity = 0;
+
+    /* the little window: the middle as it looked at ×1, which never changes */
+    function buildLens(x, y, w, h, narrow){
+      clear(gLens);
+      el("rect", {x: x, y: y, width: w, height: h, rx: 7, fill: "#0E1A2E", stroke: "#2A3F5A"}, gLens);
+      el("text", {x: x + 10, y: y + 16, class: "lens-label"}, gLens, narrow ? "STILL HERE" : "THE MIDDLE — STILL HERE");
+      var ix = x + 10, iw = w - 20, iy = y + 26, ih = h - 32, lo = -5.8, hi = 23.5, d = "";
+      var zy = iy + (hi - 0) / (hi - lo) * ih;
+      el("line", {x1: ix, x2: ix + iw, y1: zy, y2: zy, stroke: "#2A3F5A", "stroke-width": 1}, gLens);
+      for (var i = 0; i <= 90; i++){
+        var xv = -2.5 + 5 * i / 90;
+        d += (i ? "L" : "M") + (ix + i / 90 * iw).toFixed(1) + "," + (iy + (hi - p(xv)) / (hi - lo) * ih).toFixed(1);
+      }
+      el("path", {d: d, fill: "none", stroke: GOLD, "stroke-width": 1.8, "stroke-linejoin": "round"}, gLens);
+      return {cx: x + w / 2, bottom: y + h};
+    }
+
+    function draw(){
+      var W = widthOf(svg), H = Math.round(Math.max(290, Math.min(460, W * 0.56)));
+      var narrow = W < 560;
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      var m = {l: narrow ? 46 : 92, r: 12, t: 12, b: 30};
+      var pw = W - m.l - m.r, ph = H - m.t - m.b;
+
+      var t = range.value / 1000, z = Math.pow(ZMAX, t), X = X0 * z;
+      var N = Math.max(260, Math.round(pw)), xs = [], ps = [];
+      var ymin = 0, ymax = 0;
+      for (var i = 0; i <= N; i++){
+        var x = -X + 2 * X * i / N, v = p(x);
+        xs.push(x); ps.push(v);
+        if (v < ymin) ymin = v;
+        if (v > ymax) ymax = v;
+      }
+      var span = ymax - ymin; ymin -= span * 0.08; ymax += span * 0.09;
+      function sx(x){ return m.l + (x + X) / (2 * X) * pw; }
+      function sy(y){ return m.t + (ymax - y) / (ymax - ymin) * ph; }
+      function cy(y){ return Math.max(-4 * H, Math.min(5 * H, y)); }
+
+      clipRect.setAttribute("x", m.l); clipRect.setAttribute("y", m.t);
+      clipRect.setAttribute("width", pw); clipRect.setAttribute("height", ph);
+
+      /* grid + ticks */
+      clear(gGrid);
+      var xstep = niceStep(2 * X, narrow ? 4 : 6), ystep = niceStep(ymax - ymin, narrow ? 4 : 5), k, val;
+      for (k = Math.ceil(-X / xstep); k * xstep <= X + 1e-9; k++){
+        val = k * xstep;
+        if (k !== 0) el("line", {x1: sx(val), x2: sx(val), y1: m.t, y2: m.t + ph, class: "gridline"}, gGrid);
+        el("text", {x: sx(val), y: m.t + ph + 20, "text-anchor": "middle", class: "ticktext"}, gGrid, fmt(val, xstep, narrow));
+      }
+      for (k = Math.ceil(ymin / ystep); k * ystep <= ymax + 1e-9; k++){
+        val = k * ystep;
+        if (k !== 0) el("line", {x1: m.l, x2: m.l + pw, y1: sy(val), y2: sy(val), class: "gridline"}, gGrid);
+        el("text", {x: m.l - 9, y: sy(val) + 4, "text-anchor": "end", class: "ticktext"}, gGrid, fmt(val, ystep, narrow));
+      }
+      el("line", {x1: m.l, x2: m.l + pw, y1: sy(0), y2: sy(0), class: "axis"}, gGrid);
+      el("line", {x1: sx(0), x2: sx(0), y1: m.t, y2: m.t + ph, class: "axis"}, gGrid);
+
+      /* the two curves — the dashes ride on top, so when they land on the
+         gold line you can see that they have */
+      var dP = "", dL = "";
+      for (i = 0; i <= N; i++){
+        var px = sx(xs[i]).toFixed(1);
+        dP += (i ? "L" : "M") + px + "," + cy(sy(ps[i])).toFixed(1);
+        dL += (i ? "L" : "M") + px + "," + cy(sy(lead(xs[i]))).toFixed(1);
+      }
+      poly.setAttribute("d", dP);
+      ghost.setAttribute("d", dL);
+      glow.setAttribute("d", dL);
+
+      /* the meter */
+      var pl = pulls(X), total = pl[0] + pl[1] + pl[2] + pl[3] + pl[4], share = pl[0] / total, pct = share * 100;
+      var shown = pct < 90 ? Math.round(pct) + "%" : Math.min(99.9, Math.floor(pct * 10) / 10).toFixed(1) + "%";
+      $("a1-share").textContent = shown;
+      $("a1-bar").style.width = (share * 100).toFixed(2) + "%";
+      /* the dashed curve lights up as the two become one */
+      var lit = Math.max(0, Math.min(1, (share - 0.9) / 0.09));
+      glow.setAttribute("opacity", (0.05 + 0.13 * lit).toFixed(3));
+
+      /* chips */
+      $("a1-zoom").textContent = "×" + (z < 1.05 ? "1" : z < 10 ? z.toFixed(1) : Math.round(z).toLocaleString("en-US"));
+      var Xs = X < 10 ? one(X) : Math.round(X).toLocaleString("en-US");
+      $("a1-win").textContent = MINUS + Xs + " to " + Xs;
+      range.setAttribute("aria-valuetext", "Zoom " + $("a1-zoom").textContent + ": x to the fourth is doing " + shown + " of the pulling");
+
+      /* the lens, once the middle has shrunk out of sight */
+      var lw = narrow ? Math.min(170, pw * 0.46) : Math.min(214, pw * 0.36), lh = lw * (narrow ? 0.66 : 0.56);
+      var lens = buildLens(sx(0) - lw / 2, m.t + 12, lw, lh, narrow);
+      el("line", {x1: lens.cx, x2: sx(0), y1: lens.bottom, y2: sy(0) - 7, stroke: DIM, "stroke-width": 1, "stroke-dasharray": "2 4"}, gLens);
+      el("circle", {cx: sx(0), cy: sy(0), r: 6, fill: "none", stroke: DIM, "stroke-width": 1.2}, gLens);
+      gLens.style.opacity = z >= 6 ? 1 : 0;
+
+      if (z >= 8) touched("act1");
+    }
+
+    range.addEventListener("input", function(){ range.classList.add("used"); draw(); });
+    whenResized(draw);
+    draw();
+  })();
+
+  /* ════ ACT II — the ends ════════════════════════════════════ */
+  (function(){
+    var SAMPLES = 200;
+    /* The first thing a student sees, chosen rather than rolled: every one
+       crosses, turns and heads off the edge on screen. */
+    var FIRST = {"4,1": [-2, -1, 1, 3], "5,1": [-3, -1, 0, 1, 2], "4,-1": [-3, -1, 0, 2], "5,-1": [-2, -1, 1, 2, 3]};
+
+    function mul(a, b){
+      var r = [], i, j;
+      for (i = 0; i < a.length + b.length - 1; i++) r.push(0);
+      for (i = 0; i < a.length; i++) for (j = 0; j < b.length; j++) r[i + j] += a[i] * b[j];
+      return r;
+    }
+    function ev(c, x){ var v = 0; for (var i = c.length - 1; i >= 0; i--) v = v * x + c[i]; return v; }
+    function turns(c){
+      var d = [], out = [], i;
+      for (i = 1; i < c.length; i++) d.push(i * c[i]);
+      var step = 0.004, prev = ev(d, -6);
+      for (var x = -6 + step; x <= 6; x += step){
+        var cur = ev(d, x);
+        if (prev * cur < 0) out.push(x);
+        prev = cur;
+      }
+      return out;
+    }
+    function build(n, s, roots, pairs){
+      var c = [s];
+      roots.forEach(function(r){ c = mul(c, [-r, 1]); });
+      pairs.forEach(function(q){ c = mul(c, [q[1], q[0], 1]); });   // x² + bx + c
+      return {c: c, n: n, s: s, roots: roots, turns: turns(c), key: c.join(",")};
+    }
+    function rint(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+    /* Integer roots and integer quadratics keep every coefficient a whole
+       number, so the formula a student reads is one they could write. */
+    function scramble(n, s, avoid){
+      for (var tries = 0; tries < 800; tries++){
+        var k = (n === 4 ? [4, 4, 2, 2, 2, 0] : [5, 5, 3, 3, 3, 1])[rint(0, 5)];
+        var pool = [-3, -2, -1, 0, 1, 2, 3];
+        for (var i = pool.length - 1; i > 0; i--){ var j = rint(0, i), tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp; }
+        var roots = pool.slice(0, k).sort(function(a, b){ return a - b; }), pairs = [];
+        for (var q = 0; q < (n - k) / 2; q++){
+          var b = [-4, -2, 0, 2, 4][rint(0, 4)];
+          pairs.push([b, b * b / 4 + rint(1, 3)]);
+        }
+        var P = build(n, s, roots, pairs);
+        if (P.key === avoid) continue;
+        if (P.turns.length < 2) continue;
+        if (Math.max.apply(null, P.c.map(Math.abs)) > 60) continue;
+        return P;
+      }
+      return null;
+    }
+
+    /* Frame the middle, then widen until both ends have left the picture.
+       Directions are MEASURED from the polynomial, not assigned from its
+       degree — "ends that moved" counts something real. */
+    function frame(P){
+      var feats = P.roots.concat(P.turns);
+      /* Fit the height to the stretch between the outermost roots and turns.
+         A margin past them looked harmless and wasn't: for a fifth power the
+         curve is already climbing there, and it flattened the very middle
+         the student is meant to watch change. */
+      var a = Math.min.apply(null, feats), b = Math.max.apply(null, feats);
+      var lo = 0, hi = 0, i, v;
+      for (i = 0; i <= 240; i++){ v = ev(P.c, a + (b - a) * i / 240); if (v < lo) lo = v; if (v > hi) hi = v; }
+      var pad = (hi - lo) * 0.24; lo -= pad; hi += pad;
+      var dirR = ev(P.c, 1e4) > 0 ? 1 : -1, dirL = ev(P.c, -1e4) > 0 ? 1 : -1;
+      function gone(x, dir){ v = ev(P.c, x); return dir > 0 ? v > hi : v < lo; }
+      var R = b, L = a;
+      while (!gone(R, dirR)) R += 0.02;
+      while (!gone(L, dirL)) L -= 0.02;
+      var w = R - L; R += w * 0.07; L -= w * 0.07;
+      return {L: L, R: R, lo: lo, hi: hi, dirL: dirL, dirR: dirR};
+    }
+
+    function formula(P){
+      var c = P.c, html = "", first = true;
+      for (var pw = c.length - 1; pw >= 0; pw--){
+        var a = c[pw]; if (a === 0) continue;
+        var mag = Math.abs(a);
+        var body = (pw === 0 || mag !== 1 ? mag : "") + (pw > 0 ? "<i>x</i>" + (pw > 1 ? "<sup>" + pw + "</sup>" : "") : "");
+        if (first){ html += '<span class="t lead">' + (a < 0 ? MINUS : "") + body + "</span>"; first = false; }
+        else html += ' <span class="t rest">' + (a < 0 ? MINUS : "+") + "&nbsp;" + body + "</span>";
+      }
+      return '<span class="math">' + html + "</span>";
+    }
+
+    function states(){
+      return Array.prototype.map.call(document.querySelectorAll(".mini"), function(fig){
+        var n = +fig.dataset.n, s = +fig.dataset.s;
+        var svg = fig.querySelector("svg"), cap = fig.querySelector(".formula");
+        var clipId = "m" + n + (s > 0 ? "p" : "n");
+        var clipRect = el("rect", {}, el("clipPath", {id: clipId}, el("defs", {}, svg)));
+        var st = {fig: fig, svg: svg, cap: cap, n: n, s: s, clipRect: clipRect};
+        st.gAxes = el("g", {}, svg);
+        st.gCurve = el("g", {"clip-path": "url(#" + clipId + ")"}, svg);
+        st.path = el("path", {fill: "none", stroke: GOLD, "stroke-width": 2.6, "stroke-linejoin": "round", "stroke-linecap": "round"}, st.gCurve);
+        st.gArrows = el("g", {}, svg);
+        st.P = build(n, s, FIRST[n + "," + s], []);
+        st.F = frame(st.P);
+        return st;
+      });
+    }
+    var S = states();
+    var BASE = S.map(function(st){ return [st.F.dirL, st.F.dirR]; });
+
+    function geometry(st){
+      var w = widthOf(st.svg), h = Math.round(w * 0.74);
+      st.w = w; st.h = h; st.top = 18; st.bottom = h - 18;
+      st.svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+      st.clipRect.setAttribute("x", 0); st.clipRect.setAttribute("y", st.top);
+      st.clipRect.setAttribute("width", w); st.clipRect.setAttribute("height", st.bottom - st.top);
+    }
+    function sample(st){
+      var F = st.F, xs = [], ys = [];
+      for (var i = 0; i <= SAMPLES; i++){
+        var u = i / SAMPLES, v = ev(st.P.c, F.L + (F.R - F.L) * u);
+        xs.push(2 + u * (st.w - 4));
+        var y = st.top + (F.hi - v) / (F.hi - F.lo) * (st.bottom - st.top);
+        ys.push(Math.max(-3 * st.h, Math.min(4 * st.h, y)));
+      }
+      return {x: xs, y: ys, zeroY: st.top + F.hi / (F.hi - F.lo) * (st.bottom - st.top),
+              zeroX: 2 + (-F.L) / (F.R - F.L) * (st.w - 4)};
+    }
+
+    /* an arrowhead where the curve leaves the picture, pointing the way it goes */
+    function arrowAt(g, x, y, ang){
+      var s = 9, c = Math.cos(ang), n = Math.sin(ang);
+      var tip = [x + c * s * 0.6, y + n * s * 0.6];
+      var back = [x - c * s * 0.9, y - n * s * 0.9];
+      var l = [back[0] - n * s * 0.62, back[1] + c * s * 0.62], r = [back[0] + n * s * 0.62, back[1] - c * s * 0.62];
+      el("circle", {cx: x, cy: y, r: 11, fill: LEAD, opacity: .13}, g);
+      el("path", {d: "M" + tip + "L" + l + "L" + r + "Z", fill: LEAD}, g);
+    }
+    function exits(st, pts){
+      var top = st.top, bot = st.bottom, found = [], i, a, b, yb, f;
+      /* right end: last on-screen sample, then the segment that leaves */
+      for (i = SAMPLES - 1; i >= 0; i--){
+        if (pts.y[i] >= top && pts.y[i] <= bot && (pts.y[i + 1] < top || pts.y[i + 1] > bot)){
+          a = i; b = i + 1; break;
+        }
+      }
+      if (b != null){
+        yb = pts.y[b] < top ? top : bot; f = (yb - pts.y[a]) / (pts.y[b] - pts.y[a]);
+        found.push([pts.x[a] + f * (pts.x[b] - pts.x[a]), yb, Math.atan2(pts.y[b] - pts.y[a], pts.x[b] - pts.x[a])]);
+      }
+      a = b = null;
+      for (i = 1; i <= SAMPLES; i++){
+        if (pts.y[i] >= top && pts.y[i] <= bot && (pts.y[i - 1] < top || pts.y[i - 1] > bot)){
+          a = i; b = i - 1; break;
+        }
+      }
+      if (b != null){
+        yb = pts.y[b] < top ? top : bot; f = (yb - pts.y[a]) / (pts.y[b] - pts.y[a]);
+        found.push([pts.x[a] + f * (pts.x[b] - pts.x[a]), yb, Math.atan2(pts.y[b] - pts.y[a], pts.x[b] - pts.x[a])]);
+      }
+      return found;
+    }
+    function paint(st, pts){
+      var d = "";
+      for (var i = 0; i <= SAMPLES; i++) d += (i ? "L" : "M") + pts.x[i].toFixed(1) + "," + pts.y[i].toFixed(1);
+      st.path.setAttribute("d", d);
+      clear(st.gArrows);
+      exits(st, pts).forEach(function(e){ arrowAt(st.gArrows, e[0], e[1], e[2]); });
+      st.shown = pts;
+    }
+    function axes(st, pts){
+      clear(st.gAxes);
+      if (pts.zeroY > st.top && pts.zeroY < st.bottom)
+        el("line", {x1: 0, x2: st.w, y1: pts.zeroY, y2: pts.zeroY, class: "axis"}, st.gAxes);
+      if (pts.zeroX > 0 && pts.zeroX < st.w)
+        el("line", {x1: pts.zeroX, x2: pts.zeroX, y1: st.top, y2: st.bottom, class: "axis"}, st.gAxes);
+    }
+    function label(st){
+      st.cap.innerHTML = formula(st.P);
+      st.svg.setAttribute("aria-label", st.cap.textContent + ": the left end heads " +
+        (st.F.dirL > 0 ? "up" : "down") + " and the right end heads " + (st.F.dirR > 0 ? "up" : "down") + ".");
+    }
+
+    /* State is written first, synchronously; the morph only decorates it,
+       and a timer guarantees the final frame lands even if animation never
+       runs (a background tab, a slow Chromebook). */
+    function morph(st, target){
+      st.target = target;
+      var from = st.shown;
+      if (reduced || !from){ paint(st, target); return; }
+      var t0 = performance.now(), dur = 560;
+      function frame(now){
+        if (st.target !== target) return;
+        var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+        if (k >= 1){ paint(st, target); return; }
+        var ys = target.y.map(function(y, i){ return from.y[i] + (y - from.y[i]) * e; });
+        paint(st, {x: target.x, y: ys});
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      setTimeout(function(){ if (st.target === target) paint(st, target); }, dur + 120);
+    }
+
+    function layout(){
+      S.forEach(function(st){
+        geometry(st);
+        var pts = sample(st);
+        st.target = pts;
+        axes(st, pts);
+        paint(st, pts);
+      });
+    }
+
+    S.forEach(label);
+    layout();
+    whenResized(layout);
+
+    var count = 0, go = $("a2-go"), nudge = $("a2-nudge");
+    var NUDGES = ["Press it a few times.", "Again.", "Once more."];
+    go.addEventListener("click", function(){
+      count++;
+      S.forEach(function(st, idx){
+        var P = scramble(st.n, st.s, st.P.key);
+        if (!P) return;
+        st.P = P; st.F = frame(P);
+        label(st);
+        geometry(st);
+        var pts = sample(st);
+        axes(st, pts);
+        if (reduced) morph(st, pts);
+        else setTimeout(function(){ morph(st, pts); }, idx * 70);
+      });
+      var moved = S.filter(function(st, i){ return st.F.dirL !== BASE[i][0] || st.F.dirR !== BASE[i][1]; }).length;
+      $("a2-count").textContent = count;
+      $("a2-moved").textContent = moved;
+      if (count >= 3) touched("act2");
+      else nudge.textContent = NUDGES[count];
+    });
+  })();
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Content arrives synchronously; motion is decoration. */
+})();
+</script>
