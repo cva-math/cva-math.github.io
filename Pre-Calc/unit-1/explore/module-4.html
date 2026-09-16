@@ -1,0 +1,674 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Two cameras, 30 miles and 20 minutes apart. Cut the trip into pieces, see every piece&rsquo;s slope, and average them &mdash; then try averaging speedometer glances instead.">
+<title>Two Photos · Average Rate of Change</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" notes below never flash. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the notes stay, instead of the
+     charts sitting there as silent empty boxes. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     TWO PHOTOS — Pre-Calc Unit 1, Module 4, Average Rate of Change
+     One section, cut down from a three-act draft (two dots, the squeeze,
+     the crowd) to the crowd alone, then the ticket left open.
+     Built in the explore grammar (IM3/unit-2/explore): one move per act,
+     and the name only after the student has seen the thing -- and asked.
+
+     The spine is a puzzle: two plate cameras, 30 miles and 20 minutes
+     apart, and nobody measured your speed. Everything the page proves is
+     average rate of change. The ticket's stronger sentence -- "at some
+     moment your speedometer read exactly 90" -- closes the page as an
+     open question, on purpose: that step isn't this week's idea.
+
+     Two colours, each meaning one thing:
+       gold  — the trip: the curve, and the dots you drag along it
+       rate  — any speed: lines through the dots, and every conclusion
+
+     The trip is one possible trip, built to be dramatic: stuck at the
+     on-ramp light until 3:02:30, floored to 120 by 3:05:30, cruise
+     control to 3:17, then off the freeway at 40. Speeds run 0 to 120, so
+     the curve sits as far as 5.6 miles off the cameras' straight line.
+     Speed never jumps. Exactly 30 miles in exactly 20 minutes -- which is
+     WHY it's this fast: averaging 90 through a stop takes 120 afterward.
+     It gets on and off at DIFFERENT speeds on purpose: a trip that starts
+     and ends at the same speed can make speedometer glances land on
+     exactly 90 by coincidence, which a student would read as "glances
+     work too." This one never gets within 0.5 mph at any count 1 to 40.
+
+     Numbers avoid every page in the module: not x² (conference, #78,
+     #5, Examples), not the 1975–2005 wages (#3), not the dropped ball
+     (mastery). The mastery is also about motion -- a known overlap,
+     chosen knowingly.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the trip, and what you drag */
+    --gold-soft:rgba(227,179,76,.14);
+    --rate:#9DB2FF;         /* speeds, and what they tell you */
+    --rate-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--rate);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .t{white-space:nowrap}
+  .rate{color:var(--rate)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--rate)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--rate);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px}
+  .panel svg.chart{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+
+  /* readout chips.
+     No fixed min-width: a flex item's default minimum is its own content,
+     and these values never wrap -- so a row that can't fit wraps onto a
+     second line instead of pushing numbers out past their borders. */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+  .chip{
+    flex:1 1 170px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.rate{border-color:rgba(157,178,255,.38)}
+  .chip.rate .v{color:var(--rate)}
+
+  /* chart key, inside the panel */
+  .key{display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 2px 8px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--dim)}
+  .key span{display:inline-flex;align-items:center;gap:9px}
+  .key svg{width:30px;height:12px;display:block;flex-shrink:0}
+  /* the key follows the switch */
+  .key .m-glances{display:none}
+  .panel.glances .key .m-pieces{display:none}
+  .panel.glances .key .m-glances{display:inline-flex}
+
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:12px 18px;margin-top:12px;flex-wrap:wrap}
+  .controls > label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .slider{position:relative;flex:1;min-width:220px;padding-bottom:18px}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 4px rgba(227,179,76,.16)}
+    50%{box-shadow:0 0 0 11px rgba(227,179,76,.04)}
+  }
+  #a3-range:not(.used)::-webkit-slider-thumb{animation:breathe 2.4s ease-in-out infinite}
+  .ticks{position:absolute;left:0;right:0;bottom:0;height:16px;pointer-events:none}
+  .ticks span{
+    position:absolute;left:calc(11px + (100% - 22px) * var(--p));transform:translateX(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;white-space:nowrap;
+  }
+  .ticks span:first-child{transform:translateX(-11px)}
+  .ticks span:last-child{transform:translateX(calc(-100% + 11px))}
+
+  /* the two ways of averaging */
+  /* the buttons may wrap their labels: "Speedometer glances" alone is
+     wider than half a phone, and the switch must never outgrow its panel */
+  .seg{display:flex;max-width:100%;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 14px;flex:1 1 auto;min-width:0;white-space:normal;line-height:1.35}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+
+  /* every slope, listed -- then added up and divided */
+  .slopes{margin-top:16px;border-top:1px solid var(--line-soft);padding-top:14px}
+  .slopes-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:0 2px 8px}
+  /* sized so the longest label, "#40 3:19:30", never truncates */
+  .slopes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px}
+  .sl{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:5px 7px 4px;min-width:0}
+  .sl .i{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sl .n{display:block;font-family:var(--mono);font-size:15px;color:var(--rate);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sl:hover{border-color:var(--cream)}
+  .sum{margin:12px 2px 0;font-family:var(--mono);font-size:14px;color:var(--dim);line-height:1.8}
+  .sum b{color:var(--cream);font-weight:normal;font-variant-numeric:tabular-nums}
+  .sum .eq{font-size:18px;color:var(--cream);white-space:nowrap}
+  .sum .note{display:block;font-size:11px;line-height:1.5;color:var(--faint);letter-spacing:.03em}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:14px}
+  /* the button takes the nudge's place rather than rising under an empty line */
+  .act.touched .nudge{display:none}
+
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. This page doubles as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .reveal{
+    display:none;margin-top:22px;color:var(--rate);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--rate);background:var(--rate-soft)}
+  .reveal:focus-visible{outline:2px solid var(--rate)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--rate)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--rate);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  /* the ticket, which the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:32em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:22px 26px;font-family:var(--serif);font-size:clamp(22px,3.2vw,29px);
+    line-height:1.35;color:var(--cream);
+  }
+  .ticket .from{display:block;margin-bottom:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--rate)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared -- real pixels, because charts are built at their shown width */
+  .axis{stroke:#3A5272;stroke-width:1.2}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:13px}
+  .axistitle{fill:var(--dim);font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
+  /* a halo the colour of the panel, so a number stays readable wherever a
+     line happens to run behind it -- the trip's flat start sits right where
+     a bottom-row label has to go */
+  .measure{fill:var(--rate);font-family:var(--mono);font-size:14px;font-weight:bold;
+           paint-order:stroke fill;stroke:#101E33;stroke-width:4px;stroke-linejoin:round}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px}
+    .ticktext{font-size:11.5px}
+    .axistitle{font-size:10.5px;letter-spacing:.1em}
+    .measure{font-size:12.5px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px}
+    .seg{width:100%}
+    .seg button{flex:1 1 0;padding:9px 8px}
+    .slopes-grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; Pre-Calc &middot; Unit 1</a>
+    <div class="eyebrow">Pre-Calc &middot; Unit 1 &middot; Module 4 &middot; Average Rate of Change</div>
+    <h1>Two <em>Photos</em></h1>
+    <p class="dek">A camera reads your license plate as you get on the freeway at 3:00. Another reads it as you get off, 30 miles later, at 3:20. <strong>Nobody ever measured your speed.</strong> The limit is 65. So what can two photos actually prove?</p>
+    <div class="hint">Cut up the trip. Then try the speedometer.</div>
+  </div>
+</header>
+
+<!-- ════════ THE CROWD ════════ -->
+<section class="act" id="act3">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>First</b> The Crowd</div>
+    <h2 class="ask">Cut the trip into pieces and average their speeds. Then try glancing at the speedometer instead.</h2>
+    <p class="setup">The cameras only saw two moments, so all they can work out is an average: 30 miles in 20 minutes is 90 miles an hour &mdash; the dashed blue line. The gold curve is one trip that fits both photos: stuck at the on-ramp light, flooring it, cruising, getting off. Cut it into pieces and each bar underneath is one speed. <b>Piece by piece</b>, it&rsquo;s how far that piece went over how long it took &mdash; the slope of its line. <b>Speedometer glances</b>, it&rsquo;s what the speedometer said at the start of that piece. The white line is the average of the bars. <b>Every one of those speeds is listed under the chart &mdash; then added up and divided.</b></p>
+
+    <div class="chips">
+      <div class="chip gold"><div class="k" id="a3-nk">Cut into</div><div class="v" id="a3-n">4 pieces, 5:00 each</div></div>
+      <div class="chip"><div class="k">Average of those speeds</div><div class="v" id="a3-plain" aria-live="polite">90.00 mph</div></div>
+      <div class="chip rate"><div class="k">What the cameras saw</div><div class="v" id="a3-cam">90.00 mph</div></div>
+    </div>
+
+    <div class="panel" id="a3-panel">
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#E3B34C" stroke-width="3" stroke-linecap="round"/></svg>the trip</span>
+        <span class="m-pieces"><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#9DB2FF" stroke-width="2.5" stroke-linecap="round"/></svg>a straight line across each piece</span>
+        <span class="m-glances"><svg viewBox="0 0 30 12"><circle cx="4" cy="6" r="3" fill="#0B1526" stroke="#E3B34C" stroke-width="1.6"/><line x1="4" y1="6" x2="29" y2="6" stroke="#9DB2FF" stroke-width="2" stroke-linecap="round"/></svg>the way a glance said you were heading</span>
+        <span><svg viewBox="0 0 30 12"><rect x="4" y="2" width="22" height="8" fill="#9DB2FF" opacity=".32"/></svg>each bar: one speed</span>
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#F2EBDD" stroke-width="3"/></svg>the average of the bars</span>
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#9DB2FF" stroke-width="3" stroke-dasharray="6 4"/></svg>what the cameras saw</span>
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#8FA0B5" stroke-width="1.6" stroke-dasharray="2 4"/></svg>the 65 mph limit</span>
+      </div>
+      <p class="needs-js">This chart draws itself &mdash; <b>open the page in Chrome or Safari</b> to see it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="a3-svg" role="img" aria-label="Top: the trip, cut into pieces. Bottom: a bar for each piece showing one speed, a line at the average of those speeds, a dashed line at the cameras' 90 miles an hour, and a dotted line at the 65 limit."></svg>
+      <div class="controls">
+        <label for="a3-range">How many</label>
+        <div class="slider">
+          <input type="range" id="a3-range" min="1" max="40" step="1" value="4" aria-valuetext="4 pieces">
+          <div class="ticks" aria-hidden="true">
+            <span style="--p:0">1</span><span style="--p:.2308">10</span><span style="--p:.4872">20</span><span style="--p:1">40</span>
+          </div>
+        </div>
+        <div class="seg" role="group" aria-label="How to average">
+          <button type="button" id="a3-pieces" aria-pressed="true">Piece by piece</button>
+          <button type="button" id="a3-glances" aria-pressed="false">Speedometer glances</button>
+        </div>
+      </div>
+      <div class="slopes">
+        <div class="slopes-k" id="a3-list-k">The slope of every piece &mdash; its speed, in mph</div>
+        <div class="slopes-grid" id="a3-list"></div>
+        <p class="sum" id="a3-sum" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <p class="nudge" id="a3-nudge" aria-live="polite"></p>
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Average each piece&rsquo;s speed &mdash; how far it went over how long it took &mdash; and you land on 90 exactly, however many pieces: the little distances add up to 30 miles and the little times add up to 20 minutes, so nothing else can come out. Average speedometer glances instead and you miss &mdash; one glance at 3:00 says 0, because you were sitting at the light. Glance more often and the average creeps toward 90, but it never quite gets there. A glance tells you how fast you were going at one moment. A piece tells you how far you actually got.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: each piece&rsquo;s speed is its <b>average rate of change</b> &mdash; the slope of the <b>secant line</b> across it, <span class="math t rate">(<i>s</i>(<i>b</i>) &minus; <i>s</i>(<i>a</i>)) &divide; (<i>b</i> &minus; <i>a</i>)</span>. Adding up the little distances is a <b>telescoping sum</b> &mdash; every in-between moment is added once and taken away once, so only the two photos survive. And a plain average of speeds only works when every piece lasts the same amount of time; otherwise you need a <b>weighted average</b>, counting each piece by how long it lasted. <span class="name">It&rsquo;s why driving somewhere at 30 and back at 60 averages 40 miles an hour, not 45.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THE TICKET — left open ════════ -->
+<section class="act" id="ticket">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Ticket</div>
+    <h2 class="ask">A week later, a ticket shows up in the mail.</h2>
+    <blockquote class="ticket"><span class="from">It says</span>&ldquo;At some moment, your speedometer read exactly 90&nbsp;mph.&rdquo;</blockquote>
+    <p class="setup">The cameras proved your average: 90 miles an hour, a long way over 65. This claims something else &mdash; something about <em>one moment</em>, and the cameras never saw a single moment in between. <b>Is the ticket right anyway? Say what you think, and why.</b></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Two photos can&rsquo;t tell you how fast you were going. They can tell you your <em>average</em> &mdash; and sometimes that&rsquo;s all anyone needs.</p>
+    <div class="colophon">Pre-Calc &middot; Unit 1 &middot; Module 4 &middot; <span>Average Rate of Change</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", RATE = "#9DB2FF", NIGHT = "#0B1526", CREAM = "#F2EBDD", DIM = "#8FA0B5";
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function set(node, attrs){ for (var k in attrs) node.setAttribute(k, attrs[k]); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+  function touched(actId){ $(actId).classList.add("touched"); }
+
+  /* ── the trip ────────────────────────────────────────────────────
+     t is minutes after 3:00; v(t) is the speedometer, in mph; s(t) is
+     miles from the first camera, worked out exactly from v.
+       3:00    – 3:02:30  stopped at the on-ramp light          0 mph
+       3:02:30 – 3:05:30  flooring it                    0 → 120 mph
+       3:05:30 – 3:17     cruise control                     120 mph
+       3:17    – 3:20     getting off                   120 → 40 mph
+     Every change is a smooth ease, so the speedometer never jumps.
+     The stop's length is solved so the trip is exactly 30 miles:
+     120·1.5 + 120·11.5 + 80·3 = 1800 mph-minutes = 30 miles. */
+  var TMAX = 20, MMAX = 30, PI = Math.PI;
+  var STOPPED = 2.5, FLOOR = 3, CRUISE = 120, EXIT_AT = 17, OFF = 40;
+  function v(t){
+    if (t <= STOPPED) return 0;
+    if (t <= STOPPED + FLOOR) return CRUISE * (1 - Math.cos(PI * (t - STOPPED) / FLOOR)) / 2;
+    if (t >= EXIT_AT) return CRUISE - (CRUISE - OFF) * (1 - Math.cos(PI * (t - EXIT_AT) / (TMAX - EXIT_AT))) / 2;
+    return CRUISE;
+  }
+  function s(t){
+    if (t <= STOPPED) return 0;
+    var u = Math.min(t, STOPPED + FLOOR) - STOPPED;
+    var m = (CRUISE / 2 * u - CRUISE / 2 * (FLOOR / PI) * Math.sin(PI * u / FLOOR)) / 60;
+    if (t <= STOPPED + FLOOR) return m;
+    m += CRUISE * (Math.min(t, EXIT_AT) - (STOPPED + FLOOR)) / 60;
+    if (t <= EXIT_AT) return m;
+    var L = TMAX - EXIT_AT;
+    u = t - EXIT_AT;
+    m += ((CRUISE + OFF) / 2 * u + (CRUISE - OFF) / 2 * (L / PI) * Math.sin(PI * u / L)) / 60;
+    return m;
+  }
+  function mph(a, b){ return (s(b) - s(a)) / (b - a) * 60; }
+  /* 3:00 plus t minutes, with seconds only when there are any */
+  function clock(t){
+    var sec = Math.round(t * 60), mm = Math.floor(sec / 60), ss = sec % 60;
+    return "3:" + (mm < 10 ? "0" : "") + mm + (ss ? ":" + (ss < 10 ? "0" : "") + ss : "");
+  }
+  function span(t){
+    var sec = Math.round(t * 60), mm = Math.floor(sec / 60), ss = sec % 60;
+    return mm + ":" + (ss < 10 ? "0" : "") + ss;
+  }
+
+  /* reveal buttons, and what each act adds when its reveal is pressed */
+  var onReveal = {}, onResize = [];
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      if (onReveal[act.id]) onReveal[act.id]();
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+
+  /* ── header sky: the trip, faint ────────────────────────────── */
+  (function(){
+    var sky = $("sky"); sky.setAttribute("viewBox", "0 0 960 300");
+    var pts = [];
+    for (var t = 0; t <= TMAX; t += 0.1) pts.push((40 + t * 880 / TMAX).toFixed(1) + "," + (284 - s(t) * 8.6).toFixed(1));
+    el("polyline", {points: pts.join(" "), fill: "none", stroke: GOLD, "stroke-width": 1.5, opacity: .55}, sky);
+    [0, TMAX].forEach(function(t){
+      el("rect", {x: 40 + t * 880 / TMAX - 5, y: 284 - s(t) * 8.6 - 5, width: 10, height: 10, rx: 2,
+                  fill: "none", stroke: CREAM, "stroke-width": 1.4, opacity: .7}, sky);
+    });
+  })();
+
+  /* ── a chart of the trip, drawn at the width it's shown ─────── */
+  function frame(svg, topH, below){
+    clear(svg);
+    var W = Math.max(260, Math.round(svg.getBoundingClientRect().width)), narrow = W < 560;
+    var m = narrow ? {l: 50, r: 14, t: 26, b: 48} : {l: 74, r: 24, t: 30, b: 58};
+    var h = narrow ? topH[0] : topH[1];
+    var extra = below ? (narrow ? below[0] : below[1]) : 0;
+    var H = m.t + h + extra + m.b;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var X = function(t){ return m.l + t * (W - m.l - m.r) / TMAX; };
+    var Y = function(d){ return m.t + h - d * h / MMAX; };
+    var T = function(px){ return (px - m.l) * TMAX / (W - m.l - m.r); };
+    var P = {W: W, H: H, m: m, h: h, X: X, Y: Y, T: T, narrow: narrow};
+    var clip = el("clipPath", {id: svg.id + "-clip"}, el("defs", {}, svg));
+    el("rect", {x: m.l, y: m.t, width: W - m.l - m.r, height: h}, clip);
+    P.clip = "url(#" + svg.id + "-clip)";
+    [0, 10, 20, 30].forEach(function(d){
+      el("line", {x1: m.l, x2: W - m.r, y1: Y(d), y2: Y(d), "class": "gridline"}, svg);
+      /* 13px out, not 8: the first photo's square sits on the axis at 0 */
+      el("text", {x: m.l - 13, y: Y(d) + 4, "text-anchor": "end", "class": "ticktext"}, svg, d ? d + " mi" : "0");
+    });
+    [0, 5, 10, 15, 20].forEach(function(t){
+      el("line", {x1: X(t), x2: X(t), y1: m.t, y2: m.t + h, "class": "gridline"}, svg);
+      if (!below) el("text", {x: X(t), y: m.t + h + (narrow ? 19 : 24), "text-anchor": "middle", "class": "ticktext"}, svg, clock(t));
+    });
+    el("line", {x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), "class": "axis"}, svg);
+    el("line", {x1: m.l, x2: m.l, y1: m.t, y2: Y(0), "class": "axis"}, svg);
+    el("text", {x: m.l, y: m.t - 12, "class": "axistitle"}, svg, narrow ? "↑ miles" : "↑ miles from the first camera");
+    if (!below) el("text", {x: W - m.r, y: H - 6, "text-anchor": "end", "class": "axistitle"}, svg, "time →");
+    P.under = el("g", {}, svg);
+    var pts = [];
+    for (var t = 0; t <= TMAX; t += 0.05) pts.push(X(t).toFixed(1) + "," + Y(s(t)).toFixed(1));
+    el("polyline", {points: pts.join(" "), fill: "none", stroke: GOLD, "stroke-width": 3.2, "stroke-linejoin": "round"}, svg);
+    [0, TMAX].forEach(function(t){
+      el("rect", {x: X(t) - 7, y: Y(s(t)) - 7, width: 14, height: 14, rx: 3, fill: "none", stroke: CREAM, "stroke-width": 1.6}, svg);
+    });
+    return P;
+  }
+
+  /* ════ the crowd ═════════════════════════════════════
+     The trip, cut into n equal pieces. Top: the trip, with either a
+     straight line across each piece (piece by piece) or a glance's
+     heading drawn from the start of each piece (speedometer glances).
+     Bottom, sharing the same minutes: a bar per piece, a white line at
+     the plain average of the bars, a dashed blue line at the cameras'
+     90, and the 65 limit. The white line is drawn first, so when it
+     agrees with the cameras the blue dashes sit visibly ON it. */
+  (function(){
+    var svg = $("a3-svg"), panel = $("a3-panel"), range = $("a3-range"), CAM = mph(0, TMAX), SPEEDMAX = 135;
+    var glances = false, interacted = false, seenPieces = {}, seenGlances = {}, P;
+    var list = $("a3-list"), barEls = [], lineEls = [];
+
+    /* point at a slope in the list, and its piece lights up in the chart */
+    function light(k, on){
+      if (!barEls[k] || !lineEls[k]) return;
+      barEls[k].setAttribute("opacity", on ? ".8" : ".32");
+      lineEls[k].setAttribute("stroke", on ? CREAM : RATE);
+    }
+    function cellOf(e){ var c = e.target.closest ? e.target.closest(".sl") : null; return c ? +c.dataset.k : -1; }
+    list.addEventListener("pointerover", function(e){ var k = cellOf(e); if (k >= 0) light(k, true); });
+    list.addEventListener("pointerout", function(e){ var k = cellOf(e); if (k >= 0) light(k, false); });
+    function money(x){ return x.toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
+    function build(){
+      var botH = 0, gap = 0;
+      P = frame(svg, [200, 290], [0, 0]);                 /* measure first... */
+      botH = P.narrow ? 130 : 180; gap = P.narrow ? 48 : 56;
+      P = frame(svg, [200, 290], [botH + gap, botH + gap]); /* ...then build with room below */
+      var y0 = P.m.t + P.h + gap, X = P.X, m = P.m, W = P.W;
+      var Yb = function(v){ return y0 + botH - v * botH / SPEEDMAX; };
+      P.Yb = Yb;
+      [0, 5, 10, 15, 20].forEach(function(t){
+        el("line", {x1: X(t), x2: X(t), y1: y0, y2: y0 + botH, "class": "gridline"}, svg);
+        el("text", {x: X(t), y: y0 + botH + (P.narrow ? 19 : 24), "text-anchor": "middle", "class": "ticktext"}, svg, clock(t));
+      });
+      [30, 60, 90, 120].forEach(function(v){
+        el("line", {x1: m.l, x2: W - m.r, y1: Yb(v), y2: Yb(v), "class": "gridline"}, svg);
+        el("text", {x: m.l - 8, y: Yb(v) + 4, "text-anchor": "end", "class": "ticktext"}, svg, String(v));
+      });
+      el("text", {x: m.l - 8, y: Yb(0) + 4, "text-anchor": "end", "class": "ticktext"}, svg, "0");
+      el("line", {x1: m.l, x2: W - m.r, y1: Yb(0), y2: Yb(0), "class": "axis"}, svg);
+      el("line", {x1: m.l, x2: m.l, y1: y0, y2: Yb(0), "class": "axis"}, svg);
+      el("text", {x: m.l, y: y0 - 12, "class": "axistitle"}, svg, P.narrow ? "↑ mph" : "↑ each bar’s speed, mph");
+      el("text", {x: W - m.r, y: P.H - 6, "text-anchor": "end", "class": "axistitle"}, svg, "time →");
+      el("line", {x1: m.l, x2: W - m.r, y1: Yb(65), y2: Yb(65), stroke: DIM, "stroke-width": 1.6, "stroke-dasharray": "2 4"}, svg);
+      /* the cameras' line, over the trip */
+      el("line", {x1: X(0), y1: P.Y(0), x2: X(TMAX), y2: P.Y(MMAX), stroke: RATE, "stroke-width": 1.8,
+                  "stroke-dasharray": "7 6", opacity: .6}, P.under);
+      P.bars = el("g", {}, svg);
+      P.marks = el("g", {}, svg);
+      P.dots = el("g", {}, svg);
+      P.plain = el("line", {x1: X(0), x2: X(TMAX), stroke: CREAM, "stroke-width": 3}, svg);
+      P.cam = el("line", {x1: X(0), x2: X(TMAX), y1: Yb(CAM), y2: Yb(CAM), stroke: RATE, "stroke-width": 3, "stroke-dasharray": "7 6"}, svg);
+      P.labels = el("g", {}, svg);                         /* numbers on the bars sit on top of everything */
+      draw();
+    }
+
+    function draw(){
+      var n = +range.value, w = TMAX / n, speeds = [], k, avg = 0;
+      for (k = 0; k < n; k++){
+        var a = k * w, b = (k === n - 1) ? TMAX : (k + 1) * w;
+        speeds.push(glances ? v(a) : mph(a, b));
+        avg += speeds[k];
+      }
+      avg /= n;
+
+      clear(P.bars); clear(P.marks); clear(P.dots); clear(P.labels);
+      barEls = []; lineEls = [];
+      var cells = [];
+      for (k = 0; k < n; k++){
+        var t0 = k * w, t1 = (k === n - 1) ? TMAX : (k + 1) * w;
+        var x0 = P.X(t0), x1 = P.X(t1), gap = (x1 - x0) > 6 ? 1.5 : 0;
+        barEls.push(el("rect", {x: x0 + gap / 2, y: P.Yb(speeds[k]), width: Math.max(0.8, x1 - x0 - gap),
+                    height: Math.max(0, P.Yb(0) - P.Yb(speeds[k])), fill: RATE, opacity: .32}, P.bars));
+        if (glances){
+          /* the way the speedometer said you were heading, carried across the piece */
+          var yEnd = s(t0) + v(t0) / 60 * (t1 - t0);
+          lineEls.push(el("line", {x1: x0, y1: P.Y(s(t0)), x2: x1, y2: P.Y(yEnd), stroke: RATE, "stroke-width": 2.2,
+                      "stroke-linecap": "round", "clip-path": P.clip}, P.marks));
+        } else {
+          lineEls.push(el("line", {x1: x0, y1: P.Y(s(t0)), x2: x1, y2: P.Y(s(t1)), stroke: RATE, "stroke-width": 2.8,
+                      "stroke-linecap": "round"}, P.marks));
+        }
+        /* each bar carries its own number when there's room to read it */
+        if (x1 - x0 >= 44){
+          el("text", {x: (x0 + x1) / 2, y: P.Yb(speeds[k]) - 6, "text-anchor": "middle", "class": "measure"},
+             P.labels, speeds[k].toFixed(1));
+        }
+        cells.push('<div class="sl" data-k="' + k + '"><span class="i">#' + (k + 1) + ' ' + clock(t0) +
+                   '</span><span class="n">' + speeds[k].toFixed(2) + '</span></div>');
+      }
+      list.innerHTML = cells.join("");
+
+      /* The sum is of the EXACT speeds. Each cell is rounded to two places,
+         so adding the cells by hand can come out a cent off -- 1,080.01 for
+         12 pieces -- and the note says so instead of letting it look wrong. */
+      var total = 0;
+      for (k = 0; k < n; k++) total += speeds[k];
+      var what = glances ? "glances" : "slopes";
+      $("a3-list-k").textContent = glances ?
+        "Every glance at the speedometer, in mph" :
+        "The slope of every piece — its speed, in mph";
+      $("a3-sum").innerHTML = (n === 1 ?
+          "Just one " + (glances ? "glance" : "slope") + ": <b class=\"eq\">" + money(total) + " mph</b>" :
+          "Add all " + n + " " + what + ": <b>" + money(total) + "</b> &nbsp;÷&nbsp; " + n +
+          " &nbsp;= <b class=\"eq\">" + money(total / n) + " mph</b>") +
+        (n > 1 ? '<span class="note">The sum uses the exact ' + what + '; each one above is rounded to two places.</span>' : "");
+      var marks = glances ? n : n + 1;                     /* glances happen at the START of each piece */
+      for (k = 0; k < marks; k++){
+        if (n > 24 && k !== 0 && k !== marks - 1) continue;   /* past 24 the dots smear; keep the ends */
+        var t = Math.min(TMAX, k * w);
+        el("circle", {cx: P.X(t), cy: P.Y(s(t)), r: n <= 12 ? 4.5 : 3.2, fill: NIGHT, stroke: GOLD, "stroke-width": 2}, P.dots);
+      }
+      set(P.plain, {y1: P.Yb(avg), y2: P.Yb(avg)});
+
+      var label = glances ?
+        n + (n === 1 ? " glance, at 3:00" : " glances, every " + span(w)) :
+        n + (n === 1 ? " piece, 20:00 long" : " pieces, " + span(w) + " each");
+      $("a3-nk").textContent = glances ? "Glanced" : "Cut into";
+      $("a3-n").textContent = label;
+      $("a3-plain").textContent = avg.toFixed(2) + " mph";
+      $("a3-cam").textContent = CAM.toFixed(2) + " mph";
+      range.setAttribute("aria-valuetext", label + ": average " + avg.toFixed(2) + " miles an hour; the cameras, " + CAM.toFixed(2));
+
+      /* The button needs both halves: several piece-by-piece cuts that all
+         agree, and glances at more than one count, to see them move. */
+      if (!interacted) return;
+      (glances ? seenGlances : seenPieces)[n] = true;
+      var p = Object.keys(seenPieces).length, g = Object.keys(seenGlances).length;
+      $("a3-nudge").textContent =
+        p < 4 ? "Keep sliding — try lots of different numbers of pieces." :
+        g < 1 ? "Now switch to speedometer glances." :
+        g < 3 ? "Slide it with glances on, too." :
+        "Keep going.";
+      if (p >= 4 && g >= 3) touched("act3");
+    }
+
+    function setMode(g){
+      glances = g;
+      panel.classList.toggle("glances", g);
+      $("a3-pieces").setAttribute("aria-pressed", g ? "false" : "true");
+      $("a3-glances").setAttribute("aria-pressed", g ? "true" : "false");
+      if (!interacted){ interacted = true; seenPieces[4] = true; }
+      draw();
+    }
+    $("a3-pieces").addEventListener("click", function(){ setMode(false); });
+    $("a3-glances").addEventListener("click", function(){ setMode(true); });
+    range.addEventListener("input", function(){
+      if (!interacted){ interacted = true; if (!glances) seenPieces[4] = true; }   /* the starting cut counts once they've moved */
+      range.classList.add("used");
+      draw();
+    });
+
+    build();
+    onResize.push(build);
+  })();
+
+  /* Rebuild the charts when the width they're SHOWN at really changes -- a
+     phone rotating, a window resized, a scrollbar arriving. State lives
+     outside the drawings, so a rebuild never loses where the dots were or
+     what was revealed. Watch the PANEL, not the <svg>: an observer put on
+     an outer <svg> never fired in testing, so the thing observed has to be
+     an ordinary HTML box. A rebuild changes only the chart's HEIGHT, which
+     fires the observer again with the same width, which returns -- no loop. */
+  var lastW = Math.round($("a3-svg").getBoundingClientRect().width), timer = null;
+  function remeasure(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      var w = Math.round($("a3-svg").getBoundingClientRect().width);
+      if (Math.abs(w - lastW) < 2) return;
+      lastW = w;
+      onResize.forEach(function(f){ f(); });
+    }, 120);
+  }
+  var firstPanel = $("a3-svg").closest(".panel");
+  if (window.ResizeObserver && firstPanel) new ResizeObserver(remeasure).observe(firstPanel);
+  window.addEventListener("resize", remeasure);
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Everything that must arrive is set synchronously. */
+})();
+</script>
