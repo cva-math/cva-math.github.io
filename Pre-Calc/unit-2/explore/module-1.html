@@ -1,0 +1,764 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Twelve polynomials, four ways out. Call which two corners each graph leaves through, zoom out to check, and find the one term that decided it.">
+<title>Four Ways Out · Polynomial End Behavior</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the note stays, instead of the
+     chart sitting there as a silent empty box. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     FOUR WAYS OUT — Pre-Calc Unit 2, Module 1, Polynomial End Behavior
+     Built in the explore grammar (IM3/unit-2/explore, Pre-Calc/unit-1/
+     explore): one move per act, and the name only after the student has
+     seen the thing -- and asked.
+
+     The move is a call. A card shows a polynomial and nothing else; the
+     student says which two corners its graph leaves through; THEN the
+     chart shows the middle and zooms out until the ends can't hide. The
+     card files itself in its real corner, so four piles build up under
+     the chart, and the piles are what there is to notice.
+
+     IM3's page for the same week (From Far Enough Away) already owns the
+     zoom-and-watch and the scrambled middles. This one is Pre-Calc's
+     half: reading the deciding term off the formula, even written second
+     or last, or split across factors -- and the limits, as notation.
+
+     Two colours, each meaning one thing:
+       gold  — the polynomial: the curve, and the calls you make
+       lead  — the highest-power term, and the ends, which belong to it
+
+     Every card was checked in Python before it came here: its HTML parsed
+     back into a polynomial and matched to its coefficients, its corner
+     re-derived from the highest-power term, and its windows chosen so the
+     far view squeezes the middle under 1% of the frame. Every "written
+     out of order" card leads with a term that points to a DIFFERENT
+     corner, so reading the first term gets it wrong. None of the twelve,
+     or their negatives, is on the module's Pages; the deck never argues
+     the Mastery's point about a big coefficient, and the thirteenth card
+     is left open on purpose, like the ticket in Two Photos.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the polynomial, and your calls */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the highest-power term, and the ends */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lead);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sup{font-size:.62em;line-height:0;position:relative;top:-.08em;margin-left:.04em}
+  .t{white-space:nowrap}
+  .lead{color:var(--lead)}
+  /* limits, stacked the way they're written by hand */
+  .lim{display:inline-flex;flex-direction:column;align-items:center;line-height:1.05;margin-right:.2em}
+  .lim .under{font-size:.68em;white-space:nowrap}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px 16px}
+  .panel svg.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+
+  /* the card */
+  .card-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .formula{font-size:clamp(25px,4.6vw,40px);line-height:1.3;margin:6px 0 4px;color:var(--cream)}
+  .formula .fx{color:var(--dim)}
+  .formula .d, .formula sup.d{transition:color .6s ease}
+  .panel.settled .formula .d{color:var(--lead)}
+  /* for a factored card: the x part of every factor, multiplied */
+  .then{display:none;font-size:clamp(17px,2.4vw,21px);color:var(--lead);margin:2px 0 0}
+  .then .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-right:10px}
+  .panel.settled .then.has{display:block;animation:rise .6s ease both}
+
+  /* the four calls. Labels may wrap: "Down, then up" beside its picture is
+     more than half a phone, and a call must never outgrow its box */
+  .calls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0 14px}
+  .call{
+    display:flex;align-items:center;gap:10px;text-align:left;padding:10px 12px;min-width:0;
+    white-space:normal;line-height:1.3;color:var(--cream);
+  }
+  .call .ic{width:34px;height:26px;flex-shrink:0;display:block}
+  .call:hover{border-color:var(--gold)}
+  .calls.locked .call{cursor:default}
+  .calls.locked .call:hover{border-color:var(--line)}
+  .calls.locked .call:not(.chosen):not(.truth){opacity:.42}
+  .call.chosen,.calls.locked .call.chosen:hover{border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}
+  .call.truth,.calls.locked .call.truth:hover{border-color:var(--lead);background:var(--lead-soft);color:var(--lead);opacity:1}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* after the call */
+  .after{display:none;margin-top:12px}
+  .panel.settled .after{display:block;animation:rise .5s ease both}
+  .verdict{font-family:var(--serif);font-size:clamp(18px,2.4vw,21px);line-height:1.45;color:var(--cream)}
+  .verdict .you{color:var(--dim)}
+  .verdict .lims{display:block;margin-top:6px;color:var(--lead);font-size:.92em}
+  .row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+  .seg{display:flex;max-width:100%;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 14px;flex:1 1 auto;min-width:0;white-space:normal;line-height:1.35}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+  .next{color:var(--gold);border-color:rgba(227,179,76,.55)}
+  .next:hover{background:var(--gold-soft);border-color:var(--gold)}
+  .done-note{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+
+  /* ── the four corners ───────────────────────────────────────── */
+  .corners-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin:30px 2px 10px}
+  .corners{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .pile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 14px 14px;min-width:0}
+  .pile-h{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .pile-h .ic{width:34px;height:26px;flex-shrink:0;display:block;color:var(--lead)}
+  .pile-h .n{margin-left:auto;color:var(--faint);letter-spacing:.06em}
+  /* what the reveal adds to each corner: its name, and its limits */
+  .pile .tag{display:none;margin-top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--lead)}
+  .pile .plims{display:none;margin-top:4px;font-size:17.5px;color:var(--lead);gap:4px 22px;flex-wrap:wrap}
+  .act.revealed .pile .tag{display:block;animation:rise .7s ease both}
+  .act.revealed .pile .plims{display:flex;animation:rise .7s ease .1s both}
+  .pile ol{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .pile li{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:6px 10px 5px;font-size:17px;line-height:1.45;min-width:0}
+  .pile li .d{color:var(--lead)}
+  .pile li .pt{display:block;font-size:14.5px;color:var(--lead)}
+  .pile li .said{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .pile li.new{animation:filed 1.4s ease both}
+  @keyframes filed{0%{opacity:0;transform:translateY(-6px);border-color:var(--lead)}40%{opacity:1;transform:none;border-color:var(--lead)}100%{border-color:var(--line)}}
+  .pile .empty{margin-top:10px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--faint)}
+  .pile.has .empty{display:none}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  /* the button takes the nudge's place rather than rising under an empty line */
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. This page doubles as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .reveal{
+    display:none;margin-top:22px;color:var(--lead);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--lead);font-size:1.08em}
+
+  /* the thirteenth card, which the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:32em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:22px 26px;font-size:clamp(25px,4vw,36px);line-height:1.35;color:var(--cream);
+  }
+  .ticket .fx{color:var(--dim)}
+  .ticket .from{display:block;margin-bottom:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared -- real pixels, because the chart is built at its shown width */
+  .axis{stroke:#3A5272;stroke-width:1.4}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  .axisname{fill:var(--dim);font-family:var(--serif);font-style:italic;font-size:16px}
+  .waiting{fill:var(--faint);font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:14px 12px 12px;border-radius:8px}
+    .calls{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .call{padding:9px 8px;gap:7px;font-size:11px;letter-spacing:.04em}
+    .call .ic{width:30px;height:23px}
+    .then .k{display:block;margin:0 0 1px}
+    .corners{grid-template-columns:minmax(0,1fr)}
+    .ticktext{font-size:11px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px}
+    .seg{width:100%}
+    .seg button{flex:1 1 0;padding:9px 8px}
+    .next{width:100%}
+  }
+</style>
+
+<!-- the four pictures: a curve and where its two ends go -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="frame"><path d="M1 6V1h5M28 1h5v5M1 20v5h5M28 25h5v-5" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".38"/></g>
+  </defs>
+  <symbol id="ic0" viewBox="0 0 34 26"><use href="#frame"/><path d="M6 6.5C9 24 25 24 28 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 2l-3 5h6zM28 2l-3 5h6z" fill="currentColor"/></symbol>
+  <symbol id="ic1" viewBox="0 0 34 26"><use href="#frame"/><path d="M6 19.5C9 2 25 2 28 19.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 24l-3-5h6zM28 24l-3-5h6z" fill="currentColor"/></symbol>
+  <symbol id="ic2" viewBox="0 0 34 26"><use href="#frame"/><path d="M6 19.5C9 7 25 19 28 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 24l-3-5h6zM28 2l-3 5h6z" fill="currentColor"/></symbol>
+  <symbol id="ic3" viewBox="0 0 34 26"><use href="#frame"/><path d="M6 6.5C9 19 25 7 28 19.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 2l-3 5h6zM28 24l-3-5h6z" fill="currentColor"/></symbol>
+</svg>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; Pre-Calc &middot; Unit 2</a>
+    <div class="eyebrow">Pre-Calc &middot; Unit 2 &middot; Module 1 &middot; Polynomial End Behavior</div>
+    <h1>Four Ways <em>Out</em></h1>
+    <p class="dek">Up close, a polynomial&rsquo;s graph can wander all over &mdash; over bumps, into dips, across the axis and back. Zoom out far enough, though, and it leaves the screen. <strong>There are only four ways out.</strong></p>
+    <div class="hint">Call it. Then watch it leave.</div>
+  </div>
+</header>
+
+<!-- ════════ THE DECK ════════ -->
+<section class="act" id="deck">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>First</b> The Deck</div>
+    <h2 class="ask">Twelve polynomials. Before you see each graph, call which way it leaves.</h2>
+    <p class="setup">Read the card and pick the two corners you think its graph leaves through. The chart shows you the middle, then zooms out until the ends can&rsquo;t hide &mdash; and the card goes into the corner it really belongs in, under the chart. The corners fill up as you go. <b>Keep an eye on them: what do the cards in each corner have in common?</b></p>
+
+    <div class="panel" id="panel">
+      <div class="card-k" id="count">Card 1 of 12</div>
+      <p class="formula math" id="formula"></p>
+      <p class="then math" id="then"></p>
+      <div class="calls" id="calls" role="group" aria-label="Which way does it leave?">
+        <button type="button" class="call" data-c="0"><svg class="ic" aria-hidden="true"><use href="#ic0"/></svg>Both up</button>
+        <button type="button" class="call" data-c="1"><svg class="ic" aria-hidden="true"><use href="#ic1"/></svg>Both down</button>
+        <button type="button" class="call" data-c="2"><svg class="ic" aria-hidden="true"><use href="#ic2"/></svg>Down, then up</button>
+        <button type="button" class="call" data-c="3"><svg class="ic" aria-hidden="true"><use href="#ic3"/></svg>Up, then down</button>
+      </div>
+      <p class="needs-js">This deck deals itself &mdash; <b>open the page in Chrome or Safari</b> to play it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart" role="img" aria-label="The chart stays empty until you make your call."></svg>
+      <div class="after">
+        <p class="verdict" id="verdict" aria-live="polite"></p>
+        <div class="row">
+          <div class="seg" role="group" aria-label="How far out">
+            <button type="button" id="close" aria-pressed="false">Up close</button>
+            <button type="button" id="far" aria-pressed="true">Far out</button>
+          </div>
+          <button type="button" class="next" id="next">Next card &rarr;</button>
+          <span class="done-note" id="done-note" hidden>That&rsquo;s all twelve.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="corners-k">The four corners</div>
+    <div class="corners" id="corners">
+      <div class="pile" data-c="0">
+        <div class="pile-h"><svg class="ic" aria-hidden="true"><use href="#ic0"/></svg>Both up<span class="n"></span></div>
+        <div class="tag">even power &middot; positive</div>
+        <div class="plims math"></div>
+        <p class="empty">Nothing here yet.</p><ol></ol>
+      </div>
+      <div class="pile" data-c="1">
+        <div class="pile-h"><svg class="ic" aria-hidden="true"><use href="#ic1"/></svg>Both down<span class="n"></span></div>
+        <div class="tag">even power &middot; negative</div>
+        <div class="plims math"></div>
+        <p class="empty">Nothing here yet.</p><ol></ol>
+      </div>
+      <div class="pile" data-c="2">
+        <div class="pile-h"><svg class="ic" aria-hidden="true"><use href="#ic2"/></svg>Down, then up<span class="n"></span></div>
+        <div class="tag">odd power &middot; positive</div>
+        <div class="plims math"></div>
+        <p class="empty">Nothing here yet.</p><ol></ol>
+      </div>
+      <div class="pile" data-c="3">
+        <div class="pile-h"><svg class="ic" aria-hidden="true"><use href="#ic3"/></svg>Up, then down<span class="n"></span></div>
+        <div class="tag">odd power &middot; negative</div>
+        <div class="plims math"></div>
+        <p class="empty">Nothing here yet.</p><ol></ol>
+      </div>
+    </div>
+
+    <p class="nudge" id="nudge" aria-live="polite"></p>
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every card went where it did because of one term &mdash; the one with the highest power. Whether that power is even or odd decides whether the two ends agree: even sends them the same way, odd sends them opposite ways. Its sign decides the right-hand end: positive leaves up, negative leaves down. Everything else on the card only shapes the middle. And that term doesn&rsquo;t have to be written first: it can turn up anywhere in the line, or be split up across factors &mdash; where it&rsquo;s the <span class="math"><i>x</i></span> part of every factor multiplied together, and a squared factor counts twice.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: which way a graph leaves is its <b>end behavior</b>. The term with the highest power is the <b>leading term</b> &mdash; its power is the polynomial&rsquo;s <b>degree</b>, and its number is the <b>leading coefficient</b>. And every corner is a pair of <b>limits</b>. Down, then up is written <span class="math t"><span class="lim">lim<span class="under"><i>x</i>&thinsp;&rarr;&thinsp;&minus;&infin;</span></span><i>f</i>(<i>x</i>) = &minus;&infin;</span> and <span class="math t"><span class="lim">lim<span class="under"><i>x</i>&thinsp;&rarr;&thinsp;&infin;</span></span><i>f</i>(<i>x</i>) = &infin;</span>: as <span class="math"><i>x</i></span> runs off to the left, <span class="math"><i>f</i>(<i>x</i>)</span> falls without end, and as it runs off to the right, it climbs without end. Your four corners have their limits now. <span class="name">&infin; isn&rsquo;t a number <i>f</i>(<i>x</i>) ever gets to. It&rsquo;s a direction: this way, forever.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THE THIRTEENTH CARD — left open ════════ -->
+<section class="act" id="thirteenth">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Thirteenth Card</div>
+    <h2 class="ask">One more card, and the page won&rsquo;t sort this one for you.</h2>
+    <div class="ticket math"><span class="from">Card 13</span><span class="fx"><i>f</i>(<i>x</i>) =</span> (<i>x</i> + 1)<sup>3</sup> &minus; <i>x</i><sup>3</sup></div>
+    <p class="setup">Every power you can see on it is a 3. <b>Which two corners does it leave through? Say what you think, and why.</b></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">However it wanders in the middle, a polynomial leaves through two of four corners &mdash; and <em>one term</em> picks which two.</p>
+    <div class="colophon">Pre-Calc &middot; Unit 2 &middot; Module 1 &middot; <span>Polynomial End Behavior</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD";
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ── the deck ────────────────────────────────────────────────────
+     c: coefficients, lowest power first. corner: 0 both up, 1 both
+     down, 2 down then up, 3 up then down. L × Yc is the up-close window
+     (every zero and turning point inside it), R × Yf the far one (the
+     middle squeezed under 1% of the frame, the ends near its corners).
+     In the html, class "d" marks the deciding term -- or, on a factored
+     card, the x part of each factor -- and "then" multiplies those out.
+     All of it generated and checked in Python; see the note up top. */
+  var DECK = [
+    {"c": [9, 0, -10, 0, 1], "corner": 0, "L": 5, "Yc": 25, "R": 15, "Yf": 44513, "html": "<span class=\"d\"><i>x</i><sup>4</sup></span> − 10<i>x</i><sup>2</sup> + 9"},
+    {"c": [-3, 1, 3, -1], "corner": 3, "L": 5, "Yc": 5, "R": 20, "Yf": 6240, "html": "<span class=\"d\">−<i>x</i><sup>3</sup></span> + 3<i>x</i><sup>2</sup> + <i>x</i> − 3"},
+    {"c": [4, -8, -1, 2], "corner": 2, "L": 3, "Yc": 15, "R": 10, "Yf": 1678, "html": "−<i>x</i><sup>2</sup> <span class=\"d\">+ 2<i>x</i><sup>3</sup></span> − 8<i>x</i> + 4"},
+    {"c": [-18, 15, 7, -3, -1], "corner": 1, "L": 5, "Yc": 40, "R": 20, "Yf": 122837, "html": "(1 <span class=\"d\">− <i>x</i></span>)(<span class=\"d\"><i>x</i></span> + 3)<sup class=\"d\">2</sup>(<span class=\"d\"><i>x</i></span> − 2)", "then": "(−<i>x</i>)(<i>x</i>)<sup>2</sup>(<i>x</i>) = −<i>x</i><sup>4</sup>"},
+    {"c": [0, 4, 0, -5, 0, 1], "corner": 2, "L": 3, "Yc": 6, "R": 10, "Yf": 87437, "html": "<span class=\"d\"><i>x</i><sup>5</sup></span> − 5<i>x</i><sup>3</sup> + 4<i>x</i>"},
+    {"c": [-1, 1, 5, 0, 0, 0, -2], "corner": 1, "L": 2, "Yc": 5, "R": 8, "Yf": 500000, "html": "<i>x</i> + 5<i>x</i><sup>2</sup> <span class=\"d\">− 2<i>x</i><sup>6</sup></span> − 1"},
+    {"c": [6, -7, -12, 3, 2], "corner": 0, "L": 5, "Yc": 40, "R": 15, "Yf": 81453, "html": "(<span class=\"d\">2<i>x</i></span> − 1)(<span class=\"d\"><i>x</i></span> + 1)(<span class=\"d\"><i>x</i></span> − 2)(<span class=\"d\"><i>x</i></span> + 3)", "then": "(2<i>x</i>)(<i>x</i>)(<i>x</i>)(<i>x</i>) = 2<i>x</i><sup>4</sup>"},
+    {"c": [-2, 5, 2, 0, 0, -1], "corner": 3, "L": 2.5, "Yc": 8, "R": 10, "Yf": 91772, "html": "2<i>x</i><sup>2</sup> <span class=\"d\">− <i>x</i><sup>5</sup></span> + 5<i>x</i> − 2"},
+    {"c": [6, -5, -2, 1], "corner": 2, "L": 5, "Yc": 12, "R": 15, "Yf": 2628, "html": "(3 <span class=\"d\">− <i>x</i></span>)(1 <span class=\"d\">− <i>x</i></span>)(<span class=\"d\"><i>x</i></span> + 2)", "then": "(−<i>x</i>)(−<i>x</i>)(<i>x</i>) = <i>x</i><sup>3</sup>"},
+    {"c": [-4, 0, 5, 0, -1], "corner": 1, "L": 3, "Yc": 6, "R": 10, "Yf": 8744, "html": "<span class=\"d\">−<i>x</i><sup>4</sup></span> + 5<i>x</i><sup>2</sup> − 4"},
+    {"c": [3, 1, -8, 0, 2], "corner": 0, "L": 3, "Yc": 10, "R": 10, "Yf": 17658, "html": "3 + <i>x</i> − 8<i>x</i><sup>2</sup> <span class=\"d\">+ 2<i>x</i><sup>4</sup></span>"},
+    {"c": [6, 5, -2, -1], "corner": 3, "L": 5, "Yc": 12, "R": 15, "Yf": 2628, "html": "(2 <span class=\"d\">− <i>x</i></span>)(<span class=\"d\"><i>x</i></span> + 1)(<span class=\"d\"><i>x</i></span> + 3)", "then": "(−<i>x</i>)(<i>x</i>)(<i>x</i>) = −<i>x</i><sup>3</sup>"}
+  ];
+  var WAYS = [
+    {say: "both up",       tell: "Both ends up &mdash; it leaves through the top two corners.",                  exits: ["tl", "tr"], lims: ["&infin;", "&infin;"]},
+    {say: "both down",     tell: "Both ends down &mdash; it leaves through the bottom two corners.",             exits: ["bl", "br"], lims: ["&minus;&infin;", "&minus;&infin;"]},
+    {say: "down, then up", tell: "Down on the left, up on the right &mdash; the bottom-left corner, then the top-right.", exits: ["bl", "tr"], lims: ["&minus;&infin;", "&infin;"]},
+    {say: "up, then down", tell: "Up on the left, down on the right &mdash; the top-left corner, then the bottom-right.", exits: ["tl", "br"], lims: ["&infin;", "&minus;&infin;"]}
+  ];
+  var CORNER_NAMES = {tl: "top-left", tr: "top-right", bl: "bottom-left", br: "bottom-right"};
+  function f(c, x){ var r = 0; for (var k = c.length - 1; k >= 0; k--) r = r * x + c[k]; return r; }
+  function limHTML(way, sep){
+    var L = '<span class="lim">lim<span class="under"><i>x</i>&thinsp;&rarr;&thinsp;';
+    return '<span class="t">' + L + '&minus;&infin;</span></span><i>f</i>(<i>x</i>) = ' + way.lims[0] + '</span>' + (sep || "") +
+           '<span class="t">' + L + '&infin;</span></span><i>f</i>(<i>x</i>) = ' + way.lims[1] + '</span>';
+  }
+  /* Where a formula may wrap: before a + or −, never after one; and on a
+     factored card only BETWEEN factors, never inside one. Only the text
+     between tags is touched -- a space inside a tag is part of the tag. */
+  var NBSP = String.fromCharCode(160);
+  function typeset(html){
+    var factored = html.indexOf(")(") >= 0;
+    return html.split(/(<[^>]+>)/).map(function(s){
+      if (s.charAt(0) === "<") return s;
+      return factored ? s.replace(/ /g, NBSP) : s.replace(/([+−]) /g, "$1" + NBSP);
+    }).join("").replace(/\)\(/g, ")<wbr>(");
+  }
+
+  /* reveal buttons, and what each act adds when its reveal is pressed */
+  var onReveal = {}, onResize = [];
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      if (onReveal[act.id]) onReveal[act.id]();
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+
+  /* ── header sky: the four ways out, faint ─────────────────────
+     Drawn at the header's real size, so on any screen the four curves
+     run out through the header's own four corners. (A fixed drawing
+     sliced to fit a tall phone header showed only their flat middles --
+     a thick band straight through the text.) */
+  function drawSky(){
+    var sky = $("sky"), r = sky.getBoundingClientRect();
+    var W = Math.max(300, Math.round(r.width)), H = Math.max(200, Math.round(r.height));
+    sky.setAttribute("viewBox", "0 0 " + W + " " + H);
+    clear(sky);
+    [function(u){ return Math.pow(u, 4); }, function(u){ return -Math.pow(u, 4); },
+     function(u){ return Math.pow(u, 3); }, function(u){ return -Math.pow(u, 3); }].forEach(function(g){
+      var pts = [];
+      for (var k = 0; k <= 240; k++){
+        var u = -1.08 + k * 2.16 / 240;
+        pts.push((W / 2 + u * W * 0.48).toFixed(1) + "," + (H * 0.52 - g(u) * H * 0.44).toFixed(1));
+      }
+      el("polyline", {points: pts.join(" "), fill: "none", stroke: GOLD, "stroke-width": 1.5, opacity: .55}, sky);
+    });
+  }
+  drawSky();
+  onResize.push(drawSky);
+
+  /* ════ the deck ═════════════════════════════════════
+     One card at a time. Before the call the chart is an empty frame;
+     the call shows the middle, holds, then zooms both axes out together
+     (in log steps, so it feels like one steady pull-back) to the far
+     window. Arriving there SETTLES the card: its corners and ends light
+     up, the deciding term turns blue, and the card is filed. Settling is
+     also on a timer, so a tab that never paints still gets there. */
+  (function(){
+    var svg = $("chart"), panel = $("panel"), calls = $("calls"), act = $("deck");
+    var callBtns = Array.prototype.slice.call(calls.querySelectorAll(".call"));
+    var i = 0, called = false, settled = false, guess = -1, p = 0, filed = 0, revealed = false;
+    var anim = null, holdTimer = null, safety = null, G = null;
+
+    /* the frame, measured at the width it's shown */
+    function measure(){
+      var W = Math.max(260, Math.round(svg.getBoundingClientRect().width)), narrow = W < 560;
+      var m = narrow ? {l: 44, r: 8, t: 10, b: 26} : {l: 64, r: 12, t: 12, b: 30};
+      var H = narrow ? 250 : 330;
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      G = {W: W, H: H, m: m, narrow: narrow,
+           x0: m.l, x1: W - m.r, y0: m.t, y1: H - m.b};
+      G.cx = (G.x0 + G.x1) / 2; G.cy = (G.y0 + G.y1) / 2;
+      G.hw = (G.x1 - G.x0) / 2; G.hh = (G.y1 - G.y0) / 2;
+      clear(svg);
+      var defs = el("defs", {}, svg), clip = el("clipPath", {id: "plot-clip"}, defs);
+      el("rect", {x: G.x0, y: G.y0, width: G.x1 - G.x0, height: G.y1 - G.y0}, clip);
+      G.grid = el("g", {}, svg);
+      G.glow = el("g", {"clip-path": "url(#plot-clip)"}, svg);
+      G.curve = el("g", {"clip-path": "url(#plot-clip)"}, svg);
+      G.ends = el("g", {}, svg);
+      G.corners = el("g", {}, svg);
+      G.msg = el("g", {}, svg);
+    }
+
+    function niceStep(half, n){
+      var raw = half / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), q = raw / mag;
+      return (q <= 1 ? 1 : q <= 2 ? 2 : q <= 2.5 ? 2.5 : q <= 5 ? 5 : 10) * mag;
+    }
+    /* One unit per axis, picked by its biggest tick, so an axis never
+       mixes "50,000" with "100k". Short enough for the margin it sits in. */
+    function unitFor(big){
+      return big >= 1e6 ? 1e6 : (big >= 1e5 || (big >= 1e3 && G.narrow)) ? 1e3 : 1;
+    }
+    function fmt(v, unit){
+      var a = Math.abs(v), s = v < 0 ? "−" : "";
+      if (unit === 1) return s + a.toLocaleString("en-US", {maximumFractionDigits: 2});
+      return s + (+(a / unit).toPrecision(3)) + (unit === 1e6 ? "M" : "k");
+    }
+
+    /* the window at zoom p: 0 is up close, 1 is far out */
+    function windowAt(card, q){
+      return {xh: card.L * Math.pow(card.R / card.L, q), yh: card.Yc * Math.pow(card.Yf / card.Yc, q)};
+    }
+
+    function draw(){
+      var card = DECK[i], w = windowAt(card, p), sx = G.hw / w.xh, sy = G.hh / w.yh;
+      var X = function(x){ return G.cx + x * sx; }, Y = function(y){ return G.cy - y * sy; };
+      clear(G.grid); clear(G.glow); clear(G.curve); clear(G.ends); clear(G.corners); clear(G.msg);
+
+      /* grid and labels, re-picked every frame as the numbers grow */
+      var xs = niceStep(w.xh, G.narrow ? 2 : 4), ys = niceStep(w.yh, G.narrow ? 2 : 3), xt = [], yt = [], k, v;
+      for (k = 1; (v = +(k * xs).toPrecision(12)) <= w.xh * 1.0001; k++) xt.push(v);
+      for (k = 1; (v = +(k * ys).toPrecision(12)) <= w.yh * 1.0001; k++) yt.push(v);
+      var xu = unitFor(xt[xt.length - 1] || 0), yu = unitFor(yt[yt.length - 1] || 0);
+      xt.forEach(function(v){
+        [v, -v].forEach(function(t){
+          el("line", {x1: X(t), x2: X(t), y1: G.y0, y2: G.y1, "class": "gridline"}, G.grid);
+          el("text", {x: X(t), y: G.y1 + (G.narrow ? 17 : 20), "text-anchor": "middle", "class": "ticktext"}, G.grid, fmt(t, xu));
+        });
+      });
+      yt.forEach(function(v){
+        [v, -v].forEach(function(t){
+          el("line", {x1: G.x0, x2: G.x1, y1: Y(t), y2: Y(t), "class": "gridline"}, G.grid);
+          el("text", {x: G.x0 - 7, y: Y(t) + 4, "text-anchor": "end", "class": "ticktext"}, G.grid, fmt(t, yu));
+        });
+      });
+      el("text", {x: G.cx, y: G.y1 + (G.narrow ? 17 : 20), "text-anchor": "middle", "class": "ticktext"}, G.grid, "0");
+      el("text", {x: G.x0 - 7, y: G.cy + 4, "text-anchor": "end", "class": "ticktext"}, G.grid, "0");
+      el("line", {x1: G.x0, x2: G.x1, y1: G.cy, y2: G.cy, "class": "axis"}, G.grid);
+      el("line", {x1: G.cx, x2: G.cx, y1: G.y0, y2: G.y1, "class": "axis"}, G.grid);
+      el("text", {x: G.x1 - 6, y: G.cy - 8, "text-anchor": "end", "class": "axisname"}, G.grid, "x");
+      el("text", {x: G.cx + 8, y: G.y0 + 15, "class": "axisname"}, G.grid, "y");
+
+      /* the four corners of the frame -- the four ways out */
+      var lit = settled && p === 1, exits = lit ? WAYS[card.corner].exits : [], len = G.narrow ? 16 : 22;
+      [["tl", G.x0, G.y0, 1, 1], ["tr", G.x1, G.y0, -1, 1], ["bl", G.x0, G.y1, 1, -1], ["br", G.x1, G.y1, -1, -1]].forEach(function(c){
+        var on = exits.indexOf(c[0]) >= 0;
+        if (on) el("circle", {cx: c[1], cy: c[2], r: G.narrow ? 30 : 42, fill: LEAD, opacity: .13}, G.glow);
+        el("path", {d: "M" + c[1] + " " + (c[2] + c[4] * len) + "V" + c[2] + "H" + (c[1] + c[3] * len),
+                    fill: "none", stroke: on ? LEAD : "#3A5272", "stroke-width": on ? 3.4 : 2, "stroke-linecap": "round"}, G.corners);
+      });
+
+      if (!called){
+        el("text", {x: G.cx, y: G.cy - 14, "text-anchor": "middle", "class": "waiting"}, G.msg, "Your call first");
+        return;
+      }
+
+      /* the curve: one sample per pixel, clamped so huge values stay drawable */
+      var pts = [], px, x, y, lim = G.H * 3;
+      for (px = G.x0; px <= G.x1 + 0.5; px += 1){
+        x = (px - G.cx) / sx; y = Y(f(card.c, x));
+        pts.push([px, Math.max(-lim, Math.min(lim, y))]);
+      }
+      el("polyline", {points: pts.map(function(q){ return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "),
+                      fill: "none", stroke: GOLD, "stroke-width": 3.2, "stroke-linejoin": "round"}, G.curve);
+
+      if (!lit) return;
+      /* far out, the ends belong to the deciding term: blue, with arrowheads
+         where they cross out of the frame */
+      var cut = G.hw * 0.7, inside = function(q){ return q[1] >= G.y0 && q[1] <= G.y1; };
+      [-1, 1].forEach(function(side){
+        var seg = pts.filter(function(q){ return side * (q[0] - G.cx) >= cut; });
+        var g = el("g", {"clip-path": "url(#plot-clip)"}, G.ends);
+        el("polyline", {points: seg.map(function(q){ return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "),
+                        fill: "none", stroke: LEAD, "stroke-width": 3.8, "stroke-linejoin": "round"}, g);
+        /* walk out from the middle to the last point still inside the frame */
+        var start = Math.round(G.cx - G.x0), k2 = start, step = side;
+        while (pts[k2 + step] && inside(pts[k2 + step])) k2 += step;
+        var a = pts[k2], b = pts[k2 + step], tip;
+        if (!b) tip = [a[0], a[1]];
+        else {
+          var edge = b[1] < G.y0 ? G.y0 : G.y1, t = (edge - a[1]) / (b[1] - a[1]);
+          tip = [a[0] + t * (b[0] - a[0]), edge];
+        }
+        var back = pts[Math.max(0, Math.min(pts.length - 1, k2 - step * 6))];
+        var dx = tip[0] - back[0], dy = tip[1] - back[1], d = Math.sqrt(dx * dx + dy * dy) || 1;
+        dx /= d; dy /= d;
+        var L = 13, Wd = 6.5, bx = tip[0] - dx * L, by = tip[1] - dy * L;
+        el("path", {d: "M" + tip[0].toFixed(1) + " " + tip[1].toFixed(1) +
+                       "L" + (bx - dy * Wd).toFixed(1) + " " + (by + dx * Wd).toFixed(1) +
+                       "L" + (bx + dy * Wd).toFixed(1) + " " + (by - dx * Wd).toFixed(1) + "Z", fill: LEAD}, G.ends);
+      });
+    }
+
+    function label(){
+      var card = DECK[i];
+      if (!called) return "Card " + (i + 1) + ". The chart stays empty until you make your call.";
+      var exits = WAYS[card.corner].exits.map(function(e){ return CORNER_NAMES[e]; });
+      return "Card " + (i + 1) + (p === 1 ? ", far out" : p === 0 ? ", up close" : ", zooming out") +
+             (settled && p === 1 ? ": the graph leaves through the " + exits[0] + " and " + exits[1] + " corners." : ".");
+    }
+    function render(){ draw(); svg.setAttribute("aria-label", label()); }
+
+    /* zoom to q, 0 or 1, from wherever the chart is now */
+    function zoomTo(q, ms, done){
+      if (anim) cancelAnimationFrame(anim);
+      anim = null;
+      var from = p, t0 = null;
+      if (reduced || from === q){ p = q; render(); if (done) done(); return; }
+      function frame(ts){
+        if (t0 === null) t0 = ts;
+        var u = Math.min(1, (ts - t0) / ms), e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+        p = u >= 1 ? q : from + (q - from) * e;
+        render();
+        if (u < 1) anim = requestAnimationFrame(frame);
+        else { anim = null; if (done) done(); }
+      }
+      anim = requestAnimationFrame(frame);
+    }
+
+    function deal(){
+      var card = DECK[i];
+      called = false; settled = false; guess = -1; p = 0;
+      clearTimeout(holdTimer); clearTimeout(safety);
+      if (anim) cancelAnimationFrame(anim);
+      anim = null;
+      panel.classList.remove("settled");
+      $("count").textContent = "Card " + (i + 1) + " of " + DECK.length;
+      $("formula").innerHTML = '<span class="fx"><i>f</i>(<i>x</i>) =</span> ' + typeset(card.html);
+      var then = $("then");
+      then.innerHTML = card.then ? '<span class="k">The x parts, multiplied</span><span class="t">' + card.then + "</span>" : "";
+      then.classList.toggle("has", !!card.then);
+      calls.classList.remove("locked");
+      callBtns.forEach(function(b){ b.classList.remove("chosen", "truth"); b.removeAttribute("aria-disabled"); });
+      $("verdict").innerHTML = "";
+      $("close").setAttribute("aria-pressed", "false");
+      $("far").setAttribute("aria-pressed", "true");
+      render();
+    }
+
+    function settle(){
+      if (settled || !called) return;
+      settled = true;
+      clearTimeout(holdTimer); clearTimeout(safety);
+      if (anim) cancelAnimationFrame(anim);
+      anim = null; p = 1;
+      var card = DECK[i], way = WAYS[card.corner];
+      panel.classList.add("settled");
+      callBtns[card.corner].classList.add("truth");
+      $("verdict").innerHTML = way.tell + " " +
+        (guess === card.corner ? '<span class="you">You called it.</span>' : '<span class="you">You said ' + WAYS[guess].say + ".</span>") +
+        (revealed ? '<span class="lims math">' + limHTML(way, "&emsp; ") + "</span>" : "");
+      /* file it */
+      var pile = document.querySelector('.pile[data-c="' + card.corner + '"]'), li = document.createElement("li");
+      li.className = "new";
+      li.innerHTML = '<span class="math"><i>f</i>(<i>x</i>) = ' + typeset(card.html) + "</span>" +
+        (card.then ? '<span class="pt math t">' + card.then + "</span>" : "") +
+        (guess !== card.corner ? '<span class="said">you said ' + WAYS[guess].say + "</span>" : "");
+      pile.querySelector("ol").appendChild(li);
+      pile.classList.add("has");
+      pile.querySelector(".n").textContent = pile.querySelectorAll("li").length;
+      filed++;
+      var last = i === DECK.length - 1;
+      $("next").hidden = last;
+      $("done-note").hidden = !last;
+      nudge();
+      render();
+    }
+
+    function call(c){
+      if (called) return;
+      called = true; guess = c;
+      calls.classList.add("locked");
+      callBtns.forEach(function(b){ b.setAttribute("aria-disabled", "true"); });
+      callBtns[c].classList.add("chosen");
+      p = 0; render();
+      if (reduced){ settle(); return; }
+      /* show the middle for a beat, then pull back */
+      holdTimer = setTimeout(function(){ zoomTo(1, 1700, settle); }, 650);
+      safety = setTimeout(settle, 650 + 1700 + 900);
+    }
+    callBtns.forEach(function(b){
+      b.addEventListener("click", function(){ call(+b.dataset.c); });
+    });
+
+    $("next").addEventListener("click", function(){
+      if (i >= DECK.length - 1) return;
+      i++; deal();
+      callBtns[0].focus({preventScroll: true});
+    });
+    $("close").addEventListener("click", function(){
+      $("close").setAttribute("aria-pressed", "true"); $("far").setAttribute("aria-pressed", "false");
+      zoomTo(0, 1100);
+    });
+    $("far").addEventListener("click", function(){
+      $("far").setAttribute("aria-pressed", "true"); $("close").setAttribute("aria-pressed", "false");
+      zoomTo(1, 1100);
+    });
+
+    /* The button needs a real sort: eight cards, which puts two in every
+       corner -- enough in each pile for a pattern to be there to see. */
+    function nudge(){
+      $("nudge").textContent =
+        filed === 0 ? "Make your call on the first card." :
+        filed < 4 ? "Keep going. The corners fill up as you sort." :
+        filed < 8 ? "Look at the corners. What do the cards in each one have in common?" :
+        "";
+      if (filed >= 8) act.classList.add("touched");
+    }
+    onReveal.deck = function(){
+      revealed = true;
+      Array.prototype.forEach.call(document.querySelectorAll(".pile"), function(pile){
+        pile.querySelector(".plims").innerHTML = limHTML(WAYS[+pile.dataset.c]);
+      });
+      if (settled){
+        var way = WAYS[DECK[i].corner], v = $("verdict");
+        if (!v.querySelector(".lims")) v.insertAdjacentHTML("beforeend", '<span class="lims math">' + limHTML(way, "&emsp; ") + "</span>");
+      }
+    };
+
+    measure(); deal(); nudge();
+    onResize.push(function(){ measure(); render(); });
+  })();
+
+  /* Rebuild the chart when the width it's SHOWN at really changes -- a
+     phone rotating, a window resized, a scrollbar arriving. State lives
+     outside the drawing, so a rebuild never loses the card, the zoom, or
+     what was revealed. Watch the PANEL, not the <svg>: an observer on an
+     outer <svg> never fired in testing, so the thing observed has to be
+     an ordinary HTML box. A rebuild changes only the chart's HEIGHT, which
+     fires the observer again with the same width, which returns -- no loop. */
+  var lastW = Math.round($("chart").getBoundingClientRect().width), timer = null;
+  function remeasure(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      var w = Math.round($("chart").getBoundingClientRect().width);
+      if (Math.abs(w - lastW) < 2) return;
+      lastW = w;
+      onResize.forEach(function(fn){ fn(); });
+    }, 120);
+  }
+  if (window.ResizeObserver) new ResizeObserver(remeasure).observe($("panel"));
+  window.addEventListener("resize", remeasure);
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Everything that must arrive is set synchronously, or on
+     a timer that doesn't need the page to be painted. */
+})();
+</script>
