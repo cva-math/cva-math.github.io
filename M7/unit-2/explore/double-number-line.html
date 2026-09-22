@@ -1,0 +1,514 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Set any two of whole, part and percent — the third follows. Then change how you look at it: a double number line, boxes, an equation, a table. The numbers hold still; only the way of seeing them changes.">
+<title>One Tick &middot; Percents</title>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     ONE TICK — the instrument for M7 Unit 2, Percents.
+
+     A TOOL, NOT A LESSON. There are no acts here, no ask, no reveal
+     and no answers. The questions live on the Pages; this holds still
+     and lets a student operate it. That is the whole difference
+     between this and an explore page built per module.
+
+     ONE OBJECT, FOUR POSES. Unit 2 looks at the same thing four ways
+     and never says so: Module 1 and 2 on a double number line and in
+     boxes, Module 3 as an equation, Module 4 down a table. What is
+     constant across all four is ONE TICK'S WORTH — Module 1 calls it
+     a tick, Module 4 calls it the number you multiply every price by.
+     So the poses switch and the numbers do not move. That is the only
+     claim this instrument makes, and it makes it by construction.
+
+     SHARED SHELL. :root through the footer block is the cva-math
+     palette, byte-identical to the trailers and the front page.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526; --panel:#101E33; --panel-2:#0E1A2E; --line:#2A3F5A; --line-soft:#223650;
+    --cream:#F2EBDD; --dim:#8FA0B5; --faint:#5C6E85; --gold:#E3B34C;
+    --gold-soft:rgba(227,179,76,.14);
+    --sage:#7FB89F;                    /* the whole — the thing 100% names */
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  header{padding:72px 0 40px;border-bottom:1px solid var(--line-soft)}
+  .eyebrow{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;
+    color:var(--dim);text-transform:uppercase;
+  }
+  h1{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(40px,7vw,68px);line-height:1.04;
+    letter-spacing:-.01em;margin:16px 0 20px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:26px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+
+  main{padding:44px 0 0}
+
+  /* ── the row of switches ─────────────────────────────────────── */
+  .bar{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px}
+  .group{display:flex;flex-direction:column;gap:8px}
+  .group > span{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);
+  }
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg button{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--dim);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:9px 13px;cursor:pointer;transition:border-color .18s,color .18s,background .18s;
+  }
+  .seg button:hover{border-color:var(--dim);color:var(--cream)}
+  .seg button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+  .seg button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+  /* ── the three quantities ────────────────────────────────────── */
+  .qs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .q{
+    flex:1 1 180px;min-width:150px;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:9px;padding:11px 14px 10px;
+  }
+  .q.solved{border-color:var(--gold);background:var(--gold-soft)}
+  .q .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .q.solved .k{color:var(--gold)}
+  .q .k b{font-weight:normal;color:var(--sage)}
+  .q input{
+    display:block;width:100%;margin-top:3px;background:transparent;border:none;padding:0;
+    font-family:var(--mono);font-size:clamp(19px,3vw,25px);color:var(--cream);
+    font-variant-numeric:tabular-nums;
+  }
+  .q input:focus{outline:none}
+  .q input:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:3px}
+  .q.solved input{color:var(--gold)}
+  .q input[readonly]{cursor:default}
+
+  /* ── the panel and stage ─────────────────────────────────────── */
+  .panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:20px 20px 16px;
+  }
+  .panel svg{display:block;width:100%;height:auto}
+
+  /* ── the invariant strip — never changes with the pose ───────── */
+  .held{
+    display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;
+  }
+  /* `.held div` would catch .k and .v too, and draw a border inside a border. */
+  .held > div{
+    flex:1 1 200px;min-width:170px;background:var(--panel-2);
+    border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;
+    padding:10px 14px 9px;
+  }
+  .held .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .held .v{
+    font-family:var(--mono);font-size:clamp(16px,2.4vw,20px);margin-top:3px;
+    color:var(--gold);font-variant-numeric:tabular-nums;
+  }
+  .held .v small{font-family:var(--body);font-size:14px;color:var(--dim);font-variant-numeric:normal}
+
+  /* ── equation pose ───────────────────────────────────────────── */
+  .eqs{display:flex;flex-direction:column;gap:10px;padding:8px 0 2px}
+  .eq{
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--panel-2);
+  }
+  .eq.on{border-color:var(--gold);background:var(--gold-soft)}
+  .eq .lbl{
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--faint);flex:0 0 92px;
+  }
+  .eq.on .lbl{color:var(--gold)}
+  .eq .ex{font-family:var(--mono);font-size:clamp(15px,2.6vw,21px);color:var(--cream);font-variant-numeric:tabular-nums}
+  .eq.on .ex{color:var(--gold)}
+  .eq .ex i{color:var(--dim);font-style:normal}
+
+  /* ── table pose ──────────────────────────────────────────────── */
+  table{border-collapse:collapse;width:100%;max-width:520px;font-variant-numeric:tabular-nums}
+  th{
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--faint);text-align:left;padding:6px 14px 8px 0;border-bottom:1px solid var(--line);font-weight:normal;
+  }
+  td{padding:7px 14px 7px 0;border-bottom:1px solid var(--line-soft)}
+  td input{
+    width:100%;max-width:130px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:6px;padding:7px 10px;color:var(--cream);
+    font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;
+  }
+  td input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  td.out{font-family:var(--mono);font-size:15px;color:var(--gold)}
+
+  /* ── svg ─────────────────────────────────────────────────────── */
+  .ln{stroke:var(--cream);stroke-width:2;fill:none}
+  .tk{stroke:var(--line);stroke-width:1.4;fill:none}
+  .tk100{stroke:var(--sage);stroke-width:2;fill:none}
+  .tknow{stroke:var(--gold);stroke-width:2.4;fill:none}
+  .lab{font-family:var(--mono);font-size:12px;fill:var(--dim);font-variant-numeric:tabular-nums}
+  .lab.n{fill:var(--gold)}
+  .lab.w{fill:var(--sage)}
+  .cap{font-family:var(--mono);font-size:10px;letter-spacing:.18em;fill:var(--faint)}
+  .box{fill:var(--panel-2);stroke:var(--line);stroke-width:1}
+  .box.fill{fill:rgba(227,179,76,.26);stroke:var(--gold)}
+  .box.over{fill:rgba(227,179,76,.11);stroke:var(--gold);stroke-dasharray:4 3}
+  .onebox{stroke:var(--gold);stroke-width:2.2;fill:none}
+
+  footer{margin-top:64px;padding:26px 0 80px;border-top:1px solid var(--line-soft)}
+  .colophon{
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--faint);
+  }
+  .colophon span{color:var(--dim)}
+
+  @media (max-width:620px){
+    /* px on an SVG <text> are viewBox units, so bumping these enlarges the
+       type relative to the drawing -- which is the only way labels survive
+       a 920-wide line squeezed onto a phone. Paired with narrow() below. */
+    .lab{font-size:15px}
+    .cap{font-size:12px}
+  }
+  @media (max-width:600px){
+    header{padding:52px 0 32px}
+    .panel{padding:14px 12px 12px}
+    .bar{gap:18px}
+    .q{min-width:130px;padding:9px 11px 8px}
+  }
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">M7 &middot; Unit 2 &middot; Percents</div>
+    <h1>One <em>Tick</em></h1>
+    <p class="dek">Set any two of the three and the third follows. Then change how you look at it &mdash; <strong>the numbers hold still, only the view changes.</strong></p>
+    <div class="hint">Nothing here is a question. Set it and look</div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="bar">
+      <div class="group">
+        <span>Which one is missing</span>
+        <div class="seg" id="solve" role="group" aria-label="Which quantity to solve for">
+          <button data-v="part"    aria-pressed="true">the part</button>
+          <button data-v="whole"   aria-pressed="false">the whole</button>
+          <button data-v="percent" aria-pressed="false">the percent</button>
+        </div>
+      </div>
+      <div class="group">
+        <span>Ticks every</span>
+        <div class="seg" id="step" role="group" aria-label="Tick spacing in percent">
+          <button data-v="5"  aria-pressed="false">5%</button>
+          <button data-v="10" aria-pressed="false">10%</button>
+          <button data-v="20" aria-pressed="true">20%</button>
+          <button data-v="25" aria-pressed="false">25%</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="qs">
+      <div class="q" id="q-whole">
+        <div class="k"><b>100%</b> &mdash; the whole</div>
+        <input id="in-whole" inputmode="decimal" aria-label="The whole, at 100 percent">
+      </div>
+      <div class="q" id="q-part">
+        <div class="k">the part</div>
+        <input id="in-part" inputmode="decimal" aria-label="The part">
+      </div>
+      <div class="q" id="q-percent">
+        <div class="k">the percent</div>
+        <input id="in-percent" inputmode="decimal" aria-label="The percent">
+      </div>
+    </div>
+
+    <div class="bar" style="margin-bottom:14px">
+      <div class="group">
+        <span>Look at it as</span>
+        <div class="seg" id="pose" role="group" aria-label="How to view it">
+          <button data-v="line"  aria-pressed="true">a number line</button>
+          <button data-v="tape"  aria-pressed="false">boxes</button>
+          <button data-v="eq"    aria-pressed="false">an equation</button>
+          <button data-v="table" aria-pressed="false">a table</button>
+        </div>
+      </div>
+      <div class="group">
+        <span>Words</span>
+        <div class="seg" id="words" role="group" aria-label="Show the math words">
+          <button data-v="off" aria-pressed="true">plain</button>
+          <button data-v="on"  aria-pressed="false">the math words</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel"><div id="stage"></div></div>
+
+    <div class="held">
+      <div><div class="k" id="k-tick">One tick is worth</div><div class="v" id="v-tick">&mdash;</div></div>
+      <div><div class="k" id="k-mult">Multiply the whole by</div><div class="v" id="v-mult">&mdash;</div></div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="colophon">M7 &middot; Unit 2 &middot; <span>Percents</span> &mdash; Mr. Kim</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+
+/* ── state ──────────────────────────────────────────────────────
+   whole, part and percent are all kept; `solve` says which of the
+   three is the one being computed, so the other two are the inputs.
+   Those are exactly the three shapes a percent problem comes in, and
+   Unit 2 walks two of them: Module 1 solves for the part, Module 2
+   for the whole and for the percent. */
+var S = { solve:'part', whole:50, part:40, percent:80,
+          step:20, pose:'line', words:false, rows:[12,25,40,75] };
+
+/* A phone gets a narrower viewBox, not a shrunken one: same drawing, less
+   dead width, so the type lands bigger against it. */
+function narrow(){ return window.innerWidth < 620; }
+
+function compute(){
+  if(S.solve === 'part')    S.part    = S.whole * S.percent/100;
+  if(S.solve === 'whole')   S.whole   = S.percent ? S.part/(S.percent/100) : NaN;
+  if(S.solve === 'percent') S.percent = S.whole   ? S.part/S.whole*100     : NaN;
+}
+
+/* A number a 7th grader would write: no exponent, no long tail, and a
+   comma once it is worth having. Four places is past anything this
+   instrument can be asked for and short of float noise. */
+function fmt(n){
+  if(!isFinite(n)) return '—';
+  var s = (Math.round(n*10000)/10000).toString();
+  if(s.indexOf('e') >= 0) return '—';
+  var p = s.split('.');
+  p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return p.join('.');
+}
+function pct(n){ return isFinite(n) ? fmt(n) + '%' : '—'; }
+
+/* The line has to reach past 100% whenever the percent does -- a tank
+   holding 50% more is 150%, and a tool that stopped at the whole could
+   not show Module 1's own first problem. */
+function span(){
+  var hi = 100;
+  if(isFinite(S.percent) && S.percent > 100) hi = Math.ceil(S.percent/S.step)*S.step;
+  return Math.max(S.step, hi);
+}
+
+/* ── the poses ──────────────────────────────────────────────────
+   Each returns markup for the same numbers. Nothing here recomputes
+   anything: if a pose could change a value, the instrument would be
+   claiming something it has no right to. */
+
+function poseLine(){
+  var nw=narrow();
+  var W=nw?440:920, H=210, L=nw?34:64, R=W-L, top=74, bot=146;
+  var hi=span(), x=function(p){ return L + (R-L)*(p/hi); };
+  /* At 5% ticks over 160% there are 32 marks; printing a percent under every
+     one collides at any width. Label every Nth instead, and always label the
+     two that are given rather than worked out: 0 and 100. */
+  var gap=(R-L)/(hi/S.step), need=nw?54:46, every=Math.max(1,Math.ceil(need/gap)), i=-1;
+  var o=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="A double number line: amounts along the top, percents along the bottom, at '+pct(S.percent)+'">'];
+
+  o.push('<text class="cap" x="'+L+'" y="34">AMOUNT</text>');
+  o.push('<text class="cap" x="'+L+'" y="'+(H-12)+'">PERCENT</text>');
+  o.push('<line class="ln" x1="'+L+'" y1="'+top+'" x2="'+R+'" y2="'+top+'"/>');
+  o.push('<line class="ln" x1="'+L+'" y1="'+bot+'" x2="'+R+'" y2="'+bot+'"/>');
+
+  var tickWorth = S.whole * S.step/100;
+  for(var p=0; p<=hi+1e-9; p+=S.step){
+    i++;
+    var X=x(p), is100 = Math.abs(p-100)<1e-9;
+    var cls = is100 ? 'tk100' : 'tk';
+    var show = is100 || i % every === 0 || p > hi-1e-9;
+    o.push('<line class="'+cls+'" x1="'+X+'" y1="'+(top-9)+'" x2="'+X+'" y2="'+(top+9)+'"/>');
+    o.push('<line class="'+cls+'" x1="'+X+'" y1="'+(bot-9)+'" x2="'+X+'" y2="'+(bot+9)+'"/>');
+    if(show) o.push('<text class="lab'+(is100?' w':'')+'" text-anchor="middle" x="'+X+'" y="'+(bot+26)+'">'+fmt(p)+'%</text>');
+    /* Amounts on every tick are the answer to Module 1's own question,
+       so they stay off until the words are turned on. 0 and the whole
+       are always there -- they are what you are given, not what you work out. */
+    if(is100) o.push('<text class="lab w" text-anchor="middle" x="'+X+'" y="'+(top-18)+'">'+fmt(S.whole)+'</text>');
+    else if(p===0) o.push('<text class="lab" text-anchor="middle" x="'+X+'" y="'+(top-18)+'">0</text>');
+    else if(S.words && show) o.push('<text class="lab" text-anchor="middle" x="'+X+'" y="'+(top-18)+'">'+fmt(p/100*S.whole)+'</text>');
+  }
+
+  /* one tick, marked on the line itself */
+  if(isFinite(tickWorth) && hi >= S.step){
+    var a=x(0), b=x(S.step), mid=(a+b)/2;
+    o.push('<line class="tknow" x1="'+a+'" y1="'+(top+26)+'" x2="'+b+'" y2="'+(top+26)+'"/>');
+    o.push('<line class="tknow" x1="'+a+'" y1="'+(top+21)+'" x2="'+a+'" y2="'+(top+31)+'"/>');
+    o.push('<line class="tknow" x1="'+b+'" y1="'+(top+21)+'" x2="'+b+'" y2="'+(top+31)+'"/>');
+    o.push('<text class="lab n" text-anchor="middle" x="'+mid+'" y="'+(top+46)+'">'+fmt(tickWorth)+'</text>');
+  }
+
+  /* where the percent actually sits */
+  if(isFinite(S.percent) && S.percent >= 0 && S.percent <= hi){
+    var P=x(S.percent);
+    o.push('<line class="tknow" x1="'+P+'" y1="'+(top-14)+'" x2="'+P+'" y2="'+(bot+14)+'"/>');
+    o.push('<circle cx="'+P+'" cy="'+top+'" r="5" fill="var(--gold)"/>');
+    o.push('<circle cx="'+P+'" cy="'+bot+'" r="5" fill="var(--gold)"/>');
+    o.push('<text class="lab n" text-anchor="middle" x="'+P+'" y="'+(top-30)+'">'+fmt(S.part)+'</text>');
+  }
+  o.push('</svg>');
+  return o.join('');
+}
+
+function poseTape(){
+  var nw=narrow();
+  var W=nw?440:920, H=200, L=nw?24:40, R=W-L, y=58, h=62;
+  var hi=span(), n=Math.round(hi/S.step), bw=(R-L)/n;
+  var filled = isFinite(S.percent) ? S.percent/S.step : 0;
+  var o=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+n+' boxes, each worth '+fmt(S.whole*S.step/100)+', shaded to '+pct(S.percent)+'">'];
+
+  for(var i=0;i<n;i++){
+    var x=L+i*bw, past = (i+1)*S.step > 100 + 1e-9;
+    var cls = (i+1) <= filled+1e-9 ? (past?'box over':'box fill') : 'box';
+    o.push('<rect class="'+cls+'" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'"/>');
+    if(S.words && bw > (nw?26:34))
+      o.push('<text class="lab" text-anchor="middle" x="'+(x+bw/2)+'" y="'+(y+h/2+5)+'">'+fmt(S.whole*S.step/100)+'</text>');
+  }
+  /* a part of a box, when the percent does not land on a tick */
+  if(filled > 0 && Math.abs(filled-Math.round(filled)) > 1e-9 && filled < n){
+    var fi=Math.floor(filled), fx=L+fi*bw, fw=bw*(filled-fi);
+    o.push('<rect class="box fill" x="'+fx+'" y="'+y+'" width="'+fw+'" height="'+h+'"/>');
+  }
+
+  /* the whole, called out wherever 100% falls */
+  var x100 = L + (100/S.step)*bw;
+  if(x100 <= R+1e-6){
+    o.push('<line class="tk100" x1="'+x100+'" y1="'+(y-14)+'" x2="'+x100+'" y2="'+(y+h+14)+'"/>');
+    o.push('<text class="lab w" text-anchor="middle" x="'+x100+'" y="'+(y-22)+'">100% = '+fmt(S.whole)+'</text>');
+  }
+  /* one box */
+  o.push('<rect class="onebox" x="'+L+'" y="'+y+'" width="'+bw+'" height="'+h+'"/>');
+  o.push('<text class="lab n" text-anchor="middle" x="'+(L+bw/2)+'" y="'+(y+h+26)+'">'+fmt(S.whole*S.step/100)+'</text>');
+  o.push('<text class="cap" x="'+L+'" y="'+(y+h+48)+'">ONE BOX</text>');
+  o.push('<text class="lab n" text-anchor="end" x="'+R+'" y="'+(y+h+26)+'">'+fmt(S.part)+' shaded</text>');
+  o.push('</svg>');
+  return o.join('');
+}
+
+function poseEq(){
+  var m = S.percent/100, W=S.whole, P=S.part;
+  var dir = !isFinite(m) ? '' :
+            m > 1 ? 'bigger than 1, so the answer is bigger than the whole' :
+            m < 1 ? 'smaller than 1, so the answer is smaller than the whole' :
+                    'exactly 1, so nothing changes';
+  function row(key,label,ex){
+    return '<div class="eq'+(S.solve===key?' on':'')+'"><div class="lbl">'+label+'</div><div class="ex">'+ex+'</div></div>';
+  }
+  var x = '<i>x</i>';
+  return '<div class="eqs">'
+    + row('part','the part',    x+' = '+fmt(m)+' &times; '+fmt(W)+' <i>&nbsp;&rarr;&nbsp; '+fmt(P)+'</i>')
+    + row('whole','the whole',  x+' = '+fmt(P)+' &divide; '+fmt(m)+' <i>&nbsp;&rarr;&nbsp; '+fmt(W)+'</i>')
+    + row('percent','the percent', x+' = '+fmt(P)+' &divide; '+fmt(W)+' <i>&nbsp;&rarr;&nbsp; '+fmt(m)+' = '+pct(S.percent)+'</i>')
+    + '<p class="dek" style="margin-top:6px;font-size:15.5px">'
+    + (dir ? fmt(m)+' is '+dir+'.' : '') + '</p></div>';
+}
+
+function poseTable(){
+  var m = S.percent/100;
+  var head = S.words ? 'After &times; the constant' : 'After &times; '+fmt(m);
+  var o = ['<table><thead><tr><th>Amount</th><th>'+head+'</th></tr></thead><tbody>'];
+  S.rows.forEach(function(v,i){
+    o.push('<tr><td><input data-row="'+i+'" inputmode="decimal" value="'+fmt(v)
+          +'" aria-label="Amount in row '+(i+1)+'"></td><td class="out">'+fmt(v*m)+'</td></tr>');
+  });
+  o.push('</tbody></table>');
+  o.push('<p class="dek" style="margin-top:14px;font-size:15.5px">Every row runs through the same '
+        + fmt(m) + '. Change one amount and only its own row moves.</p>');
+  return o.join('');
+}
+
+/* ── render ─────────────────────────────────────────────────────
+   Inputs are written back only when they are NOT focused, so typing
+   never fights the formatter for the caret. */
+function setField(id, val, solved){
+  var el=$(id), box=el.parentNode;
+  box.classList.toggle('solved', solved);
+  el.readOnly = solved;
+  if(document.activeElement !== el) el.value = fmt(val);
+}
+
+function render(){
+  compute();
+  setField('in-whole',   S.whole,   S.solve==='whole');
+  setField('in-part',    S.part,    S.solve==='part');
+  setField('in-percent', S.percent, S.solve==='percent');
+
+  var tick = S.whole * S.step/100, m = S.percent/100;
+  $('k-tick').textContent = S.words ? 'The unit rate — one tick' : 'One tick is worth';
+  $('k-mult').textContent = S.words ? 'The constant of proportionality' : 'Multiply the whole by';
+  $('v-tick').innerHTML = fmt(tick) + ' <small>per ' + fmt(S.step) + '%</small>';
+  $('v-mult').innerHTML = fmt(m) + (isFinite(m)
+      ? ' <small>' + (m>1?'bigger':m<1?'smaller':'the same') + '</small>' : '');
+
+  $('stage').innerHTML = S.pose==='line' ? poseLine()
+                       : S.pose==='tape' ? poseTape()
+                       : S.pose==='eq'   ? poseEq()
+                       :                   poseTable();
+}
+
+/* ── wiring ─────────────────────────────────────────────────── */
+function seg(id, fn){
+  $(id).addEventListener('click', function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+    b.setAttribute('aria-pressed','true');
+    fn(b.dataset.v);
+    render();
+  });
+}
+seg('solve', function(v){ S.solve=v; });
+seg('step',  function(v){ S.step=+v; });
+seg('pose',  function(v){ S.pose=v; });
+seg('words', function(v){ S.words = (v==='on'); });
+
+[['in-whole','whole'],['in-part','part'],['in-percent','percent']].forEach(function(pair){
+  $(pair[0]).addEventListener('input', function(){
+    var n = parseFloat(this.value.replace(/,/g,''));
+    S[pair[1]] = isNaN(n) ? 0 : n;
+    render();
+  });
+  $(pair[0]).addEventListener('blur', render);
+});
+
+/* table rows live in the stage, which is rewritten on every render */
+$('stage').addEventListener('input', function(e){
+  var el=e.target; if(!el.dataset || el.dataset.row === undefined) return;
+  var n = parseFloat(el.value.replace(/,/g,''));
+  S.rows[+el.dataset.row] = isNaN(n) ? 0 : n;
+  var out = el.closest('tr').querySelector('.out');
+  if(out) out.textContent = fmt((isNaN(n)?0:n) * S.percent/100);
+});
+
+var rt;
+window.addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(render,150); });
+
+render();
+})();
+</script>

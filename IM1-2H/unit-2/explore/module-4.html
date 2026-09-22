@@ -1,0 +1,660 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Two jobs, two limits, and every combination that works. Then raise what you need each week until the region runs out — and find what you'd have to move to get it back.">
+<title>Room to Stand · The Region That Works</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the note stays, instead of the
+     chart sitting there as a silent empty box. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     ROOM TO STAND — IM 1/2H Unit 2, Module 4, The Region That Works
+     Built in the explore grammar (IM3/unit-2/explore, Pre-Calc/unit-1 and
+     unit-2/explore): one move per act, and the name only after the student
+     has seen the thing -- and asked. NB: never write a glob like unit-<star>
+     slash in here -- the slash-star pair closes this comment early and the
+     recovery eats the :root block underneath it, which renders the whole
+     page unstyled and light. It cost a build.
+
+     THE MODULE'S ONE NEW THING, from module-4/build.py: which COMBINATIONS
+     are allowed. The answer stops being a number and becomes a set. So the
+     page never asks "what is the answer"; it asks you to click points and
+     find out which weeks work, and then takes the set away.
+
+     WHY THIS PAGE EXISTS. Two files in this unit name the same gap.
+     candidates-index.md: "Four authored problems, one per module, are the
+     gap, and Module 4's is the one that matters most: a real Anaheim budget
+     with two constraints that don't both fit, so the student has to move
+     one." module-4/build.py, on IM's L26.3: "the one problem in the unit
+     where the region can come out EMPTY and the instruction is to change
+     your constraints ... the authored Anaheim version of that problem is
+     what this module actually wants." This is that problem, as an
+     instrument.
+
+     WHAT IT DELIBERATELY DOES NOT SPEND. Application 4 IS the Anaheim
+     region, and it is graded. So the two acts run on two jobs, not on rent,
+     and Anaheim appears only as the card at the end, ungraphed -- the
+     student leaves with the machinery and without the verdict. Nor does
+     the page touch the module's own Pages: not Jada's flowers (the
+     conference), not the four lettered regions (practice), and not the
+     mastery's move, which is reading two UNLABELED graphs backwards into
+     equations. Here the constraints arrive in words and the region is
+     found by probing.
+
+     Two colours, each meaning one thing:
+       gold  — the region that works, and the weeks you test that do
+       lead  — the constraints: their boundary lines and their shading
+     Rose appears exactly once, on the empty verdict, and never alone --
+     it is a state, not a third thing, so it always carries its own word.
+
+     Every number was checked in Python before it came here. Tutoring $24
+     for at most 12 h, cafe $17, 40 h a week between them: the most anyone
+     can clear is 24(12) + 17(28) = $764, at exactly one combination, and a
+     dollar past it the region is empty. At a $800 target it reopens when
+     tutoring reaches (800 - 476)/12 = $27.00 exactly. The Anaheim card's
+     three lines and its $21.13 are sources.md § 5 and § 2 verbatim; the
+     page does none of that arithmetic.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the region that works */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the constraints */
+    --lead-soft:rgba(157,178,255,.14);
+    --rose:#E0776B;         /* one state only: nothing works */
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sub{font-size:.66em;line-height:0}
+  .t{white-space:nowrap}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--gold);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+  .setup .gold{color:var(--gold)}
+  .setup .lead{color:var(--lead)}
+
+  /* the jobs, stated once as a standing fact */
+  .jobs{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .job{
+    flex:1 1 210px;min-width:0;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:11px 14px 10px;
+  }
+  .job .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .job .v{font-family:var(--mono);font-size:clamp(16px,2.4vw,20px);margin-top:3px;color:var(--cream);font-variant-numeric:tabular-nums}
+  .job .n{font-size:14px;color:var(--dim);margin-top:2px;line-height:1.4}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px 16px}
+  .panel svg.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  #chart1{cursor:crosshair}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* controls */
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+  .seg{display:flex;max-width:100%;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 14px;flex:1 1 auto;min-width:0;white-space:normal;line-height:1.35}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--lead);color:var(--night);font-weight:bold}
+
+  /* the verdict on a tested week */
+  .tested{display:none;margin-top:14px}
+  .panel.probed .tested{display:block;animation:rise .5s ease both}
+  .verdict{font-family:var(--serif);font-size:clamp(18px,2.4vw,21px);line-height:1.45;color:var(--cream)}
+  .verdict .ok{color:var(--gold)}
+  .verdict .no{color:var(--rose)}
+  .checks{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:9px}
+  .checks span{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--dim)}
+  .checks b{font-weight:normal}
+  .checks .y{color:var(--gold)}
+  .checks .n{color:var(--rose)}
+
+  /* act II sliders */
+  .knobs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 22px;margin-top:4px}
+  .knob .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .knob .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .knob .kv{font-family:var(--mono);font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:30px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--night);border:2px solid var(--lead);margin-top:-9px;
+    box-shadow:0 0 0 4px rgba(157,178,255,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;background:var(--night);border:2px solid var(--lead);
+    box-shadow:0 0 0 4px rgba(157,178,255,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--lead);outline-offset:6px;border-radius:4px}
+
+  /* the standing readout in act II */
+  .state{
+    margin-top:16px;border-top:1px solid var(--line);padding-top:14px;
+    font-family:var(--serif);font-size:clamp(18px,2.5vw,22px);line-height:1.45;
+  }
+  .state .n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .state.works{color:var(--cream)}
+  .state.works .n{color:var(--gold)}
+  .state.one{color:var(--cream)}
+  .state.one .n{color:var(--gold)}
+  .state.none{color:var(--rose)}
+  .escape{
+    display:none;margin-top:10px;font-family:var(--body);font-size:16px;line-height:1.55;color:var(--dim);
+  }
+  .state.none + .escape{display:block;animation:rise .5s ease both}
+  .escape b{color:var(--lead);font-weight:normal}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation.
+     Hidden until the student ASKS. This page doubles as the module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. Playing earns the
+     button (.touched); pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;color:var(--gold);background:transparent;
+    border:1px solid rgba(227,179,76,.45);
+  }
+  .reveal:hover{border-color:var(--gold);background:var(--gold-soft)}
+  .reveal:focus-visible{outline:2px solid var(--gold)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--gold);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--lead);font-size:1.06em}
+
+  /* the card the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:30em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:22px 26px 20px;
+  }
+  .ticket .from{display:block;margin-bottom:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .ticket ol{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .ticket li{font-size:clamp(21px,3.4vw,30px);line-height:1.25;color:var(--cream)}
+  .ticket li .gloss{display:block;margin-top:3px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .ticket .where{margin-top:16px;padding-top:13px;border-top:1px solid var(--line);font-size:15px;color:var(--dim);line-height:1.5}
+  .ticket .where b{color:var(--lead);font-weight:normal}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:23em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--gold)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:#3A5272;stroke-width:1.4}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  .axisname{fill:var(--dim);font-family:var(--serif);font-style:italic;font-size:16px}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:14px 12px 12px;border-radius:8px}
+    .knobs{grid-template-columns:minmax(0,1fr);gap:6px 0}
+    .seg{width:100%}
+    .seg button{flex:1 1 0;padding:9px 8px;font-size:11px;letter-spacing:.04em}
+    .ticktext{font-size:11px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px 16px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM 1/2H &middot; Unit 2</a>
+    <div class="eyebrow">IM 1/2H &middot; Unit 2 &middot; Module 4 &middot; The Region That Works</div>
+    <h1>Room to <em>Stand</em></h1>
+    <p class="dek">Two jobs. One pays better but has only so many hours in it, and together they can&rsquo;t run past forty. You need to clear a certain amount each week. <strong>The answer isn&rsquo;t a number &mdash; it&rsquo;s every combination that works.</strong></p>
+    <div class="hint">Click the chart. Then drag until nothing does.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE OVERLAP ════════ -->
+<section class="act" id="overlap">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Overlap</div>
+    <h2 class="ask">Two limits, one plane. Click anywhere and find out whether that week works.</h2>
+    <p class="setup">Tutoring pays better, but there are only twelve hours of it a week. The caf&eacute; will take whatever is left, as long as the two together stay under forty. And the week has to clear <b>$600</b>. <b>Pick a combination &mdash; any point on the chart &mdash; and the page checks it against both limits.</b></p>
+
+    <div class="jobs">
+      <div class="job"><div class="k">Tutoring</div><div class="v">$24 / hr</div><div class="n">At most 12 hours a week &mdash; that&rsquo;s all there is.</div></div>
+      <div class="job"><div class="k">Caf&eacute;</div><div class="v">$17 / hr</div><div class="n">A dime over California&rsquo;s minimum wage.</div></div>
+      <div class="job"><div class="k">The week</div><div class="v">40 hrs &middot; $600</div><div class="n">No more than forty hours, no less than six hundred dollars.</div></div>
+    </div>
+
+    <div class="panel" id="panel1">
+      <div class="seg" role="group" aria-label="Which limits to show">
+        <button type="button" data-show="hours" aria-pressed="false">The hours</button>
+        <button type="button" data-show="money" aria-pressed="false">The money</button>
+        <button type="button" data-show="both" aria-pressed="true">Both</button>
+      </div>
+      <p class="needs-js">This chart is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to click around in it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart1" role="img" aria-label="Hours tutoring across the bottom, hours at the cafe up the side. Click a point to test that week."></svg>
+      <div class="tested">
+        <p class="verdict" id="verdict1" aria-live="polite"></p>
+        <div class="checks" id="checks1"></div>
+      </div>
+    </div>
+
+    <p class="nudge" id="nudge1" aria-live="polite">Click a point on the chart.</p>
+    <button class="reveal" type="button" data-act="overlap">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Each limit on its own splits the plane in two &mdash; everything on one side is allowed, everything on the other isn&rsquo;t. What you were hunting for is the patch where all of them agree at once. And notice what it is: not one right answer with wrong ones around it, but a whole area of weeks, every one of them fine.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: an inequality in two variables shades a <b>half-plane</b>, and its edge is the <b>boundary line</b> &mdash; drawn solid when the edge itself counts (<span class="math t">&le;</span>, <span class="math t">&ge;</span>) and dashed when it doesn&rsquo;t (<span class="math t">&lt;</span>, <span class="math t">&gt;</span>). Several of them at once make a <b>system of inequalities</b>, and the overlap is the <b>feasible region</b>. Written down, this week was <span class="math t"><i>x</i> &le; 12</span>, <span class="math t"><i>x</i> + <i>y</i> &le; 40</span>, <span class="math t">24<i>x</i> + 17<i>y</i> &ge; 600</span>. <span class="name">Feasible just means: these are the ones you could actually do.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — NOWHERE TO STAND ════════ -->
+<section class="act" id="empty">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> Nowhere to Stand</div>
+    <h2 class="ask">Now raise what the week has to clear. Watch the room run out.</h2>
+    <p class="setup">Same two jobs, same forty hours. Drag what you need and the region redraws itself underneath you. Keep going. <b>There is a number where it stops being a patch and starts being nothing at all</b> &mdash; find it. Then find what you&rsquo;d have to change to get it back.</p>
+
+    <div class="panel" id="panel2">
+      <p class="needs-js">This one is dragged &mdash; <b>open it in Chrome or Safari</b> to move the sliders.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart2" role="img" aria-label="The same plane, with the region redrawing as the weekly target and the tutoring wage change."></svg>
+      <div class="knobs">
+        <div class="knob">
+          <div class="kr"><label class="kk" for="target">The week has to clear</label><span class="kv" id="targetV">$600</span></div>
+          <input type="range" id="target" min="200" max="900" step="4" value="600" aria-label="What the week has to clear, in dollars">
+        </div>
+        <div class="knob">
+          <div class="kr"><label class="kk" for="wage">Tutoring pays</label><span class="kv" id="wageV">$24 / hr</span></div>
+          <input type="range" id="wage" min="17" max="34" step="0.25" value="24" aria-label="Tutoring hourly wage, in dollars">
+        </div>
+      </div>
+      <p class="state works" id="state2" aria-live="polite"></p>
+      <p class="escape" id="escape2"></p>
+    </div>
+
+    <p class="nudge" id="nudge2" aria-live="polite">Drag either slider.</p>
+    <button class="reveal" type="button" data-act="empty">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>At <b>$764</b> there is exactly one week left: all twelve tutoring hours and twenty&#8209;eight at the caf&eacute;. One dollar past it there is nothing &mdash; not a hard week, not a wrong answer, <em>nothing</em>. An empty region is a real result, and it says something precise: not with these constraints, it can&rsquo;t. Which makes the next question the only one left. Which constraint moves?</p>
+    </div>
+    <p class="notation">The names: a system whose shadings never overlap has <b>no solution</b>, and its region is <b>empty</b>. That is an answer, not a failure to find one &mdash; the same way <span class="math t">0 = 5</span> at the end of solving a system tells you the two lines were parallel all along. <span class="name">And a constraint is not a law of nature. Some of these you can move &mdash; what the job pays, what you need to clear. Some of them you can&rsquo;t: the week is still forty hours long.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THEN — THE ANAHEIM CARD, left open ════════ -->
+<section class="act" id="anaheim">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Anaheim Card</div>
+    <h2 class="ask">One more region, and the page won&rsquo;t graph this one for you.</h2>
+
+    <div class="ticket math">
+      <span class="from">Anaheim &middot; three constraints</span>
+      <ol>
+        <li><i>r</i> &le; 1.3 &middot; <i>w</i> &middot; <i>h</i>
+          <span class="gloss">the 30% rule, written as an inequality</span></li>
+        <li><i>h</i> &le; 40
+          <span class="gloss">a week only has so many working hours</span></li>
+        <li><i>r</i> &ge; 1,618
+          <span class="gloss">half a median two-bedroom &mdash; nothing here is cheaper</span></li>
+      </ol>
+      <div class="where"><b><i>w</i></b> is what you earn an hour, <b><i>h</i></b> the hours you work in a week, <b><i>r</i></b> the rent you could carry. Anaheim&rsquo;s own minimum wage law, Measure&nbsp;L, puts <b><i>w</i></b> at <b>$21.13</b>.</div>
+    </div>
+
+    <p class="setup">You have done this shape twice now &mdash; a ceiling, a floor, and a line that moves when a wage does. <b>Graph it. What does the region look like &mdash; and if it turns out there is nothing in it, which line would you move?</b></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">When the answer isn&rsquo;t a number it&rsquo;s a region &mdash; and an <em>empty</em> one is still an answer. It names the thing that has to change.</p>
+    <div class="colophon">IM 1/2H &middot; Unit 2 &middot; Module 4 &middot; <span>The Region That Works</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+
+  /* ── the standing facts. Verified in Python; see the header comment. ── */
+  var CAFE = 17, CAP = 40, AVAIL = 12;      /* $/hr · hours/week · tutoring hours available */
+  var TUT0 = 24, T0 = 600;                  /* the opening wage and target */
+  var XMAX = 14, YMAX = 42;                 /* the window, a little past both limits */
+
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", ROSE = "#E0776B";
+
+  function mk(tag, attrs, parent){
+    var e = document.createElementNS(SVGNS, tag);
+    for(var k in attrs) e.setAttribute(k, attrs[k]);
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+  function money(n){ return "$" + Math.round(n).toLocaleString("en-US"); }
+  function hrs(n){ return (Math.round(n*10)/10) + (n === 1 ? " hr" : " hrs"); }
+
+  /* ── half-plane clipping (Sutherland–Hodgman), keeping a·x + b·y ≤ c ──
+     Start from the window rectangle and clip once per constraint. When the
+     constraints don't agree anywhere, the polygon comes back with no points,
+     which IS the empty region -- no special case needed. */
+  function clip(poly, a, b, c){
+    var out = [], i, P, Q, fp, fq, t;
+    for(i = 0; i < poly.length; i++){
+      P = poly[i]; Q = poly[(i+1) % poly.length];
+      fp = a*P[0] + b*P[1] - c;
+      fq = a*Q[0] + b*Q[1] - c;
+      if(fp <= 1e-9) out.push(P);
+      if((fp > 1e-9) !== (fq > 1e-9)){
+        t = fp / (fp - fq);
+        out.push([P[0] + t*(Q[0]-P[0]), P[1] + t*(Q[1]-P[1])]);
+      }
+    }
+    return out;
+  }
+  function region(T, tut){
+    var poly = [[0,0],[XMAX,0],[XMAX,YMAX],[0,YMAX]];
+    poly = clip(poly, 1, 0, AVAIL);              /* x ≤ 12       */
+    poly = clip(poly, 1, 1, CAP);                /* x + y ≤ 40   */
+    poly = clip(poly, -tut, -CAFE, -T);          /* tut·x + 17y ≥ T */
+    return poly;
+  }
+  /* Whole-hour weeks inside it -- a count you can feel run out. */
+  function lattice(T, tut){
+    var n = 0, x, y;
+    for(x = 0; x <= AVAIL; x++)
+      for(y = 0; y <= CAP - x; y++)
+        if(tut*x + CAFE*y >= T) n++;
+    return n;
+  }
+  /* The most any week can clear, and so the target at which the region dies. */
+  function ceiling(tut){ return tut*AVAIL + CAFE*(CAP - AVAIL); }
+
+  /* ── the frame ─────────────────────────────────────────────── */
+  var W = 880, H = 470, ML = 74, MR = 96, MT = 20, MB = 62;
+  function frame(svg){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var X = function(v){ return ML + v/XMAX*(W-ML-MR); };
+    var Y = function(v){ return H - MB - v/YMAX*(H-MT-MB); };
+    var i;
+    for(i = 0; i <= YMAX; i += 10){
+      mk("line", {"class":"gridline", x1:ML, y1:Y(i), x2:W-MR, y2:Y(i)}, svg);
+      mk("text", {"class":"ticktext", x:ML-11, y:Y(i)+4.5, "text-anchor":"end"}, svg).textContent = i;
+    }
+    for(i = 0; i <= XMAX; i += 2){
+      mk("line", {"class":"gridline", x1:X(i), y1:MT, x2:X(i), y2:H-MB}, svg);
+      mk("text", {"class":"ticktext", x:X(i), y:H-MB+22, "text-anchor":"middle"}, svg).textContent = i;
+    }
+    mk("line", {"class":"axis", x1:ML, y1:H-MB, x2:W-MR, y2:H-MB}, svg);
+    mk("line", {"class":"axis", x1:ML, y1:MT, x2:ML, y2:H-MB}, svg);
+    mk("text", {"class":"axisname", x:(ML+W-MR)/2, y:H-16, "text-anchor":"middle"}, svg)
+      .textContent = "hours tutoring";
+    var yl = mk("text", {"class":"axisname", x:16, y:(MT+H-MB)/2, "text-anchor":"middle",
+      transform:"rotate(-90 16 " + ((MT+H-MB)/2) + ")"}, svg);
+    yl.textContent = "hours at the café";
+    return {X:X, Y:Y};
+  }
+  function poly(svg, S, pts, fill, op){
+    if(pts.length < 3) return;
+    mk("polygon", {points: pts.map(function(p){ return S.X(p[0]).toFixed(1) + "," + S.Y(p[1]).toFixed(1); }).join(" "),
+      fill:fill, opacity:op}, svg);
+  }
+  /* A boundary, drawn only across the window. */
+  function boundary(svg, S, a, b, c, color){
+    var pts = [], t;
+    if(Math.abs(b) > 1e-9){
+      t = (c - a*0)/b;        if(t >= -1e-9 && t <= YMAX+1e-9) pts.push([0, t]);
+      t = (c - a*XMAX)/b;     if(t >= -1e-9 && t <= YMAX+1e-9) pts.push([XMAX, t]);
+    }
+    if(Math.abs(a) > 1e-9){
+      t = (c - b*0)/a;        if(t >= -1e-9 && t <= XMAX+1e-9) pts.push([t, 0]);
+      t = (c - b*YMAX)/a;     if(t >= -1e-9 && t <= XMAX+1e-9) pts.push([t, YMAX]);
+    }
+    if(pts.length < 2) return;
+    mk("line", {x1:S.X(pts[0][0]), y1:S.Y(pts[0][1]), x2:S.X(pts[1][0]), y2:S.Y(pts[1][1]),
+      stroke:color, "stroke-width":2.4, "stroke-linecap":"round"}, svg);
+  }
+
+  /* ════════ ACT I ════════ */
+  (function(){
+    var svg = document.getElementById("chart1"), panel = document.getElementById("panel1");
+    var act = document.getElementById("overlap"), nudge = document.getElementById("nudge1");
+    var show = "both", probe = null, tests = 0, foundYes = false, foundNo = false;
+
+    function draw(){
+      var S = frame(svg);
+      var hoursOnly = clip(clip([[0,0],[XMAX,0],[XMAX,YMAX],[0,YMAX]], 1,0,AVAIL), 1,1,CAP);
+      var moneyOnly = clip([[0,0],[XMAX,0],[XMAX,YMAX],[0,YMAX]], -TUT0,-CAFE,-T0);
+
+      if(show === "hours" || show === "both") poly(svg, S, hoursOnly, LEAD, show === "both" ? .10 : .20);
+      if(show === "money" || show === "both") poly(svg, S, moneyOnly, LEAD, show === "both" ? .10 : .20);
+      if(show === "both") poly(svg, S, region(T0, TUT0), GOLD, .30);
+
+      if(show !== "money"){
+        boundary(svg, S, 1, 0, AVAIL, LEAD);
+        boundary(svg, S, 1, 1, CAP, LEAD);
+      }
+      if(show !== "hours") boundary(svg, S, TUT0, CAFE, T0, LEAD);
+
+      if(probe){
+        var ok = probe.hours && probe.money;
+        mk("circle", {cx:S.X(probe.x), cy:S.Y(probe.y), r:11, fill:"none",
+          stroke: ok ? GOLD : ROSE, "stroke-width":1.4, opacity:.55}, svg);
+        mk("circle", {cx:S.X(probe.x), cy:S.Y(probe.y), r:6,
+          fill: ok ? GOLD : ROSE, stroke:"#0B1526", "stroke-width":2}, svg);
+      }
+    }
+
+    function test(x, y){
+      x = Math.max(0, Math.min(XMAX, x)); y = Math.max(0, Math.min(YMAX, y));
+      x = Math.round(x); y = Math.round(y);
+      var pay = TUT0*x + CAFE*y;
+      var okHours = (x <= AVAIL) && (x + y <= CAP);
+      var okMoney = pay >= T0;
+      probe = {x:x, y:y, hours:okHours, money:okMoney};
+      tests++;
+
+      document.getElementById("verdict1").innerHTML = okHours && okMoney
+        ? "<span class='ok'>That week works.</span> " + hrs(x) + " tutoring and " + hrs(y) +
+          " at the caf&eacute; is " + (x+y) + " hours, and it clears " + money(pay) + "."
+        : "<span class='no'>That week doesn&rsquo;t work.</span> " + hrs(x) + " tutoring and " + hrs(y) +
+          " at the caf&eacute; is " + (x+y) + " hours, and it clears " + money(pay) + ".";
+      document.getElementById("checks1").innerHTML =
+        "<span>Tutoring hours available &middot; <b class='" + (x <= AVAIL ? "y'>&#10003;" : "n'>&#10007;") + "</b></span>" +
+        "<span>Under forty hours &middot; <b class='" + (x + y <= CAP ? "y'>&#10003;" : "n'>&#10007;") + "</b></span>" +
+        "<span>Clears $600 &middot; <b class='" + (okMoney ? "y'>&#10003;" : "n'>&#10007;") + "</b></span>";
+      panel.classList.add("probed");
+
+      /* The button is earned by probing on BOTH sides of the answer -- a
+         student who only ever clicks inside the patch hasn't found its edge. */
+      if(okHours && okMoney) foundYes = true; else foundNo = true;
+      if(foundYes && foundNo && tests >= 3) act.classList.add("touched");
+      else nudge.textContent = !foundYes
+        ? "Tested " + tests + " — now find a week that does work."
+        : !foundNo
+          ? "Tested " + tests + " — now find one that doesn’t."
+          : "Tested " + tests + " — one more.";
+      draw();
+    }
+
+    svg.addEventListener("click", function(e){
+      var r = svg.getBoundingClientRect();
+      var vx = (e.clientX - r.left) / r.width * W, vy = (e.clientY - r.top) / r.height * H;
+      test((vx - ML)/(W-ML-MR)*XMAX, (H - MB - vy)/(H-MT-MB)*YMAX);
+    });
+
+    Array.prototype.forEach.call(panel.querySelectorAll(".seg button"), function(b){
+      b.addEventListener("click", function(){
+        show = b.dataset.show;
+        Array.prototype.forEach.call(panel.querySelectorAll(".seg button"), function(o){
+          o.setAttribute("aria-pressed", String(o === b));
+        });
+        draw();
+      });
+    });
+    draw();
+  })();
+
+  /* ════════ ACT II ════════ */
+  (function(){
+    var svg = document.getElementById("chart2"), act = document.getElementById("empty");
+    var tEl = document.getElementById("target"), wEl = document.getElementById("wage");
+    var state = document.getElementById("state2"), escapeEl = document.getElementById("escape2");
+    var nudge = document.getElementById("nudge2");
+    var seenEmpty = false, moved = false;
+
+    function draw(){
+      var T = +tEl.value, tut = +wEl.value;
+      var S = frame(svg);
+      var pts = region(T, tut);
+
+      poly(svg, S, clip(clip([[0,0],[XMAX,0],[XMAX,YMAX],[0,YMAX]], 1,0,AVAIL), 1,1,CAP), LEAD, .08);
+      poly(svg, S, pts, GOLD, .32);
+      boundary(svg, S, 1, 0, AVAIL, LEAD);
+      boundary(svg, S, 1, 1, CAP, LEAD);
+      boundary(svg, S, tut, CAFE, T, LEAD);
+
+      var n = lattice(T, tut), top = ceiling(tut);
+      document.getElementById("targetV").textContent = money(T);
+      document.getElementById("wageV").textContent =
+        "$" + (tut % 1 ? tut.toFixed(2) : tut) + " / hr";
+
+      state.className = "state " + (n === 0 ? "none" : n === 1 ? "one" : "works");
+      if(n === 0){
+        state.innerHTML = "Nothing works. There is no week that clears <span class='n'>" + money(T) +
+          "</span> inside these limits &mdash; the most any week can reach is <span class='n'>" + money(top) + "</span>.";
+        escapeEl.innerHTML = "Two things here can move, and one can&rsquo;t. Drop what the week has to clear to <b>" +
+          money(top) + "</b> and a single week comes back. Or leave it where it is and raise what tutoring pays to <b>$" +
+          ((T - CAFE*(CAP-AVAIL))/AVAIL).toFixed(2) + "</b> an hour. The forty hours are not negotiable.";
+        seenEmpty = true;
+      } else if(n === 1){
+        state.innerHTML = "Exactly one week works: <span class='n'>" + AVAIL + " hours</span> tutoring and <span class='n'>" +
+          (CAP-AVAIL) + " hours</span> at the caf&eacute;. The region has closed to a single point.";
+      } else {
+        state.innerHTML = "<span class='n'>" + n + "</span> whole-hour weeks work.";
+      }
+
+      /* Earned only once the region has actually been emptied -- the insight
+         is about emptiness, so reading it before seeing one would be the
+         reveal arriving on its own. The nudge says so rather than leaving a
+         student hunting for a button that isn't there. */
+      if(moved && seenEmpty) act.classList.add("touched");
+      else nudge.textContent = moved
+        ? "Keep raising it — until nothing works at all."
+        : "Drag either slider.";
+    }
+    function moveAndDraw(){ moved = true; draw(); }
+    tEl.addEventListener("input", moveAndDraw);
+    wEl.addEventListener("input", moveAndDraw);
+    draw();
+  })();
+
+  /* ── the reveals ───────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(b){
+    b.addEventListener("click", function(){
+      document.getElementById(b.dataset.act).classList.add("revealed");
+    });
+  });
+
+  /* ── the sky: two faint boundaries and the wedge they leave ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    var i;
+    for(i = 1; i < 7; i++)
+      mk("line", {x1:0, y1:h - i*54, x2:w, y2:h - i*54, stroke:"#223650", "stroke-width":1, opacity:.5}, svg);
+    /* Two boundaries and the wedge they leave -- the page's own shape.
+       Solved, not eyeballed:
+         A: (160,282)→(1120,−6)   y = 330 − 0.3x
+         B: (160,85)→(1120,200)   y = 65.83 + 0.11979x
+       330 − 0.3x = 65.83 + 0.11979x  →  x = 629.3, y = 141.2 */
+    mk("polygon", {points:"629,141 1120,-6 1120,200", fill:GOLD, opacity:.10}, svg);
+    mk("line", {x1:160, y1:282, x2:1120, y2:-6, stroke:LEAD, "stroke-width":2, opacity:.22, "stroke-linecap":"round"}, svg);
+    mk("line", {x1:160, y1:85, x2:1120, y2:200, stroke:LEAD, "stroke-width":2, opacity:.22, "stroke-linecap":"round"}, svg);
+    mk("circle", {cx:629, cy:141, r:4.5, fill:"#F2EBDD", opacity:.28}, svg);
+  })();
+})();
+</script>

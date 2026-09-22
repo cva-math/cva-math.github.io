@@ -1,0 +1,602 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Add two equations together and the new line swings — but never off the crossing. Find the two combinations that kill a variable, then walk the other line until the second equation comes true.">
+<title>The Point That Won't Move · Solving Systems Algebraically</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the note stays, instead of the
+     chart sitting there as a silent empty box. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     THE POINT THAT WON'T MOVE
+     IM 1/2H Unit 1, Module 3, Solving Systems Algebraically
+
+     Built in the explore grammar (IM3 unit-2 explore, Pre-Calc unit-1 and
+     unit-2 explore, IM 1/2H unit-2 explore): one move per act, and the name
+     only after the student has seen the thing -- and asked. NB: never write
+     a path glob ending in star-slash inside a CSS comment; it closes the
+     comment early and the recovery eats the :root block under it. That cost
+     a build on the unit-2 page.
+
+     THE PROBLEM THIS PAGE HAD TO SOLVE. Substitution and elimination are
+     procedures, and a procedure is not a picture -- which is why this module
+     is the hardest one in the unit to build an explore for. The way in is
+     that there IS a picture underneath elimination, and it is startling:
+     ADD ANY MULTIPLE OF ONE EQUATION TO THE OTHER AND THE NEW LINE STILL
+     PASSES THROUGH THE CROSSING. Elimination is not a trick for making a
+     letter disappear; it is picking the one combination out of infinitely
+     many whose line happens to be vertical or horizontal, because those are
+     the two you can read an answer straight off. Act I is that fan of lines.
+
+     Act II does substitution as the other way of seeing the same crossing:
+     stay ON one line, so its equation is true by construction, and walk
+     until the other one comes true too.
+
+     WHY THE FAN ACCUMULATES. The crossing is deliberately NOT marked until
+     the reveal. Every k the student visits leaves a faint line behind, so
+     the waist of the fan builds under their own hand and they see it before
+     the page says it. Marking the point up front would hand over the whole
+     discovery in the first frame.
+
+     WHAT IT DELIBERATELY DOES NOT SPEND. None of the eight systems on this
+     module's Pages appears here, nor the mastery's calculators-and-measuring-
+     tapes: the Pages use 5x−2y=26, 2m−2p=−6, 2d=8f, w+z/7=4, the four
+     2x+3y systems, 6x−5y=20, and 20c+10m=495 with 8c+m=178.50. This page
+     runs on 3x+2y=18 with x−y=1, which is on none of them. Nor does it argue
+     next week's point (one, none, or infinitely many) -- every system here
+     has exactly one solution, and the card does too.
+
+     Two colours, each meaning one thing:
+       gold  — equation ①
+       lead  — equation ②
+     What you MAKE from them -- the combination line, the walking point, the
+     crossing -- is cream: the page's own ink, brightest thing on the chart,
+     because it is the only thing on it you produced.
+
+     Every number checked in Python before it came here. The solution is
+     (4, 3); k = 2 kills y and leaves 5x = 20; k = −3 kills x and leaves
+     5y = 15; every k in the slider's range was asserted to pass through
+     (4, 3). Act II's substitution reduces to 5x − 2, which hits 18 at x = 4.
+     The card is the two career lines from this unit's own trailer: subtract
+     and 22000t = 221500, so t = 443/44 = 10.068 years -- the 10.1 the
+     trailer let them find by dragging.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text, and what you make */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* equation ① */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* equation ② */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .t{white-space:nowrap}
+  .eq1{color:var(--gold)}
+  .eq2{color:var(--lead)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(42px,7vw,72px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--gold);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  /* the two you were handed */
+  .given{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .give{
+    flex:1 1 220px;min-width:0;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:11px 16px 12px;border-left:3px solid var(--gc);
+  }
+  .give .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .give .v{font-size:clamp(20px,3vw,26px);margin-top:4px;color:var(--gc)}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px 16px}
+  .panel svg.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* the live equation over the chart */
+  .built{
+    text-align:center;font-size:clamp(23px,4vw,34px);line-height:1.35;margin:2px 0 4px;
+    color:var(--cream);min-height:1.4em;
+  }
+  .built .dead{color:var(--faint);text-decoration:line-through;text-decoration-thickness:1px}
+  .built .recipe{
+    display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--faint);margin-bottom:8px;text-decoration:none;
+  }
+  .landed{
+    min-height:2.4em;margin-top:6px;text-align:center;font-family:var(--serif);
+    font-size:clamp(17px,2.4vw,21px);line-height:1.4;color:var(--faint);
+  }
+  .landed.hit{color:var(--cream)}
+  .landed .big{color:var(--gold)}
+
+  /* controls */
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .knob{margin-top:12px}
+  .knob .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .knob .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .knob .kv{font-family:var(--mono);font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:30px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--night);border:2px solid var(--cream);margin-top:-9px;
+    box-shadow:0 0 0 4px rgba(242,235,221,.12);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;background:var(--night);border:2px solid var(--cream);
+    box-shadow:0 0 0 4px rgba(242,235,221,.12);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--cream);outline-offset:6px;border-radius:4px}
+
+  /* act II's running substitution */
+  .sub{
+    margin-top:14px;border-top:1px solid var(--line);padding-top:14px;text-align:center;
+    font-size:clamp(19px,3vw,26px);line-height:1.5;color:var(--cream);
+  }
+  .sub .step{display:block;margin-bottom:4px}
+  .sub .val{color:var(--gold);font-variant-numeric:tabular-nums}
+  .sub .need{color:var(--dim);font-size:.82em;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:8px}
+  .sub.hit .need{color:var(--cream)}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation. Hidden until the student ASKS -- a reveal that
+     arrived on its own would hand over the noticing before they made it. */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;color:var(--gold);background:transparent;
+    border:1px solid rgba(227,179,76,.45);
+  }
+  .reveal:hover{border-color:var(--gold);background:var(--gold-soft)}
+  .reveal:focus-visible{outline:2px solid var(--gold)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--gold);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--lead);font-size:1.06em}
+
+  /* the card the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:31em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:22px 26px 20px;
+  }
+  .ticket .from{display:block;margin-bottom:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .ticket ol{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .ticket li{font-size:clamp(19px,3vw,26px);line-height:1.25}
+  .ticket li:nth-child(1){color:var(--gold)}
+  .ticket li:nth-child(2){color:var(--lead)}
+  .ticket li .gloss{display:block;margin-top:4px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .ticket .where{margin-top:16px;padding-top:13px;border-top:1px solid var(--line);font-size:15px;color:var(--dim);line-height:1.5}
+  .ticket .where a{color:var(--gold)}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:23em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--gold)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:#3A5272;stroke-width:1.4}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--faint);font-family:var(--mono);font-size:12px}
+  .axisname{fill:var(--dim);font-family:var(--serif);font-style:italic;font-size:16px}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:14px 12px 12px;border-radius:8px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px 16px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM 1/2H &middot; Unit 1</a>
+    <div class="eyebrow">IM 1/2H &middot; Unit 1 &middot; Module 3 &middot; Solving Systems Algebraically</div>
+    <h1>The Point That Won&rsquo;t <em>Move</em></h1>
+    <p class="dek">Last week you found where two lines cross by looking. Looking gets you <em>about</em> there. <strong>This is how you get it exactly &mdash; and why the moves for doing it are not the tricks they look like.</strong></p>
+    <div class="hint">Drag. Watch what stays still.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE PIVOT ════════ -->
+<section class="act" id="pivot">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Pivot</div>
+    <h2 class="ask">Add one equation to the other. Add two of it. Add none. Watch what the new line does.</h2>
+    <p class="setup">Below are two equations and their two lines. The slider builds a third equation out of them &mdash; equation&nbsp;&#9312; plus <b>k</b> copies of equation&nbsp;&#9313; &mdash; and draws it. Every line you make stays on the chart, faintly, behind the one you&rsquo;re on. <b>Drag slowly, and watch where they pile up.</b></p>
+
+    <div class="given">
+      <div class="give" style="--gc:#E3B34C"><div class="k">Equation &#9312;</div><div class="v math">3<i>x</i> + 2<i>y</i> = 18</div></div>
+      <div class="give" style="--gc:#9DB2FF"><div class="k">Equation &#9313;</div><div class="v math"><i>x</i> &minus; <i>y</i> = 1</div></div>
+    </div>
+
+    <div class="panel" id="panel1">
+      <p class="built math" id="built1"><span class="recipe">Equation &#9312; + k &times; Equation &#9313;</span></p>
+      <p class="needs-js">This chart is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to drag it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart1" role="img" aria-label="Two lines and the combination built from them, which swings as k changes."></svg>
+      <div class="knob">
+        <div class="kr"><label class="kk" for="kdial">How many copies of &#9313; you add</label><span class="kv" id="kv">k = 0</span></div>
+        <input type="range" id="kdial" min="-6" max="6" step="0.5" value="0" aria-label="k, the number of copies of equation 2 added to equation 1">
+      </div>
+      <p class="landed" id="landed1" aria-live="polite">&nbsp;</p>
+    </div>
+
+    <p class="nudge" id="nudge1">Drag the slider.</p>
+    <button class="reveal" type="button" data-act="pivot">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every single line you drew went through the same point. It has to: that point is the one pair of numbers that makes <em>both</em> equations true, so it makes any pile of them true as well &mdash; add them, double one, subtract three of the other, it survives all of it. Which means you are free to pick whichever combination you like. And two of them are worth picking, because two of them come out with a letter missing, and a line with only one letter in it hands you a number.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: a new equation built by scaling and adding the old ones is a <b>linear combination</b> of them, and the whole method of hunting for the one that drops a variable is <b>elimination</b>. The two you found were <span class="math t">k = 2</span>, giving <span class="math t">5<i>x</i> = 20</span>, and <span class="math t">k = &minus;3</span>, giving <span class="math t">5<i>y</i> = 15</span>. <span class="name">This is also why multiplying an equation through by a number is allowed and changes nothing you care about: 2x &minus; 2y = 2 is the same line as x &minus; y = 1, drawn by the same points.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — THE WALK ════════ -->
+<section class="act" id="walk">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> The Walk</div>
+    <h2 class="ask">Now the other way in. Stay on one line, and walk until the other equation comes true.</h2>
+    <p class="setup">Equation&nbsp;&#9313; says <span class="math t eq2"><i>y</i> = <i>x</i> &minus; 1</span>. So walk along it &mdash; and wherever you stand, &#9313; is already true, by construction. That frees you to watch only <b>&#9312;</b>. The dashed line shows how far you still are from it. <b>Close it.</b></p>
+
+    <div class="panel" id="panel2">
+      <p class="needs-js">This one is dragged too &mdash; <b>open it in Chrome or Safari</b> to walk the line.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart2" role="img" aria-label="A point walking along equation two, with the gap to equation one shown as a dashed segment."></svg>
+      <div class="knob">
+        <div class="kr"><label class="kk" for="xdial">Where you&rsquo;re standing</label><span class="kv" id="xv">x = 0</span></div>
+        <input type="range" id="xdial" min="-1" max="9" step="0.25" value="0" aria-label="x, where you stand along equation two">
+      </div>
+      <p class="sub math" id="sub2" aria-live="polite"></p>
+    </div>
+
+    <p class="nudge" id="nudge2">Drag until the dashed line disappears.</p>
+    <button class="reveal" type="button" data-act="walk">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Standing on &#9313; is what let you stop thinking about &#9313;. Once <em>y</em> is written as <em>x</em>&nbsp;&minus;&nbsp;1, equation &#9312; stops having two letters in it and becomes one thing that climbs as you walk &mdash; and you are just waiting for it to reach 18. The crossing is where it does. Same point as Act I, found by walking rather than by adding.</p>
+    </div>
+    <p class="notation">The name: replacing a letter with what it equals, and solving what&rsquo;s left, is <b>substitution</b>. So you have two ways in, and the system tells you which one it wants. <b>A variable already sitting alone</b> &mdash; <span class="math t"><i>y</i> = <i>x</i> &minus; 1</span>, <span class="math t"><i>p</i> = 2<i>m</i> + 10</span> &mdash; is asking to be substituted. <b>Matching or opposite coefficients</b> &mdash; two equations that both start <span class="math t">2<i>x</i></span>, or one with <span class="math t">+3<i>y</i></span> against one with <span class="math t">&minus;3<i>y</i></span> &mdash; is asking to be eliminated. <span class="name">Neither is the right method. The one that gets you there in fewer steps is.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THEN — THE CARD, left open ════════ -->
+<section class="act" id="card">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Card</div>
+    <h2 class="ask">One system the page won&rsquo;t solve for you &mdash; and you have met it before.</h2>
+
+    <div class="ticket math">
+      <span class="from">Two ways out of the same graduating class</span>
+      <ol>
+        <li>60000<i>t</i> &minus; <i>y</i> = 262500
+          <span class="gloss">the nurse &mdash; four years of school, then $60,000 a year</span></li>
+        <li>38000<i>t</i> &minus; <i>y</i> = 41000
+          <span class="gloss">the HVAC tech &mdash; one year, then $38,000 a year</span></li>
+      </ol>
+      <div class="where">These are the two lines from this unit&rsquo;s trailer, written out. There you found where they cross by <a href="../trailer/index.html">dragging until it looked right</a> &mdash; about year ten. <b>Now get it exactly.</b></div>
+    </div>
+
+    <p class="setup">Look at the two equations before you pick a method. <b>One of them takes a single step, and the other takes several.</b> Which one is the system asking for, and how do you know before you start?</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Two lines cross once, and nothing you do to the equations can shake that point loose. <em>Every</em> method is just a different way of walking up to it.</p>
+    <div class="colophon">IM 1/2H &middot; Unit 1 &middot; Module 3 &middot; <span>Solving Systems Algebraically</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+
+  /* ── the system. Verified in Python; see the header comment. ──
+     ①  3x + 2y = 18     ②  x − y = 1     solution (4, 3)
+     ① + k·② = (3+k)x + (2−k)y = 18+k, which passes through (4,3) for every k.
+     k = 2 kills y (5x = 20). k = −3 kills x (5y = 15). */
+  var A1 = 3, B1 = 2, C1 = 18;
+  var A2 = 1, B2 = -1, C2 = 1;
+  var SX = 4, SY = 3;
+  var K_KILLS_Y = -B1/B2;        /*  2 */
+  var K_KILLS_X = -A1/A2;        /* −3 */
+
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD";
+  var XMIN = -1, XMAX = 9, YMIN = -2, YMAX = 10;
+
+  function mk(tag, attrs, parent){
+    var e = document.createElementNS(SVGNS, tag);
+    for(var k in attrs) e.setAttribute(k, attrs[k]);
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+  /* 3 → "3", 3.5 → "3.5", −0 → "0" */
+  function num(v){
+    v = Math.round(v*1000)/1000;
+    if(Object.is(v, -0)) v = 0;
+    return (v % 1 === 0) ? String(v) : String(v);
+  }
+
+  /* ── the frame ─────────────────────────────────────────────── */
+  var W = 880, H = 500, ML = 58, MR = 34, MT = 18, MB = 52;
+  function frame(svg){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var X = function(v){ return ML + (v-XMIN)/(XMAX-XMIN)*(W-ML-MR); };
+    var Y = function(v){ return H - MB - (v-YMIN)/(YMAX-YMIN)*(H-MT-MB); };
+    var i;
+    for(i = Math.ceil(YMIN); i <= YMAX; i++){
+      if(i % 2) continue;
+      mk("line", {"class":"gridline", x1:ML, y1:Y(i), x2:W-MR, y2:Y(i)}, svg);
+      if(i !== 0) mk("text", {"class":"ticktext", x:ML-9, y:Y(i)+4, "text-anchor":"end"}, svg).textContent = i;
+    }
+    for(i = Math.ceil(XMIN); i <= XMAX; i++){
+      if(i % 2) continue;
+      mk("line", {"class":"gridline", x1:X(i), y1:MT, x2:X(i), y2:H-MB}, svg);
+      if(i !== 0) mk("text", {"class":"ticktext", x:X(i), y:Y(0)+18, "text-anchor":"middle"}, svg).textContent = i;
+    }
+    mk("line", {"class":"axis", x1:ML, y1:Y(0), x2:W-MR, y2:Y(0)}, svg);
+    mk("line", {"class":"axis", x1:X(0), y1:MT, x2:X(0), y2:H-MB}, svg);
+    mk("text", {"class":"axisname", x:W-MR-4, y:Y(0)-9, "text-anchor":"end"}, svg).textContent = "x";
+    mk("text", {"class":"axisname", x:X(0)+9, y:MT+14}, svg).textContent = "y";
+    return {X:X, Y:Y};
+  }
+
+  /* ── the visible piece of ax + by = c, clipped to the window ──
+     Liang–Barsky on the line through its closest point to the origin,
+     which is the one construction that handles vertical and horizontal
+     without a special case -- and this page makes both of those on
+     purpose, at k = 2 and k = −3. */
+  function seg(a, b, c){
+    var n2 = a*a + b*b;
+    if(n2 < 1e-12) return null;
+    var px = a*c/n2, py = b*c/n2, dx = b, dy = -a;
+    var t0 = -1e9, t1 = 1e9, ok = true;
+    function clipT(p, q){
+      if(Math.abs(p) < 1e-12) return q >= 0;
+      var r = q/p;
+      if(p < 0){ if(r > t1) return false; if(r > t0) t0 = r; }
+      else     { if(r < t0) return false; if(r < t1) t1 = r; }
+      return true;
+    }
+    ok = clipT(-dx, px-XMIN) && clipT(dx, XMAX-px) && clipT(-dy, py-YMIN) && clipT(dy, YMAX-py);
+    if(!ok || t1 <= t0) return null;
+    return [[px+t0*dx, py+t0*dy], [px+t1*dx, py+t1*dy]];
+  }
+  function drawLine(svg, S, a, b, c, color, width, opacity, dash){
+    var s = seg(a, b, c);
+    if(!s) return;
+    var at = {x1:S.X(s[0][0]), y1:S.Y(s[0][1]), x2:S.X(s[1][0]), y2:S.Y(s[1][1]),
+      stroke:color, "stroke-width":width, "stroke-linecap":"round"};
+    if(opacity != null) at.opacity = opacity;
+    if(dash) at["stroke-dasharray"] = dash;
+    mk("line", at, svg);
+  }
+
+  /* ════════ ACT I ════════ */
+  (function(){
+    var svg = document.getElementById("chart1"), act = document.getElementById("pivot");
+    var dial = document.getElementById("kdial"), nudge = document.getElementById("nudge1");
+    var builtEl = document.getElementById("built1"), landedEl = document.getElementById("landed1");
+    var ghosts = {}, moved = 0, sawY = false, sawX = false;
+
+    function draw(){
+      var k = +dial.value;
+      var a = A1 + k*A2, b = B1 + k*B2, c = C1 + k*C2;
+      var S = frame(svg), g;
+
+      /* every combination visited so far, faintly -- the fan is the discovery */
+      for(g in ghosts) drawLine(svg, S, ghosts[g][0], ghosts[g][1], ghosts[g][2], CREAM, 1.4, .13);
+
+      drawLine(svg, S, A1, B1, C1, GOLD, 2.4, .95);
+      drawLine(svg, S, A2, B2, C2, LEAD, 2.4, .95);
+      drawLine(svg, S, a, b, c, CREAM, 2.8, 1);
+
+      if(act.classList.contains("revealed")){
+        mk("circle", {cx:S.X(SX), cy:S.Y(SY), r:12, fill:"none", stroke:CREAM, "stroke-width":1.3, opacity:.5}, svg);
+        mk("circle", {cx:S.X(SX), cy:S.Y(SY), r:6, fill:CREAM, stroke:"#0B1526", "stroke-width":2}, svg);
+        mk("text", {"class":"axisname", x:S.X(SX)+18, y:S.Y(SY)-10, fill:CREAM}, svg).textContent = "(4, 3)";
+      }
+
+      document.getElementById("kv").textContent = "k = " + num(k);
+
+      /* the built equation, with a dead term struck out when one drops */
+      var xt = '<span class="' + (Math.abs(a) < 1e-9 ? 'dead' : '') + '">' + num(a) + '<i>x</i></span>';
+      var yt = '<span class="' + (Math.abs(b) < 1e-9 ? 'dead' : '') + '">' + num(Math.abs(b)) + '<i>y</i></span>';
+      var sign = b < 0 ? " &minus; " : " + ";
+      builtEl.innerHTML = '<span class="recipe">Equation &#9312; + k &times; Equation &#9313;</span>' +
+        xt + sign + yt + " = " + num(c);
+
+      if(Math.abs(b) < 1e-9){
+        landedEl.className = "landed hit";
+        landedEl.innerHTML = "The <i>y</i> is gone. <span class='big'>" + num(a) + "<i>x</i> = " + num(c) +
+          "</span>, so <span class='big'><i>x</i> = " + num(c/a) + "</span>.";
+        sawY = true;
+      } else if(Math.abs(a) < 1e-9){
+        landedEl.className = "landed hit";
+        landedEl.innerHTML = "The <i>x</i> is gone. <span class='big'>" + num(b) + "<i>y</i> = " + num(c) +
+          "</span>, so <span class='big'><i>y</i> = " + num(c/b) + "</span>.";
+        sawX = true;
+      } else {
+        landedEl.className = "landed";
+        landedEl.innerHTML = "&nbsp;";
+      }
+
+      /* The button is earned by finding BOTH eliminations -- one of them
+         alone reads as a coincidence rather than as a pair. */
+      if(sawY && sawX) act.classList.add("touched");
+      else nudge.textContent = moved === 0 ? "Drag the slider."
+        : (sawY || sawX) ? "One letter down. There is a k that kills the other one."
+        : "Keep going — two of these drop a letter entirely.";
+    }
+    dial.addEventListener("input", function(){
+      var k = +dial.value;
+      ghosts[k] = [A1 + k*A2, B1 + k*B2, C1 + k*C2];
+      moved++;
+      draw();
+    });
+    draw();
+    /* the opening line is ① itself; don't leave it as a ghost of nothing */
+    ghosts[0] = [A1, B1, C1];
+  })();
+
+  /* ════════ ACT II ════════ */
+  (function(){
+    var svg = document.getElementById("chart2"), act = document.getElementById("walk");
+    var dial = document.getElementById("xdial"), nudge = document.getElementById("nudge2");
+    var subEl = document.getElementById("sub2");
+    var moved = 0;
+
+    function draw(){
+      var t = +dial.value;
+      var S = frame(svg);
+      var y2 = (C2 - A2*t)/B2;                 /* on ②: y = x − 1      */
+      var y1 = (C1 - A1*t)/B1;                 /* on ①: y = (18−3x)/2  */
+      var lhs = A1*t + B1*y2;                  /* ①'s left side, walked */
+
+      drawLine(svg, S, A1, B1, C1, GOLD, 2.4, .95);
+      drawLine(svg, S, A2, B2, C2, LEAD, 2.4, .95);
+
+      var hit = Math.abs(lhs - C1) < 1e-9;
+      if(!hit && y1 >= YMIN && y1 <= YMAX)
+        mk("line", {x1:S.X(t), y1:S.Y(y2), x2:S.X(t), y2:S.Y(y1),
+          stroke:CREAM, "stroke-width":1.6, "stroke-dasharray":"5 5", opacity:.55}, svg);
+
+      mk("circle", {cx:S.X(t), cy:S.Y(y2), r:hit ? 7 : 6,
+        fill:CREAM, stroke:"#0B1526", "stroke-width":2}, svg);
+      if(hit){
+        mk("circle", {cx:S.X(t), cy:S.Y(y2), r:13, fill:"none", stroke:CREAM, "stroke-width":1.3, opacity:.5}, svg);
+        mk("text", {"class":"axisname", x:S.X(t)+18, y:S.Y(y2)-10, fill:CREAM}, svg).textContent = "(4, 3)";
+      }
+
+      document.getElementById("xv").textContent = "x = " + num(t);
+      subEl.className = "sub math" + (hit ? " hit" : "");
+      subEl.innerHTML =
+        '<span class="step">3<i>x</i> + 2(<i>x</i> &minus; 1) &nbsp;=&nbsp; 5<i>x</i> &minus; 2</span>' +
+        '5(' + num(t) + ') &minus; 2 &nbsp;=&nbsp; <span class="val">' + num(lhs) + '</span>' +
+        '<span class="need">' + (hit
+          ? "that is 18. both equations true at once — x = 4, y = 3"
+          : "needs to be 18 — " + (lhs < C1 ? "keep walking right" : "you have gone past it")) + '</span>';
+
+      if(hit) act.classList.add("touched");
+      else nudge.textContent = moved === 0 ? "Drag until the dashed line disappears."
+        : "The dashed line is how far 5x − 2 still is from 18.";
+    }
+    dial.addEventListener("input", function(){ moved++; draw(); });
+    draw();
+  })();
+
+  /* ── the reveals ───────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(b){
+    b.addEventListener("click", function(){
+      var act = document.getElementById(b.dataset.act);
+      act.classList.add("revealed");
+      /* Act I's chart gains the marked point only now */
+      var dial = document.getElementById("kdial");
+      if(b.dataset.act === "pivot") dial.dispatchEvent(new Event("input", {bubbles:true}));
+    });
+  });
+
+  /* ── the sky: a fan of lines through one point ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380, cx = 470, cy = 168, i;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    for(i = 1; i < 7; i++)
+      mk("line", {x1:0, y1:h - i*54, x2:w, y2:h - i*54, stroke:"#223650", "stroke-width":1, opacity:.5}, svg);
+    /* every line through (cx, cy) -- the page's own picture, as chrome */
+    var angles = [-64, -40, -22, -8, 6, 20, 38, 62];
+    for(i = 0; i < angles.length; i++){
+      var r = angles[i] * Math.PI/180, L = 1500;
+      mk("line", {x1:cx - Math.cos(r)*L, y1:cy - Math.sin(r)*L,
+                  x2:cx + Math.cos(r)*L, y2:cy + Math.sin(r)*L,
+        stroke: i === 2 ? GOLD : (i === 5 ? LEAD : CREAM),
+        "stroke-width":1.6, opacity: (i === 2 || i === 5) ? .30 : .12}, svg);
+    }
+    mk("circle", {cx:cx, cy:cy, r:5, fill:CREAM, opacity:.34}, svg);
+  })();
+})();
+</script>
