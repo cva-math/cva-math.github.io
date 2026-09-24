@@ -1,0 +1,720 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A factored polynomial is a multiplication. Slide x along the axis, watch what each piece is worth, and see the graph's height come out of their product — then write one piece twice.">
+<title>One of Them Is Zero · Zeros and Factors</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the note stays, instead of the
+     chart sitting there as a silent empty box. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     ONE OF THEM IS ZERO — Pre-Calc Unit 2, Module 2, Zeros and Factors
+     Built in the explore grammar (IM3/unit-2/explore, Pre-Calc/unit-1
+     and unit-2/explore): one move per act, and the name only after the
+     student has seen the thing -- and asked.
+
+     The move is a slider. A factored polynomial is a multiplication, so
+     the page runs it as one: slide x, and every factor shows what it is
+     worth at that x. Those numbers multiply to the height of the curve.
+     Two things fall out of watching it, and neither is told first:
+       · the product is zero exactly when one piece is zero, so the graph
+         meets the axis at the factors' zeros and nowhere else;
+       · between zeros the sign is just a count of minus signs, so
+         crossing a zero flips the graph -- unless the piece is written
+         twice, when two signs flip at once and cancel.
+     A strip under the axis keeps the sign of every stretch the student
+     has visited, so the pattern is still on screen at the end.
+
+     IM3's pages for this week own the other approaches: Touch and Go
+     drags the zeros and raises an exponent, The Leftover slides a and
+     compares the remainder to the height. This page is the arithmetic
+     underneath both, which is Pre-Calc's half.
+
+     Numbers avoid the module's Pages: not (x - 1)(x + 2)(x - 3) or its
+     squared version (conference), not the zero sets of §2.4 Ex 27 and 29,
+     not x(x - 3)^2 or (x - 1)^3(x + 2)^2 (Ex 39, 41), not the Mastery's
+     (x + 3)(x - 2)(x - 4). The page never asks what pins the number in
+     front of the factors -- that is the Mastery's verdict. The open card
+     at the end, x^2 + 1, points at the honors extension instead.
+
+     Two colours, each meaning one thing:
+       gold  — the polynomial, its graph, and the x you move
+       lead  — the factors, what they are worth, and every conclusion
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the polynomial, and what you move */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the factors, and what they tell you */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lead);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sup{font-size:.62em;line-height:0;position:relative;top:-.08em;margin-left:.04em}
+  .t{white-space:nowrap}
+  .lead{color:var(--lead)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(42px,7vw,72px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px}
+  .panel svg.chart{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:ew-resize}
+
+  /* readout chips.
+     No fixed min-width: a flex item's default minimum is its own content,
+     and these values never wrap -- so a row that can't fit wraps onto a
+     second line instead of pushing numbers out past their borders. */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+  .chip{
+    flex:1 1 170px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.lead{border-color:rgba(157,178,255,.38)}
+  .chip.lead .v{color:var(--lead)}
+
+  /* the polynomial itself, at the top of the panel, with its copies written out */
+  .formula{font-family:var(--serif);font-size:clamp(20px,3.2vw,29px);line-height:1.3;color:var(--cream);margin:0 2px 12px}
+  .formula .fx{color:var(--dim)}
+
+  /* chart key, inside the panel */
+  .key{display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 2px 8px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--dim)}
+  .key span{display:inline-flex;align-items:center;gap:9px}
+  .key svg{width:30px;height:12px;display:block;flex-shrink:0}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:12px 18px;margin-top:12px;flex-wrap:wrap}
+  .controls > label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .slider{position:relative;flex:1 1 240px;min-width:200px;padding-bottom:18px}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 4px rgba(227,179,76,.16)}
+    50%{box-shadow:0 0 0 11px rgba(227,179,76,.04)}
+  }
+  #x-range:not(.used)::-webkit-slider-thumb{animation:breathe 2.4s ease-in-out infinite}
+  .ticks{position:absolute;left:0;right:0;bottom:0;height:16px;pointer-events:none}
+  .ticks span{
+    position:absolute;left:calc(11px + (100% - 22px) * var(--p));transform:translateX(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;white-space:nowrap;
+  }
+  /* how many times the middle factor is written.
+     The buttons may wrap their labels, and the switch must never outgrow
+     its panel */
+  .seg{display:flex;max-width:100%;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 14px;flex:1 1 auto;min-width:0;white-space:normal;line-height:1.35}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+
+  /* ── the machine: every factor, and what it is worth right now ── */
+  .machine{margin-top:16px;border-top:1px solid var(--line-soft);padding-top:14px}
+  .machine-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:0 2px 10px}
+  .pieces{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+  .times{display:flex;align-items:center;font-family:var(--mono);font-size:15px;color:var(--faint)}
+  .pc{
+    flex:1 1 120px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;
+    padding:8px 11px 7px;min-width:0;text-align:center;
+  }
+  .pc .f{font-family:var(--serif);font-size:17px;color:var(--cream);white-space:nowrap}
+  .pc .v{font-family:var(--mono);font-size:19px;color:var(--lead);font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:1px}
+  /* a bar that swings left of centre when the piece is negative */
+  .pc .bar{position:relative;height:7px;margin-top:5px;border-left:1px solid var(--line)}
+  .pc .bar i{position:absolute;top:2px;height:3px;background:var(--lead);border-radius:2px;opacity:.85}
+  .pc.off{border-color:var(--lead);background:var(--lead-soft)}
+  .pc.off .v{color:var(--lead);font-weight:bold}
+  .arith{
+    margin:14px 2px 0;font-family:var(--mono);font-size:clamp(13px,2.2vw,16px);line-height:1.9;
+    color:var(--dim);font-variant-numeric:tabular-nums;word-spacing:.1em;
+  }
+  .arith b{color:var(--gold);font-weight:normal;font-size:1.15em}
+  .arith .eq{color:var(--faint)}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  /* the button takes the nudge's place rather than rising under an empty line */
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. This page doubles as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .reveal{
+    display:none;margin-top:22px;color:var(--lead);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--lead);font-size:1.06em}
+
+  /* the last one, which the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:32em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:22px 26px;font-size:clamp(26px,4.2vw,38px);line-height:1.35;color:var(--cream);
+  }
+  .ticket .fx{color:var(--dim)}
+  .ticket .from{display:block;margin-bottom:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared -- real pixels, because the chart is built at its shown width */
+  .axis{stroke:#3A5272;stroke-width:1.3}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  .axisname{fill:var(--dim);font-family:var(--serif);font-style:italic;font-size:16px}
+  /* a halo the colour of the panel, so a number stays readable wherever the
+     curve happens to run behind it */
+  .measure{fill:var(--gold);font-family:var(--mono);font-size:14px;font-weight:bold;
+           paint-order:stroke fill;stroke:#101E33;stroke-width:4px;stroke-linejoin:round}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .formula{margin-bottom:10px}
+    .chip{padding:8px 10px 7px}
+    .ticktext{font-size:11px}
+    .measure{font-size:12.5px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px}
+    .seg{width:100%}
+    .seg button{flex:1 1 0;padding:9px 8px}
+    .pc{flex:1 1 92px;padding:7px 6px 6px}
+    .pc .f{font-size:15px}
+    .pc .v{font-size:16px}
+    .times{font-size:13px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; Pre-Calc &middot; Unit 2</a>
+    <div class="eyebrow">Pre-Calc &middot; Unit 2 &middot; Module 2 &middot; Zeros and Factors</div>
+    <h1>One of Them <em>Is Zero</em></h1>
+    <p class="dek">A polynomial in factored form is a multiplication waiting to happen. Give it an <span class="math"><i>x</i></span> and every piece turns into a number; multiply those numbers and <strong>you have the height of the graph.</strong> The whole week is hiding in that one sentence.</p>
+    <div class="hint">Slide it. Watch the pieces.</div>
+  </div>
+</header>
+
+<!-- ════════ THE MACHINE ════════ -->
+<section class="act" id="machine">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>First</b> The Pieces</div>
+    <h2 class="ask">Slide <span class="math"><i>x</i></span> along the axis. Watch what each piece is worth &mdash; and what they multiply to.</h2>
+    <p class="setup">The gold curve is <span class="math t"><i>f</i>(<i>x</i>) = (<i>x</i> + 4)(<i>x</i> + 1)(<i>x</i> &minus; 2)</span>. Under the chart, each factor shows what it is worth at the <span class="math"><i>x</i></span> you&rsquo;re standing on, and the line underneath multiplies them out. <b>Slide past all three places the curve meets the axis</b> &mdash; the strip under the chart keeps the sign of every stretch you visit. Then write <span class="math t">(<i>x</i> + 1)</span> twice, and three times, and slide past <span class="math t"><i>x</i> = &minus;1</span> again.</p>
+
+    <div class="chips">
+      <div class="chip gold"><div class="k">Standing at</div><div class="v" id="c-x">x = −3.00</div></div>
+      <div class="chip"><div class="k">Pieces below zero</div><div class="v" id="c-neg" aria-live="polite">1 of 3</div></div>
+      <div class="chip lead"><div class="k">All of them multiplied</div><div class="v" id="c-f">f(x) = 10.00</div></div>
+    </div>
+
+    <div class="panel" id="panel">
+      <p class="formula math" id="formula"></p>
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#E3B34C" stroke-width="3" stroke-linecap="round"/></svg>the graph of f</span>
+        <span><svg viewBox="0 0 30 12"><line x1="15" y1="0" x2="15" y2="12" stroke="#E3B34C" stroke-width="1.6" opacity=".55"/><circle cx="15" cy="6" r="4" fill="#E3B34C"/></svg>where you&rsquo;re standing</span>
+        <span><svg viewBox="0 0 30 12"><circle cx="15" cy="6" r="4.2" fill="none" stroke="#F2EBDD" stroke-width="1.6"/></svg>the curve meets the axis</span>
+        <span><svg viewBox="0 0 30 12"><rect x="1" y="1" width="28" height="10" rx="2" fill="rgba(157,178,255,.16)" stroke="#9DB2FF" stroke-width="1"/></svg>the sign of each stretch you&rsquo;ve visited</span>
+      </div>
+      <p class="needs-js">This chart draws itself &mdash; <b>open the page in Chrome or Safari</b> to use it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart" role="img" aria-label="The graph of f, with a marker you slide along the x-axis and a strip underneath recording the sign of f on each stretch between its zeros."></svg>
+      <div class="controls">
+        <label for="x-range">Slide x</label>
+        <div class="slider">
+          <input type="range" id="x-range" min="-4.6" max="2.6" step="0.01" value="-3" aria-valuetext="x = −3.00">
+          <div class="ticks" id="x-ticks" aria-hidden="true"></div>
+        </div>
+        <div class="seg" role="group" aria-label="How many times (x + 1) is written">
+          <button type="button" data-k="1" aria-pressed="true">Once</button>
+          <button type="button" data-k="2" aria-pressed="false">Twice</button>
+          <button type="button" data-k="3" aria-pressed="false">Three times</button>
+        </div>
+      </div>
+      <div class="machine">
+        <div class="machine-k" id="machine-k">What each piece is worth at x = −3.00</div>
+        <div class="pieces" id="pieces"></div>
+        <p class="arith" id="arith" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <p class="nudge" id="nudge" aria-live="polite"></p>
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>A multiplication comes out zero only when one of the pieces is zero &mdash; so the curve can meet the axis at &minus;4, &minus;1 and 2, and nowhere else. Those are the only three numbers that switch a piece off. Everywhere else, the pieces decide which side the graph is on by how many of them are negative: an odd number of minus signs puts it below the axis, an even number puts it above. Slide past a zero and exactly one piece changes sign, so the graph changes sides. Unless you wrote that piece twice &mdash; then two of them change sign at the same moment, the two minus signs cancel, and the graph comes back the way it came. Write it three times and three signs flip, which is odd again, so it crosses after all &mdash; flattening as it goes through.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: a number <span class="math"><i>c</i></span> with <span class="math t"><i>f</i>(<i>c</i>) = 0</span> is a <b>zero</b> of <span class="math"><i>f</i></span>, and <span class="math t">(<i>x</i> &minus; <i>c</i>)</span> is a <b>factor</b> of it. You never get one without the other, and that is the <b>Factor Theorem</b> &mdash; which is why you can test a factor without dividing anything: work out <span class="math t"><i>f</i>(<i>c</i>)</span> and see whether it is 0. How many copies of a factor you write is that zero&rsquo;s <b>multiplicity</b>, normally written as an exponent: <span class="math t">(<i>x</i> + 1)(<i>x</i> + 1)</span> is <span class="math t">(<i>x</i> + 1)<sup>2</sup></span>. Odd multiplicity crosses, even multiplicity touches and turns back. <span class="name">And the copies are what run up the degree &mdash; so a polynomial of degree <i>n</i> is a product of at most <i>n</i> pieces, and its graph has at most <i>n</i> places it can meet the axis.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THE ONE THAT NEVER TOUCHES — left open ════════ -->
+<section class="act" id="never">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The One That Never Touches</div>
+    <h2 class="ask">One more, and the page won&rsquo;t answer this one for you.</h2>
+    <div class="ticket math"><span class="from">No zeros anywhere</span><span class="fx"><i>f</i>(<i>x</i>) =</span> <i>x</i><sup>2</sup> + 1</div>
+    <p class="setup">Slide as far as you like along the number line: this graph never meets the axis. No <span class="math"><i>x</i></span> makes it zero, so by everything above it has no zeros &mdash; and so no factors. <b>But if it could be written as two pieces multiplied together, what would they have to be? Say what you think, and why.</b></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">A factored polynomial is a multiplication, and a zero is one piece switching off. <em>Nothing else</em> can put the graph on the axis.</p>
+    <div class="colophon">Pre-Calc &middot; Unit 2 &middot; Module 2 &middot; <span>Zeros and Factors</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", NIGHT = "#0B1526", CREAM = "#F2EBDD";
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+
+  /* ── the polynomial ──────────────────────────────────────────────
+     f(x) = (x + 4)(x + 1)^k (x - 2), with the repeated factor written
+     out as separate copies, because copies are the point: two of them
+     change sign at the same moment.
+     Windows worked out in Python: the x window is the same for all
+     three so the zeros never move, and each y window is 1.42 times the
+     tallest turning point, which leaves the curve running off the top
+     and bottom near the edges -- so the slider stops where the curve
+     does, and the marker is always somewhere you can see it. */
+  var ZEROS = [-4, -1, 2], MID = -1, X0 = -5.2, X1 = 3.2;
+  var PER_K = {
+    1: {Y: 15,  lo: -4.6,  hi: 2.6},
+    2: {Y: 29,  lo: -4.35, hi: 2.35},
+    3: {Y: 64,  lo: -4.25, hi: 2.25}
+  };
+  var k = 1, x = -3, moved = false;
+  var seenRegion = {}, crossedMid = false, lastRegion = null, kUsed = {1: true};
+  var signOf = {};                                   /* region index -> sign, once visited */
+
+  function factors(){
+    var list = [{c: 4, s: "+"}];
+    for (var i = 0; i < k; i++) list.push({c: 1, s: "+"});
+    list.push({c: -2, s: "-"});
+    return list;                                      /* each is (x + c) */
+  }
+  function value(fac, at){ return at + fac.c; }
+  function f(at){
+    var v = 1, list = factors();
+    for (var i = 0; i < list.length; i++) v *= value(list[i], at);
+    return v;
+  }
+  function label(fac){
+    return "(<i>x</i> " + (fac.c >= 0 ? "+ " : "&minus; ") + Math.abs(fac.c) + ")";
+  }
+  /* which stretch between zeros x is in: 0 left of -4 ... 3 right of 2 */
+  function region(at){
+    for (var i = 0; i < ZEROS.length; i++) if (at < ZEROS[i]) return i;
+    return ZEROS.length;
+  }
+  function onZero(at){
+    for (var i = 0; i < ZEROS.length; i++) if (Math.abs(at - ZEROS[i]) < 1e-9) return true;
+    return false;
+  }
+  function num(v){
+    var s = Math.abs(v) < 5e-3 ? 0 : v;
+    return (s < 0 ? "−" : "") + Math.abs(s).toFixed(2);
+  }
+
+  /* reveal buttons, and what each act adds when its reveal is pressed */
+  var onReveal = {}, onResize = [];
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      if (onReveal[act.id]) onReveal[act.id]();
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+
+  /* ── header sky: the curve, faint, with its three zeros ─────────
+     Drawn at the header's real size, so the picture fits whatever
+     shape the header is on this screen. */
+  function drawSky(){
+    var sky = $("sky"), r = sky.getBoundingClientRect();
+    var W = Math.max(300, Math.round(r.width)), H = Math.max(200, Math.round(r.height));
+    sky.setAttribute("viewBox", "0 0 " + W + " " + H);
+    clear(sky);
+    var X = function(v){ return (v - X0) / (X1 - X0) * W; }, Y = function(v){ return H * 0.55 - v * H * 0.5 / 15; };
+    var pts = [];
+    for (var i = 0; i <= 300; i++){
+      var at = X0 + (X1 - X0) * i / 300;
+      pts.push(X(at).toFixed(1) + "," + Math.max(-H, Math.min(2 * H, Y((at + 4) * (at + 1) * (at - 2)))).toFixed(1));
+    }
+    el("polyline", {points: pts.join(" "), fill: "none", stroke: GOLD, "stroke-width": 1.6, opacity: .55}, sky);
+    ZEROS.forEach(function(z){
+      el("circle", {cx: X(z), cy: Y(0), r: 6, fill: "none", stroke: CREAM, "stroke-width": 1.4, opacity: .55}, sky);
+    });
+  }
+
+  /* ════ the machine ═══════════════════════════════════
+     One chart, one slider, one switch. Everything the page says is
+     set the moment the slider moves -- nothing waits on an animation
+     or on the page being painted. */
+  (function(){
+    var svg = $("chart"), panel = $("panel"), range = $("x-range"), act = $("machine");
+    var G = null;
+
+    function measure(){
+      var W = Math.max(260, Math.round(svg.getBoundingClientRect().width)), narrow = W < 560;
+      var m = narrow ? {l: 42, r: 12, t: 14, b: 8} : {l: 58, r: 18, t: 16, b: 10};
+      var plot = narrow ? 210 : 280, strip = narrow ? 24 : 28, labels = narrow ? 20 : 23;
+      var H = m.t + plot + 10 + strip + labels + m.b;
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      G = {W: W, H: H, m: m, narrow: narrow, plot: plot, strip: strip,
+           x0: m.l, x1: W - m.r, y0: m.t, y1: m.t + plot};
+      G.cy = m.t + plot / 2;
+      G.sy = G.stripTop = G.y1 + 10;
+      clear(svg);
+      var defs = el("defs", {}, svg), clip = el("clipPath", {id: "plot-clip"}, defs);
+      el("rect", {x: G.x0, y: G.y0, width: G.x1 - G.x0, height: plot}, clip);
+      G.grid = el("g", {}, svg);
+      G.curve = el("g", {"clip-path": "url(#plot-clip)"}, svg);
+      G.marks = el("g", {}, svg);
+      G.bands = el("g", {}, svg);
+      G.reader = el("g", {}, svg);
+    }
+    function X(v){ return G.x0 + (v - X0) * (G.x1 - G.x0) / (X1 - X0); }
+    function Y(v){ return G.cy - v * (G.plot / 2) / PER_K[k].Y; }
+    function xAt(px){ return X0 + (px - G.x0) * (X1 - X0) / (G.x1 - G.x0); }
+    function niceStep(half, n){
+      var raw = half / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), q = raw / mag;
+      return (q <= 1 ? 1 : q <= 2 ? 2 : q <= 2.5 ? 2.5 : q <= 5 ? 5 : 10) * mag;
+    }
+
+    function drawChart(){
+      var Y0 = PER_K[k].Y, i, v;
+      clear(G.grid); clear(G.curve); clear(G.marks); clear(G.bands); clear(G.reader);
+      for (i = Math.ceil(X0); i <= X1; i++){
+        if (i === 0) continue;
+        el("line", {x1: X(i), x2: X(i), y1: G.y0, y2: G.y1, "class": "gridline"}, G.grid);
+      }
+      var ys = niceStep(Y0, G.narrow ? 2 : 3);
+      for (i = 1; (v = +(i * ys).toPrecision(12)) <= Y0 * 1.0001; i++){
+        [v, -v].forEach(function(t){
+          el("line", {x1: G.x0, x2: G.x1, y1: Y(t), y2: Y(t), "class": "gridline"}, G.grid);
+          el("text", {x: G.x0 - 7, y: Y(t) + 4, "text-anchor": "end", "class": "ticktext"}, G.grid, t < 0 ? "−" + Math.abs(t) : String(t));
+        });
+      }
+      el("text", {x: G.x0 - 7, y: G.cy + 4, "text-anchor": "end", "class": "ticktext"}, G.grid, "0");
+      el("line", {x1: G.x0, x2: G.x1, y1: G.cy, y2: G.cy, "class": "axis"}, G.grid);
+      el("line", {x1: X(0), x2: X(0), y1: G.y0, y2: G.y1, "class": "axis"}, G.grid);
+      el("text", {x: G.x1 - 4, y: G.cy - 8, "text-anchor": "end", "class": "axisname"}, G.grid, "x");
+      el("text", {x: X(0) + 8, y: G.y0 + 15, "class": "axisname"}, G.grid, "y");
+
+      /* the curve, one sample per pixel */
+      var pts = [], lim = G.H * 3;
+      for (var px = G.x0; px <= G.x1 + 0.5; px += 1){
+        var at = xAt(px);
+        pts.push(px.toFixed(1) + "," + Math.max(-lim, Math.min(lim, Y(f(at)))).toFixed(1));
+      }
+      el("polyline", {points: pts.join(" "), fill: "none", stroke: GOLD, "stroke-width": 3.2, "stroke-linejoin": "round"}, G.curve);
+      ZEROS.forEach(function(z){
+        el("circle", {cx: X(z), cy: G.cy, r: 5, fill: NIGHT, stroke: CREAM, "stroke-width": 1.8}, G.marks);
+      });
+
+      /* the strip: the sign of every stretch visited so far */
+      var edges = [X0].concat(ZEROS).concat([X1]);
+      for (i = 0; i < edges.length - 1; i++){
+        var a = X(edges[i]), b = X(edges[i + 1]), here = region(x) === i;
+        var known = signOf[i] !== undefined;
+        el("rect", {x: a + 1.5, y: G.stripTop, width: Math.max(2, b - a - 3), height: G.strip, rx: 4,
+                    fill: known ? "rgba(157,178,255,.16)" : "rgba(157,178,255,.05)",
+                    stroke: here ? GOLD : (known ? LEAD : "#2A3F5A"), "stroke-width": here ? 2 : 1,
+                    "stroke-dasharray": known ? "" : "3 3"}, G.bands);
+        el("text", {x: (a + b) / 2, y: G.stripTop + G.strip / 2 + (known ? 6 : 5), "text-anchor": "middle",
+                    fill: known ? LEAD : "#5C6E85",
+                    "font-family": known ? "Palatino, Georgia, serif" : "ui-monospace, Menlo, monospace",
+                    "font-size": known ? "19px" : "11px"},
+           G.bands, known ? (signOf[i] > 0 ? "+" : "−") : "?");
+      }
+      /* x labels under the strip */
+      for (i = Math.ceil(X0); i <= X1; i++){
+        el("text", {x: X(i), y: G.stripTop + G.strip + (G.narrow ? 16 : 18), "text-anchor": "middle", "class": "ticktext"},
+           G.bands, i < 0 ? "−" + Math.abs(i) : String(i));
+      }
+
+      /* where you're standing */
+      var fx = f(x);
+      el("line", {x1: X(x), x2: X(x), y1: G.y0, y2: G.stripTop + G.strip, stroke: GOLD, "stroke-width": 1.6, opacity: .5}, G.reader);
+      el("circle", {cx: X(x), cy: Math.max(G.y0 - 20, Math.min(G.y1 + 20, Y(fx))), r: 6.5, fill: GOLD}, G.reader);
+      el("text", {x: X(x) + (x > (X0 + X1) / 2 ? -11 : 11), y: Math.max(G.y0 + 14, Math.min(G.y1 - 6, Y(fx) - 12)),
+                  "text-anchor": x > (X0 + X1) / 2 ? "end" : "start", "class": "measure"}, G.reader, num(fx));
+      svg.setAttribute("aria-label", "The graph of f. Standing at x = " + num(x) + ", where f of x is " + num(fx) + ".");
+    }
+
+    /* the pieces, and the multiplication written out */
+    function drawMachine(){
+      var list = factors(), out = [], line = [], i;
+      var biggest = 0;
+      for (i = 0; i < list.length; i++) biggest = Math.max(biggest, Math.abs(value(list[i], x)));
+      biggest = Math.max(biggest, 0.001);
+      for (i = 0; i < list.length; i++){
+        var v = value(list[i], x), off = Math.abs(v) < 5e-3, w = Math.min(46, Math.abs(v) / biggest * 46);
+        out.push('<div class="pc' + (off ? " off" : "") + '"><div class="f math">' + label(list[i]) + '</div>' +
+                 '<div class="v">' + num(v) + "</div>" +
+                 '<div class="bar"><i style="' + (v < 0 ? "right:50%" : "left:50%") + ";width:" + w + '%"></i></div></div>');
+        line.push(v < 0 ? "(" + num(v) + ")" : num(v));
+      }
+      $("pieces").innerHTML = out.join('<div class="times" aria-hidden="true">&times;</div>');
+      $("arith").innerHTML = line.join(' <span class="eq">&times;</span> ') +
+        ' <span class="eq">=</span> <b>' + num(f(x)) + "</b>";
+      $("machine-k").textContent = "What each piece is worth at x = " + num(x);
+    }
+
+    function neg(){
+      var list = factors(), n = 0;
+      for (var i = 0; i < list.length; i++) if (value(list[i], x) < -5e-3) n++;
+      return n;
+    }
+    /* how many pieces are switched off right now -- two of them, at a zero
+       written twice, is the whole point of writing it twice */
+    function zeroed(){
+      var list = factors(), n = 0;
+      for (var i = 0; i < list.length; i++) if (Math.abs(value(list[i], x)) < 5e-3) n++;
+      return n;
+    }
+    var COUNT = ["no", "one", "two", "three"];
+
+    function draw(){
+      var fx = f(x), list = factors();
+      $("c-x").textContent = "x = " + num(x);
+      $("c-neg").textContent = onZero(x)
+        ? (zeroed() === 1 ? "one of them is 0" : COUNT[zeroed()] + " of them are 0")
+        : neg() + " of " + list.length;
+      $("c-f").textContent = "f(x) = " + num(fx);
+      range.setAttribute("aria-valuetext", "x = " + num(x) + ", f of x = " + num(fx));
+      /* the sign of this stretch is known once you've stood in it */
+      if (!onZero(x)) signOf[region(x)] = fx > 0 ? 1 : -1;
+      drawChart();
+      drawMachine();
+      progress();
+    }
+
+    function setX(v, byHand){
+      var lim = PER_K[k];
+      v = Math.max(lim.lo, Math.min(lim.hi, v));
+      /* land exactly on a zero when you're all but on it */
+      for (var i = 0; i < ZEROS.length; i++) if (Math.abs(v - ZEROS[i]) < 0.03) v = ZEROS[i];
+      x = Math.round(v * 100) / 100;
+      range.value = String(x);
+      if (byHand){
+        moved = true;
+        range.classList.add("used");
+        var r = region(x);
+        if (!onZero(x)){
+          seenRegion[r] = true;
+          if (k >= 2 && lastRegion !== null && lastRegion !== r &&
+              Math.min(lastRegion, r) <= 1 && Math.max(lastRegion, r) >= 2) crossedMid = true;
+          lastRegion = r;
+        }
+      }
+      draw();
+    }
+
+    function setK(next){
+      k = next;
+      kUsed[k] = true;
+      lastRegion = null;
+      signOf = {};                                   /* a different polynomial, a different strip */
+      Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
+        b.setAttribute("aria-pressed", +b.dataset.k === k ? "true" : "false");
+      });
+      $("formula").innerHTML = '<span class="fx"><i>f</i>(<i>x</i>) =</span> ' +
+        factors().map(label).join("").replace(/\)\(/g, ")<wbr>(");
+      var lim = PER_K[k];
+      range.min = String(lim.lo); range.max = String(lim.hi);
+      /* only the zeros are worth labelling under the slider; the ends of
+         the range would crowd them */
+      $("x-ticks").innerHTML = ZEROS.map(function(t){
+        var p = (t - lim.lo) / (lim.hi - lim.lo);
+        return '<span style="--p:' + p.toFixed(4) + '">' + (t < 0 ? "−" + Math.abs(t) : t) + "</span>";
+      }).join("");
+      setX(x, false);
+    }
+
+    /* The button needs the whole idea seen once: every stretch between
+       the zeros stood in, and the doubled zero crossed with two copies
+       written, which is the only way to watch two signs flip together. */
+    function progress(){
+      var regions = Object.keys(seenRegion).length;
+      $("nudge").textContent =
+        !moved ? "Slide x along the axis. Watch the three numbers." :
+        regions < 4 ? "Keep sliding — stand on both sides of all three zeros." :
+        k === 1 ? "Now write (x + 1) twice." :
+        !crossedMid ? "Slide past x = −1 again. Watch both copies at once." :
+        "";
+      if (regions >= 4 && crossedMid) act.classList.add("touched");
+    }
+
+    range.addEventListener("input", function(){ setX(parseFloat(range.value), true); });
+    Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
+      b.addEventListener("click", function(){ setK(+b.dataset.k); });
+    });
+
+    /* dragging on the chart itself, which is what a phone wants to do */
+    function fromEvent(e){
+      var r = svg.getBoundingClientRect();
+      setX(xAt((e.clientX - r.left) * (G.W / r.width)), true);
+    }
+    svg.addEventListener("pointerdown", function(e){
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      svg.setPointerCapture(e.pointerId); fromEvent(e); e.preventDefault();
+    });
+    svg.addEventListener("pointermove", function(e){
+      if (svg.hasPointerCapture && svg.hasPointerCapture(e.pointerId)) fromEvent(e);
+    });
+
+    measure(); setK(1); progress();
+    onResize.push(function(){ measure(); draw(); });
+  })();
+
+  drawSky();
+  onResize.push(drawSky);
+
+  /* Rebuild the chart when the width it's SHOWN at really changes -- a
+     phone rotating, a window resized, a scrollbar arriving. State lives
+     outside the drawing, so a rebuild never loses where you were standing
+     or what was revealed. Watch the PANEL, not the <svg>: an observer on
+     an outer <svg> never fired in testing, so the thing observed has to be
+     an ordinary HTML box. A rebuild changes only the chart's HEIGHT, which
+     fires the observer again with the same width, which returns -- no loop. */
+  var lastW = Math.round($("chart").getBoundingClientRect().width), timer = null;
+  function remeasure(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      var w = Math.round($("chart").getBoundingClientRect().width);
+      if (Math.abs(w - lastW) < 2) return;
+      lastW = w;
+      onResize.forEach(function(fn){ fn(); });
+    }, 120);
+  }
+  if (window.ResizeObserver) new ResizeObserver(remeasure).observe($("panel"));
+  window.addEventListener("resize", remeasure);
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Everything that must arrive is set synchronously. */
+})();
+</script>
