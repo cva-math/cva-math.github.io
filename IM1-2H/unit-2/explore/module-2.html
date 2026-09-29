@@ -1,0 +1,579 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A job pays $6 a delivery plus $12 a shift. Somebody made $90 — how many deliveries? Build the machine that runs the job backwards, let the check catch the wrong one, then run it on every shift at once.">
+<title>Shoes Off First · Working Backwards</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the note stays, instead of the
+     machine sitting there as a silent empty box. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     SHOES OFF FIRST — IM 1/2H Unit 2, Module 2, Working Backwards
+
+     Built in the explore grammar (IM3 unit-2 explore, Pre-Calc unit-1 and
+     unit-2 explore, IM 1/2H unit-1 and unit-2 explore): one move per act,
+     and the name only after the student has seen the thing -- and asked.
+     NB: never write a path glob ending in star-slash inside a CSS comment;
+     it closes the comment early and the recovery eats the :root block.
+
+     WHY THIS PAGE IS A MACHINE AND NOT A GRAPH. The usual picture of an
+     inverse -- read the graph in from the other axis, or fold it across
+     y = x so every point trades its coordinates -- is already spent three
+     times in this unit, and the house rule is that an explore never spends
+     them:
+       · Application 2 draws the 30% rule and runs "orange arrows the other
+         way", from a rent to the income it demands, and its Part D asks
+         which direction the unit needs. That is the unit's verdict.
+       · The practice's water tank asks how the inverse's graph would
+         compare with the graph of w. That is the reflection.
+       · The mastery is h(−10) = 7, so what is j(7) -- and which of
+         (−10, 7) and (7, −10) sits on which graph. That is the swap.
+     So this page draws no graph of an inverse at all, never swaps a pair,
+     and never mentions rent. What it does instead is the part of the module
+     none of those pages makes visible: THE ORDER OF UNDOING. The job's rule
+     multiplies and then adds. Running it backwards has to subtract FIRST
+     and divide second -- the last thing done is the first thing undone,
+     shoes off before socks. Students who undo in reading order get a
+     believable wrong answer, and nothing on a static page catches it.
+     Here a check runs every answer forward again, so the machine catches it.
+
+     Act I builds the backward machine from four tiles and checks it.
+     Act II runs the correct machine on every target at once and keeps a log,
+     so what the student notices is that the steps down the middle never
+     change -- which is exactly why they can be written once, with a letter.
+     The page does not do letters for the price or the fee: that is the
+     cookbooks, C and D, on the practice.
+
+     Two colours, each meaning one thing:
+       gold  — forward: the job's own rule, deliveries in, pay out
+       lead  — backward: the undo, pay in, deliveries out
+     The numbers travelling through are cream. Rose appears only on a check
+     that fails, and always with its own word -- a state, not a third thing.
+
+     Every number checked in Python first, exhaustively: of all twelve
+     two-tile machines on a $90 shift, exactly one passes the check
+     ([−12][÷6] → 13); the reading-order mistake [÷6][−12] gives 3, which
+     runs forward to $30. In Act II, $50 gives 6.33, so 7 deliveries, which
+     pay $54; anything at or under $12 needs none.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text, and the numbers travelling */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* forward: the job's rule */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* backward: the undo */
+    --lead-soft:rgba(157,178,255,.14);
+    --rose:#E0776B;         /* one state only: a check that fails */
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .t{white-space:nowrap}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .dek i{color:var(--cream)}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--lead);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--lead)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--lead)}
+  .up:focus-visible{outline:2px solid var(--lead);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  /* the job, stated once */
+  .job{
+    background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:9px;padding:14px 18px 16px;margin-bottom:16px;
+  }
+  .job .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .job .rule{font-family:var(--serif);font-size:clamp(19px,2.8vw,23px);color:var(--gold);margin:4px 0 12px}
+
+  /* ── the machine ─────────────────────────────────────────────
+     Stations in a row, joined by arrows. Built in HTML rather than SVG so it
+     wraps to a column on a phone and every slot is a real button. */
+  .machine{display:flex;align-items:stretch;gap:8px}
+  .st{
+    flex:1 1 0;min-width:0;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;
+    padding:10px 10px 11px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:2px;
+    font:inherit;color:inherit;
+  }
+  .st .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .st .op{font-family:var(--serif);font-size:clamp(22px,3.4vw,28px);line-height:1.2}
+  .st .v{font-family:var(--mono);font-size:clamp(15px,2.2vw,18px);color:var(--cream);font-variant-numeric:tabular-nums;min-height:1.3em}
+  .st.end .v{font-family:var(--serif);font-size:clamp(22px,3.4vw,28px)}
+  .ar{align-self:center;color:var(--faint);font-size:20px;flex:0 0 auto}
+  .fwd .st.op-st{border-color:rgba(227,179,76,.45)}
+  .fwd .st .op{color:var(--gold)}
+  .back .st .op{color:var(--lead)}
+  .back .st.op-st{border-color:rgba(157,178,255,.45)}
+  button.slot{cursor:pointer;border-style:dashed}
+  button.slot.filled{border-style:solid;border-color:rgba(157,178,255,.6);background:var(--lead-soft)}
+  button.slot:hover{border-color:var(--lead)}
+  button.slot:focus-visible{outline:2px solid var(--lead);outline-offset:3px}
+  button.slot .op{color:var(--faint)}
+  button.slot.filled .op{color:var(--lead)}
+  .st.answer.good{border-color:var(--cream)}
+  .st.answer.bad{border-color:var(--rose)}
+
+  /* the tiles */
+  .tray-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:18px 0 8px}
+  .tray{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .tile{
+    font-family:var(--serif);font-size:22px;letter-spacing:0;text-transform:none;
+    color:var(--lead);background:var(--panel-2);border:1px solid rgba(157,178,255,.45);
+    border-radius:8px;padding:8px 18px;cursor:pointer;min-width:74px;
+  }
+  .tile:hover{background:var(--lead-soft);border-color:var(--lead)}
+  .tile:disabled{opacity:.28;cursor:default;background:var(--panel-2)}
+  .tile:focus-visible{outline:2px solid var(--lead);outline-offset:3px}
+  .clear{
+    margin-left:auto;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:7px;padding:9px 14px;cursor:pointer;
+  }
+  .clear:hover{border-color:var(--dim);color:var(--cream)}
+  .clear:focus-visible{outline:2px solid var(--lead);outline-offset:3px}
+
+  /* the check -- every answer run forward again */
+  .check{
+    margin-top:16px;border-top:1px solid var(--line);padding-top:14px;min-height:3.2em;
+    font-family:var(--serif);font-size:clamp(17px,2.4vw,20px);line-height:1.5;color:var(--faint);
+  }
+  .check .fw{color:var(--gold);font-variant-numeric:tabular-nums}
+  .check .ok{color:var(--cream)}
+  .check .no{color:var(--rose)}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:14px 0 4px;padding:22px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--lead);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px 16px}
+
+  /* act II */
+  .knob{margin-bottom:14px}
+  .knob .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .knob .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .knob .kv{font-family:var(--mono);font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:30px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--night);border:2px solid var(--lead);margin-top:-9px;
+    box-shadow:0 0 0 4px rgba(157,178,255,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;background:var(--night);border:2px solid var(--lead);
+    box-shadow:0 0 0 4px rgba(157,178,255,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--lead);outline-offset:6px;border-radius:4px}
+  .means{
+    margin-top:14px;min-height:1.6em;text-align:center;font-family:var(--serif);
+    font-size:clamp(17px,2.4vw,20px);color:var(--dim);
+  }
+  .means b{color:var(--cream);font-weight:normal}
+  .log-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:22px 0 8px}
+  .log-wrap{overflow-x:auto}
+  .log{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:520px}
+  .log th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:normal;text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
+  .log td{padding:8px 10px;border-bottom:1px solid var(--line-soft);font-family:var(--mono);font-size:14.5px;color:var(--cream)}
+  .log td .o{color:var(--lead)}
+  .log td.m{font-family:var(--serif);font-size:15.5px;color:var(--dim)}
+  .log tr.new td{animation:filed 1.2s ease both}
+  @keyframes filed{0%{background:var(--lead-soft)}100%{background:transparent}}
+  .log .empty td{color:var(--faint);font-family:var(--serif);font-style:italic;font-size:15px}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation. Hidden until the student ASKS -- a reveal that
+     arrived on its own would hand over the noticing before they made it. */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--lead);background:transparent;border:1px solid rgba(157,178,255,.45);border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead);outline-offset:3px}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--lead);font-size:1.06em}
+
+  /* the card the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:31em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:24px 28px 22px;
+  }
+  .ticket .from{display:block;margin-bottom:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .ticket .big{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.2;color:var(--cream)}
+  .ticket .never{margin-top:12px;font-family:var(--serif);font-size:clamp(17px,2.5vw,21px);line-height:1.5;color:var(--dim)}
+  .ticket .never b{color:var(--lead);font-weight:normal}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:23em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:14px 12px 12px;border-radius:8px}
+    .machine{flex-direction:column}
+    .ar{transform:rotate(90deg);line-height:1}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px 16px}
+    .clear{margin-left:0}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM 1/2H &middot; Unit 2</a>
+    <div class="eyebrow">IM 1/2H &middot; Unit 2 &middot; Module 2 &middot; Working Backwards</div>
+    <h1>Shoes Off <em>First</em></h1>
+    <p class="dek">Most of the questions that matter in this unit run backwards &mdash; not <i>what does this job pay?</i> but <i>what would I have to do to earn it?</i> <strong>Running a rule backwards sounds like one move. It&rsquo;s two, and the order they go in is the whole thing.</strong></p>
+    <div class="hint">Build the undo. Let the check tell you.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — TAKE IT APART ════════ -->
+<section class="act" id="undo">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> Take It Apart</div>
+    <h2 class="ask">Somebody&rsquo;s shift paid $90. Build the machine that runs the job backwards, and find how many deliveries they made.</h2>
+    <p class="setup">Here is the job&rsquo;s rule, running forward the way it always does. To run it backwards you undo each step &mdash; the tiles below are the undos, and two decoys. <b>Put two of them in the machine. Whatever it answers, the page runs that answer forward again and checks whether it really pays $90.</b></p>
+
+    <div class="job">
+      <div class="k">The job</div>
+      <div class="rule">$6 for every delivery, plus $12 just for showing up to the shift.</div>
+      <div class="machine fwd" aria-label="The job's rule, forward: 5 deliveries times 6 is 30, plus 12 is 42 dollars.">
+        <div class="st end"><div class="k">Deliveries</div><div class="v">5</div></div>
+        <div class="ar" aria-hidden="true">&rarr;</div>
+        <div class="st op-st"><div class="k">Then</div><div class="op">&times; 6</div><div class="v">30</div></div>
+        <div class="ar" aria-hidden="true">&rarr;</div>
+        <div class="st op-st"><div class="k">Then</div><div class="op">+ 12</div><div class="v">42</div></div>
+        <div class="ar" aria-hidden="true">&rarr;</div>
+        <div class="st end"><div class="k">The shift pays</div><div class="v">$42</div></div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel1">
+      <div class="machine back">
+        <div class="st end"><div class="k">The shift paid</div><div class="v">$90</div></div>
+        <div class="ar" aria-hidden="true">&rarr;</div>
+        <button type="button" class="st op-st slot" data-slot="0"><span class="k">First</span><span class="op">?</span><span class="v"></span></button>
+        <div class="ar" aria-hidden="true">&rarr;</div>
+        <button type="button" class="st op-st slot" data-slot="1"><span class="k">Then</span><span class="op">?</span><span class="v"></span></button>
+        <div class="ar" aria-hidden="true">&rarr;</div>
+        <div class="st end answer" id="answer1"><div class="k">Deliveries</div><div class="v">?</div></div>
+      </div>
+
+      <div class="tray-k">The undos &mdash; and two that aren&rsquo;t</div>
+      <div class="tray" role="group" aria-label="Tiles to put in the machine">
+        <button type="button" class="tile" data-op="mul6">&times; 6</button>
+        <button type="button" class="tile" data-op="div6">&divide; 6</button>
+        <button type="button" class="tile" data-op="add12">+ 12</button>
+        <button type="button" class="tile" data-op="sub12">&minus; 12</button>
+        <button type="button" class="clear" id="clear1">Empty the machine</button>
+      </div>
+      <p class="needs-js">This machine is built by the page &mdash; <b>open it in Chrome or Safari</b> to put tiles in it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <p class="check" id="check1" aria-live="polite">Tap a tile to put it in the first empty slot. Tap a slot to take its tile back out.</p>
+    </div>
+
+    <p class="nudge" id="nudge1">Put two tiles in the machine.</p>
+    <button class="reveal" type="button" data-act="undo">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>You put your socks on, then your shoes. Taking them off, the shoes come first. The job&rsquo;s rule multiplied by 6 and then added 12 &mdash; so running it backwards has to take the 12 off <em>first</em>, and only then divide. Undo in the order you read it and you divide the whole $90, including the $12 that was never per-delivery, and you get 3: a believable number that is simply wrong. The last thing done is the first thing undone.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: subtracting undoes adding and dividing undoes multiplying, so each is the <b>inverse operation</b> of the other. Chain them in reverse order and you have the <b>inverse</b> of the whole rule: pay in, deliveries out. <span class="name">And the check you watched &mdash; run the answer forward and see if it lands on the number you started with &mdash; works on any inverse you ever find.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — EVERY SHIFT AT ONCE ════════ -->
+<section class="act" id="every">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> Every Shift at Once</div>
+    <h2 class="ask">Now the machine is built. Feed it any shift you like, and keep an eye on the log.</h2>
+    <p class="setup">Drag to set what a shift has to pay, and let go. Each one you let go of is written into the log under the machine. <b>Look down the log once it has a few rows. What changes from row to row &mdash; and what never does?</b></p>
+
+    <div class="panel" id="panel2">
+      <div class="knob">
+        <div class="kr"><label class="kk" for="pay2">The shift has to pay</label><span class="kv" id="payv2">$90</span></div>
+        <input type="range" id="pay2" min="0" max="150" step="1" value="90" aria-label="What the shift has to pay, in dollars">
+      </div>
+      <div class="machine back">
+        <div class="st end"><div class="k">The shift pays</div><div class="v" id="in2">$90</div></div>
+        <div class="ar" aria-hidden="true">&rarr;</div>
+        <div class="st op-st"><div class="k">First</div><div class="op">&minus; 12</div><div class="v" id="s1v2">78</div></div>
+        <div class="ar" aria-hidden="true">&rarr;</div>
+        <div class="st op-st"><div class="k">Then</div><div class="op">&divide; 6</div><div class="v" id="s2v2">13</div></div>
+        <div class="ar" aria-hidden="true">&rarr;</div>
+        <div class="st end"><div class="k">Deliveries</div><div class="v" id="out2">13</div></div>
+      </div>
+      <p class="means" id="means2" aria-live="polite"></p>
+      <p class="needs-js">This one is dragged &mdash; <b>open it in Chrome or Safari</b> to feed the machine.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+
+      <div class="log-k">The log</div>
+      <div class="log-wrap">
+        <table class="log">
+          <thead><tr><th>The shift pays</th><th>First</th><th>Then</th><th>What it means</th></tr></thead>
+          <tbody id="log2"><tr class="empty"><td colspan="4">Nothing yet &mdash; drag the slider and let go.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="nudge" id="nudge2">Drag the slider and let go.</p>
+    <button class="reveal" type="button" data-act="every">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every row of the log took 12 off and then divided by 6. The number at the start changed and the number at the end changed, and the two steps in the middle never did. So you don&rsquo;t need to run the machine again for every shift &mdash; you can run it once on a letter that stands for <em>any</em> shift, and what comes out is the backward rule for all of them. And the machine answers honestly even when the job wouldn&rsquo;t: it will hand you 6.33 deliveries, or a negative number, without complaint.</p>
+    </div>
+    <p class="notation">The name: write <i>P</i> for what the shift pays, run it through the two steps, and you get <span class="math t"><i>d</i> = (<i>P</i> &minus; 12) &divide; 6</span> &mdash; the <b>inverse function</b> of the job&rsquo;s rule, <span class="math t"><i>P</i> = 6<i>d</i> + 12</span>. The parentheses are the order, written down: take the 12 off first. Finding it is the same algebra as solving the job&rsquo;s rule for <i>d</i>. <span class="name">And the answers still have to make sense in the job. A delivery comes whole, so 6.33 means 7. Anything the $12 already covers means none.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THEN — THE CARD, left open ════════ -->
+<section class="act" id="card">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Card</div>
+    <h2 class="ask">One machine the page won&rsquo;t build for you.</h2>
+
+    <div class="ticket">
+      <span class="from">One step, run twice</span>
+      <p class="big">A machine that undoes itself.</p>
+      <p class="never">Run it once and your number changes. Run the very same machine again, and you&rsquo;re back where you started &mdash; for every number. The machine that adds 3 isn&rsquo;t one: its undo subtracts 3. <b>Is there a machine that is its own undo?</b></p>
+    </div>
+
+    <p class="setup">Try some. If you find one, say what its step is, and why running it twice brings every number home.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Running a rule backwards isn&rsquo;t one move. It&rsquo;s every move, <em>reversed</em> &mdash; and the last thing done is the first thing undone.</p>
+    <div class="colophon">IM 1/2H &middot; Unit 2 &middot; Module 2 &middot; <span>Working Backwards</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var RATE = 6, BASE = 12, TARGET = 90;
+  function fwd(d){ return d*RATE + BASE; }
+
+  /* 13 → "13", 6.333 → "6.33", 3324 → "3,324", −2 → "−2" (a real minus) */
+  function fmt(v){
+    var r = Math.round(v*100)/100;
+    if(Object.is(r, -0)) r = 0;
+    var s = Math.abs(r).toLocaleString("en-US", {maximumFractionDigits:2});
+    return (r < 0 ? "−" : "") + s;
+  }
+  function money(v){ return (v < 0 ? "−$" : "$") + fmt(Math.abs(v)); }
+
+  var OPS = {
+    mul6:  {label:"&times; 6",  f:function(v){ return v*6; }},
+    div6:  {label:"&divide; 6", f:function(v){ return v/6; }},
+    add12: {label:"+ 12",       f:function(v){ return v+12; }},
+    sub12: {label:"&minus; 12", f:function(v){ return v-12; }}
+  };
+
+  /* ════════ ACT I — build the undo, and check it ════════
+     State is set synchronously on every tap; nothing waits on an animation. */
+  (function(){
+    var act = document.getElementById("undo"), nudge = document.getElementById("nudge1");
+    var slots = [null, null];
+    var slotEls = document.querySelectorAll("#panel1 .slot");
+    var tiles = document.querySelectorAll("#panel1 .tile");
+    var answerEl = document.getElementById("answer1"), checkEl = document.getElementById("check1");
+    var sawRight = false, sawWrong = false;
+
+    function render(){
+      var i, v = TARGET, full = slots[0] && slots[1];
+      for(i = 0; i < 2; i++){
+        var el = slotEls[i], op = slots[i];
+        el.classList.toggle("filled", !!op);
+        el.querySelector(".op").innerHTML = op ? OPS[op].label : "?";
+        if(op && (i === 0 || slots[0])) v = OPS[op].f(v);
+        el.querySelector(".v").textContent = (op && (i === 0 || slots[0])) ? fmt(v) : "";
+        el.setAttribute("aria-label", (i ? "Second" : "First") + " step: " +
+          (op ? el.querySelector(".op").textContent + ", tap to take it out" : "empty"));
+      }
+      Array.prototype.forEach.call(tiles, function(t){
+        t.disabled = slots.indexOf(t.dataset.op) !== -1;
+      });
+
+      answerEl.classList.remove("good", "bad");
+      if(!full){
+        answerEl.querySelector(".v").textContent = "?";
+        checkEl.innerHTML = "Tap a tile to put it in the first empty slot. Tap a slot to take its tile back out.";
+        return;
+      }
+      var d = v, back = fwd(d), ok = Math.abs(back - TARGET) < 1e-9;
+      answerEl.querySelector(".v").textContent = fmt(d);
+      answerEl.classList.add(ok ? "good" : "bad");
+      checkEl.innerHTML = "Check it &mdash; run " + fmt(d) + " forward: <span class='fw'>" + fmt(d) +
+        " &times; 6 = " + fmt(d*RATE) + ", then + 12 = " + money(back) + "</span>. " +
+        (ok ? "<span class='ok'>&#10003; That&rsquo;s the $90 shift. " + fmt(d) + " deliveries.</span>"
+            : "<span class='no'>&#10007; You needed $90.</span>");
+      if(ok) sawRight = true; else sawWrong = true;
+
+      /* Earned by seeing the check both pass and fail -- one alone doesn't
+         show that the ORDER is what decides it. */
+      if(sawRight && sawWrong) act.classList.add("touched");
+      else nudge.textContent = sawRight
+        ? "That’s the one. Now swap its two tiles and see what the check says."
+        : "The check caught it. Empty a slot and try a different machine.";
+    }
+    Array.prototype.forEach.call(tiles, function(t){
+      t.addEventListener("click", function(){
+        var i = slots.indexOf(null);
+        if(i === -1 || slots.indexOf(t.dataset.op) !== -1) return;
+        slots[i] = t.dataset.op;
+        render();
+      });
+    });
+    Array.prototype.forEach.call(slotEls, function(el){
+      el.addEventListener("click", function(){
+        slots[+el.dataset.slot] = null;
+        render();
+      });
+    });
+    document.getElementById("clear1").addEventListener("click", function(){
+      slots = [null, null]; render();
+    });
+    render();
+  })();
+
+  /* ════════ ACT II — the built machine, on every shift ════════ */
+  (function(){
+    var act = document.getElementById("every"), nudge = document.getElementById("nudge2");
+    var range = document.getElementById("pay2"), logEl = document.getElementById("log2");
+    var logged = [];
+
+    function meaning(P){
+      var d = (P - BASE)/RATE;
+      if(d <= 0) return "none &mdash; the $12 for showing up already covers it";
+      if(Math.abs(d - Math.round(d)) < 1e-9) return "<b>" + fmt(d) + "</b> deliveries";
+      var need = Math.ceil(d);
+      return fmt(d) + " &rarr; you&rsquo;d need <b>" + need + "</b> &mdash; " + need + " deliveries pay " + money(fwd(need));
+    }
+    function draw(){
+      var P = +range.value, s1 = P - BASE, d = s1/RATE;
+      document.getElementById("payv2").textContent = money(P);
+      document.getElementById("in2").textContent = money(P);
+      document.getElementById("s1v2").textContent = fmt(s1);
+      document.getElementById("s2v2").textContent = fmt(d);
+      document.getElementById("out2").textContent = fmt(d);
+      document.getElementById("means2").innerHTML = "What it means: " + meaning(P);
+    }
+    function record(){
+      var P = +range.value;
+      if(logged.length && logged[0] === P) return;
+      logged = [P].concat(logged.filter(function(x){ return x !== P; })).slice(0, 7);
+      logEl.innerHTML = logged.map(function(x, i){
+        var s1 = x - BASE;
+        return "<tr" + (i === 0 ? " class='new'" : "") + "><td>" + money(x) + "</td>" +
+          "<td><span class='o'>&minus; 12</span> &rarr; " + fmt(s1) + "</td>" +
+          "<td><span class='o'>&divide; 6</span> &rarr; " + fmt(s1/RATE) + "</td>" +
+          "<td class='m'>" + meaning(x) + "</td></tr>";
+      }).join("");
+      if(logged.length >= 4) act.classList.add("touched");
+      else nudge.textContent = "Logged " + logged.length + ". A few more rows, then look down the columns.";
+    }
+    range.addEventListener("input", draw);
+    range.addEventListener("change", function(){ draw(); record(); });
+    draw();
+  })();
+
+  /* ── the reveals ───────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(b){
+    b.addEventListener("click", function(){
+      document.getElementById(b.dataset.act).classList.add("revealed");
+    });
+  });
+
+  /* ── the sky: a row of stations, arrows running both ways ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380, i;
+    function mk(tag, attrs){ var e = document.createElementNS(SVGNS, tag); for(var k in attrs) e.setAttribute(k, attrs[k]); svg.appendChild(e); return e; }
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    for(i = 1; i < 7; i++) mk("line", {x1:0, y1:h - i*54, x2:w, y2:h - i*54, stroke:"#223650", "stroke-width":1, opacity:.5});
+    for(i = 0; i < 6; i++){
+      var x = 520 + i*120;
+      mk("rect", {x:x, y:118, width:84, height:54, rx:9, fill:"none", stroke:"#F2EBDD", "stroke-width":1.2, opacity:.16});
+      if(i < 5){
+        mk("path", {d:"M" + (x+94) + " 136 l14 0 m-5 -5 l5 5 l-5 5", fill:"none", stroke:"#E3B34C", "stroke-width":1.6, opacity:.34});
+        mk("path", {d:"M" + (x+108) + " 158 l-14 0 m5 -5 l-5 5 l5 5", fill:"none", stroke:"#9DB2FF", "stroke-width":1.6, opacity:.34});
+      }
+    }
+  })();
+})();
+</script>
