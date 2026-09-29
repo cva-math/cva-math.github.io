@@ -1,0 +1,582 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Last week every combined line swung around one point. Make the two lines parallel and there is no point to swing around — both letters vanish at once and leave 0 = 5. Make them the same line and nothing moves at all.">
+<title>Nowhere and Everywhere · One, None, or Infinitely Many</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the note stays, instead of the
+     chart sitting there as a silent empty box. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     NOWHERE AND EVERYWHERE
+     IM 1/2H Unit 1, Module 4, One, None, or Infinitely Many
+
+     Built in the explore grammar (IM3 unit-2 explore, Pre-Calc unit-1 and
+     unit-2 explore, IM 1/2H unit-1 and unit-2 explore): one move per act,
+     and the name only after the student has seen the thing -- and asked.
+     NB: never write a path glob ending in star-slash inside a CSS comment;
+     it closes the comment early and the recovery eats the :root block.
+
+     THE SEQUEL TO MODULE 3'S PAGE. The Point That Won't Move built the
+     combination (1) + k(2) and let the student watch every one of them
+     swing around the crossing. This page keeps the instrument and takes
+     the crossing away. That is the whole idea of the module, made visible:
+       · PARALLEL LINES. No point to swing around, so every combination is
+         another parallel line, sliding. As k nears the magic value the
+         line races off the chart; AT it, both letters die in the same
+         instant and what is left is 0 = 5 -- true for no point at all.
+       · THE SAME LINE. Every combination is that line again: different
+         numbers, same points, nothing on the chart moves. At the magic k
+         the number dies with the letters and what is left is 0 = 0 --
+         true for every point, so it rules nothing out.
+     This is what the algebra's two strange endings MEAN. Students meet
+     "0 = 5" as an error they must have made; here it is the only honest
+     thing elimination can say about two lines that share nothing.
+
+     THE FINGERPRINT, stated in the notation rather than told up front. In
+     Module 3 the x-number and the y-number reach zero at DIFFERENT k (−3
+     and 2), and each one hands you a number. Here they reach zero at the
+     SAME k. That coincidence is what parallel means, in algebra.
+
+     WHAT IT DELIBERATELY DOES NOT SPEND. None of this module's Page systems
+     appear: not the intro videos' y = x − 2, y = −2x + 1 or y = −2x + 4,
+     not the conference's 3x − y = 17 with x + 4y = 10, not the practice's
+     5x − 2y = 10, and not the mastery's 9x − 3y = −6 with 5y = 15x + 10.
+     The mastery's verdict is that two equations written in DIFFERENT FORMS
+     can be the same line -- so nothing here is ever rewritten from one
+     form into another; both acts keep their pairs in standard form, one a
+     scaled copy of the other. And practice's move, building a second
+     equation for each case, is left alone: the card asks why, not how.
+
+     Two colours, each meaning one thing -- the same as Module 3's page:
+       gold  — equation (1)
+       lead  — equation (2)
+     What you MAKE from them is cream, the page's own ink.
+
+     Every number checked in Python first. Act I: x + 2y = 8, 2x + 4y = 6,
+     slope −1/2 both; both letters die at k = −1/2 leaving 0 = 5; all
+     sixteen quarter-step combinations are distinct parallels. Act II:
+     x + 3y = 6, 2x + 6y = 12; both die at k = −1/2 leaving 0 = 0; every k
+     in the slider's range draws the same line as (1).
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text, and what you make */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* equation (1) */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* equation (2) */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .t{white-space:nowrap}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(42px,7vw,72px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--gold);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+  .setup a{color:var(--gold)}
+
+  /* the two you were handed */
+  .given{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .give{
+    flex:1 1 220px;min-width:0;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:11px 16px 12px;border-left:3px solid var(--gc);
+  }
+  .give .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .give .v{font-size:clamp(20px,3vw,26px);margin-top:4px;color:var(--gc)}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px 16px}
+  .panel svg.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* the live equation over the chart */
+  .built{
+    text-align:center;font-size:clamp(23px,4vw,34px);line-height:1.35;margin:2px 0 4px;
+    color:var(--cream);min-height:1.4em;font-variant-numeric:tabular-nums;
+  }
+  .built .dead{color:var(--faint);text-decoration:line-through;text-decoration-thickness:1px}
+  .built .left{color:var(--gold)}
+  .built .recipe{
+    display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--faint);margin-bottom:8px;text-decoration:none;
+  }
+  .landed{
+    min-height:2.4em;margin:6px auto 0;max-width:36em;text-align:center;font-family:var(--serif);
+    font-size:clamp(17px,2.4vw,21px);line-height:1.45;color:var(--faint);
+  }
+  .landed.hit{color:var(--cream)}
+  .landed.away{color:var(--dim);font-style:italic}
+  .landed .big{color:var(--gold);font-style:normal}
+
+  /* controls */
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .knob{margin-top:12px}
+  .knob .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .knob .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .knob .kv{font-family:var(--mono);font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:30px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--night);border:2px solid var(--cream);margin-top:-9px;
+    box-shadow:0 0 0 4px rgba(242,235,221,.12);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;background:var(--night);border:2px solid var(--cream);
+    box-shadow:0 0 0 4px rgba(242,235,221,.12);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--cream);outline-offset:6px;border-radius:4px}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation. Hidden until the student ASKS -- a reveal that
+     arrived on its own would hand over the noticing before they made it. */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;color:var(--gold);background:transparent;
+    border:1px solid rgba(227,179,76,.45);
+  }
+  .reveal:hover{border-color:var(--gold);background:var(--gold-soft)}
+  .reveal:focus-visible{outline:2px solid var(--gold)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--gold);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--lead);font-size:1.06em}
+
+  /* the card the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:31em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:24px 28px 22px;
+  }
+  .ticket .from{display:block;margin-bottom:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .ticket .three{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.25;color:var(--cream)}
+  .ticket .three span{color:var(--faint)}
+  .ticket .never{margin-top:12px;font-family:var(--serif);font-size:clamp(18px,2.6vw,22px);line-height:1.45;color:var(--dim)}
+  .ticket .never b{color:var(--gold);font-weight:normal}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:23em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--gold)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared */
+  .axis{stroke:#3A5272;stroke-width:1.4}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--faint);font-family:var(--mono);font-size:12px}
+  .axisname{fill:var(--dim);font-family:var(--serif);font-style:italic;font-size:16px}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:14px 12px 12px;border-radius:8px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px 16px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM 1/2H &middot; Unit 1</a>
+    <div class="eyebrow">IM 1/2H &middot; Unit 1 &middot; Module 4 &middot; One, None, or Infinitely Many</div>
+    <h1>Nowhere and <em>Everywhere</em></h1>
+    <p class="dek">Last week every system had exactly one answer, and elimination walked you up to it. This week the two lines stop cooperating. <strong>Watch what the algebra does when there is no single point to find &mdash; it doesn&rsquo;t break. It tells you.</strong></p>
+    <div class="hint">Drag until the letters run out.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — NO WAIST ════════ -->
+<section class="act" id="nowaist">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> No Waist</div>
+    <h2 class="ask">Two parallel lines. Build combinations out of them, the way you did last week, and watch what happens.</h2>
+    <p class="setup">In <a href="module-3.html">last week&rsquo;s explore</a>, every line you built swung around one point, and your faint lines piled up into a fan with a waist. Same slider here &mdash; equation&nbsp;&#9312; plus <b>k</b> copies of equation&nbsp;&#9313; &mdash; but these two lines never meet. <b>Drag slowly, watch the numbers in the equation, and keep an eye out for the moment the letters run out.</b></p>
+
+    <div class="given">
+      <div class="give" style="--gc:#E3B34C"><div class="k">Equation &#9312;</div><div class="v math"><i>x</i> + 2<i>y</i> = 8</div></div>
+      <div class="give" style="--gc:#9DB2FF"><div class="k">Equation &#9313;</div><div class="v math">2<i>x</i> + 4<i>y</i> = 6</div></div>
+    </div>
+
+    <div class="panel" id="panel1">
+      <p class="built math" id="built1"><span class="recipe">Equation &#9312; + k &times; Equation &#9313;</span></p>
+      <p class="needs-js">This chart is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to drag it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart1" role="img" aria-label="Two parallel lines and the combination built from them, which slides as k changes and vanishes at one value of k."></svg>
+      <div class="knob">
+        <div class="kr"><label class="kk" for="k1">How many copies of &#9313; you add</label><span class="kv" id="kv1">k = 0</span></div>
+        <input type="range" id="k1" min="-2" max="2" step="0.05" value="0" aria-label="k, the number of copies of equation 2 added to equation 1">
+      </div>
+      <p class="landed" id="landed1" aria-live="polite">&nbsp;</p>
+    </div>
+
+    <p class="nudge" id="nudge1">Drag the slider.</p>
+    <button class="reveal" type="button" data-act="nowaist">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Last week every combination swung around the crossing. These never swing, because there is no crossing to swing around &mdash; every line you built came out parallel to the other two, just somewhere else. And the moment you tried to cancel a letter, you cancelled <em>both</em>, and what was left said 0&nbsp;=&nbsp;5. That isn&rsquo;t a slip in your algebra. It is the algebra telling you, in the only way it can, that no point anywhere satisfies both equations. There is nowhere to stand.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: the system has <b>no solution</b>, and the lines are <b>parallel</b> &mdash; the same slope, different intercepts. A leftover like <span class="math t">0 = 5</span> is a <b>contradiction</b>: a statement no value can make true. <span class="name">And here is how to spot it in the algebra alone. Last week the x-number and the y-number reached zero at different k &mdash; &minus;3 and 2 &mdash; and each one handed you a number. Here they reach zero at the same k, together. That coincidence is what parallel looks like when you can&rsquo;t see the graph.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — NOTHING MOVES ════════ -->
+<section class="act" id="nothing">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> Nothing Moves</div>
+    <h2 class="ask">Now two equations that land on the same line. Build combinations again.</h2>
+    <p class="setup">Equation&nbsp;&#9313; draws its line dashed, so you can see both of them &mdash; they are sitting on top of each other. Drag the slider exactly as before. <b>Watch the numbers in the equation change, and watch what the chart does about it.</b></p>
+
+    <div class="given">
+      <div class="give" style="--gc:#E3B34C"><div class="k">Equation &#9312;</div><div class="v math"><i>x</i> + 3<i>y</i> = 6</div></div>
+      <div class="give" style="--gc:#9DB2FF"><div class="k">Equation &#9313;</div><div class="v math">2<i>x</i> + 6<i>y</i> = 12</div></div>
+    </div>
+
+    <div class="panel" id="panel2">
+      <p class="built math" id="built2"><span class="recipe">Equation &#9312; + k &times; Equation &#9313;</span></p>
+      <p class="needs-js">This one is dragged too &mdash; <b>open it in Chrome or Safari</b> to move the slider.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart2" role="img" aria-label="Two equations drawing the same line, and the combination built from them, which stays on that line for every k but one."></svg>
+      <div class="knob">
+        <div class="kr"><label class="kk" for="k2">How many copies of &#9313; you add</label><span class="kv" id="kv2">k = 0</span></div>
+        <input type="range" id="k2" min="-2" max="2" step="0.05" value="0" aria-label="k, the number of copies of equation 2 added to equation 1">
+      </div>
+      <p class="landed" id="landed2" aria-live="polite">&nbsp;</p>
+    </div>
+
+    <p class="nudge" id="nudge2">Drag the slider.</p>
+    <button class="reveal" type="button" data-act="nothing">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every equation you built drew the same line &mdash; different numbers, the same points &mdash; because each one was just the first equation stretched. Nothing on the chart could move. And when both letters cancelled, the number cancelled with them, and what was left said 0&nbsp;=&nbsp;0: true for every <em>x</em> and every <em>y</em>. A statement that is always true rules nothing out. So you are left with the line itself, and every point on it is an answer.</p>
+    </div>
+    <p class="notation">The names: the system has <b>infinitely many solutions</b> &mdash; every point on the line &mdash; because the two equations are <b>equivalent</b>: one is a multiple of the other. A leftover like <span class="math t">0 = 0</span> is an <b>identity</b>, true for every value. So elimination always finishes in one of three ways: <span class="math t"><i>x</i> = 4</span>, and there is <b>one</b> solution; <span class="math t">0 = 5</span>, and there is <b>none</b>; <span class="math t">0 = 0</span>, and there are <b>infinitely many</b>. <span class="name">One point, nowhere, or everywhere on the line.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THEN — THE CARD, left open ════════ -->
+<section class="act" id="card">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Card</div>
+    <h2 class="ask">One question the page won&rsquo;t answer for you.</h2>
+
+    <div class="ticket">
+      <span class="from">Every system of two straight lines</span>
+      <p class="three">One. <span>&middot;</span> None. <span>&middot;</span> Infinitely many.</p>
+      <p class="never">Every system you have met has landed in one of those three. <b>Never exactly two answers. Never seven.</b></p>
+    </div>
+
+    <p class="setup"><b>Why not?</b> Try to draw two straight lines that cross in exactly two places. If you can&rsquo;t, say what stops you &mdash; and what it has to do with 0&nbsp;=&nbsp;0.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Elimination never breaks. One answer, and it hands you a number. None, and it hands you a lie. Infinitely many, and it hands you <em>the truth</em>.</p>
+    <div class="colophon">IM 1/2H &middot; Unit 1 &middot; Module 4 &middot; <span>One, None, or Infinitely Many</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD";
+  var XMIN = -2, XMAX = 10, YMIN = -4, YMAX = 8;
+
+  function mk(tag, attrs, parent){
+    var e = document.createElementNS(SVGNS, tag);
+    for(var k in attrs) e.setAttribute(k, attrs[k]);
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+  /* 1.1 → "1.1", 2.00 → "2", −0 → "0", and a real minus sign for
+     negatives -- the built equation already sets its own − between terms,
+     and a hyphen beside it reads as a different character */
+  function num(v){
+    v = Math.round(v*100)/100;
+    if(Object.is(v, -0)) v = 0;
+    return (v < 0 ? "−" : "") + String(Math.abs(v));
+  }
+  function snapK(el){ return Math.round(+el.value * 100) / 100; }
+
+  /* ── the frame ─────────────────────────────────────────────── */
+  var W = 880, H = 470, ML = 58, MR = 34, MT = 18, MB = 40;
+  function frame(svg){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var X = function(v){ return ML + (v-XMIN)/(XMAX-XMIN)*(W-ML-MR); };
+    var Y = function(v){ return H - MB - (v-YMIN)/(YMAX-YMIN)*(H-MT-MB); };
+    var i;
+    for(i = Math.ceil(YMIN); i <= YMAX; i++){
+      if(i % 2) continue;
+      mk("line", {"class":"gridline", x1:ML, y1:Y(i), x2:W-MR, y2:Y(i)}, svg);
+      if(i !== 0) mk("text", {"class":"ticktext", x:ML-9, y:Y(i)+4, "text-anchor":"end"}, svg).textContent = i;
+    }
+    for(i = Math.ceil(XMIN); i <= XMAX; i++){
+      if(i % 2) continue;
+      mk("line", {"class":"gridline", x1:X(i), y1:MT, x2:X(i), y2:H-MB}, svg);
+      if(i !== 0) mk("text", {"class":"ticktext", x:X(i), y:Y(0)+18, "text-anchor":"middle"}, svg).textContent = i;
+    }
+    mk("line", {"class":"axis", x1:ML, y1:Y(0), x2:W-MR, y2:Y(0)}, svg);
+    mk("line", {"class":"axis", x1:X(0), y1:MT, x2:X(0), y2:H-MB}, svg);
+    mk("text", {"class":"axisname", x:W-MR-4, y:Y(0)-9, "text-anchor":"end"}, svg).textContent = "x";
+    mk("text", {"class":"axisname", x:X(0)+9, y:MT+14}, svg).textContent = "y";
+    return {X:X, Y:Y};
+  }
+
+  /* ── the visible piece of ax + by = c, clipped to the window ──
+     Liang–Barsky on the line through its closest point to the origin.
+     Returns null when the line misses the window entirely -- which here is
+     information, not an edge case: it is the line running off the chart. */
+  function seg(a, b, c){
+    var n2 = a*a + b*b;
+    if(n2 < 1e-12) return null;
+    var px = a*c/n2, py = b*c/n2, dx = b, dy = -a;
+    var t0 = -1e9, t1 = 1e9;
+    function clipT(p, q){
+      if(Math.abs(p) < 1e-12) return q >= 0;
+      var r = q/p;
+      if(p < 0){ if(r > t1) return false; if(r > t0) t0 = r; }
+      else     { if(r < t0) return false; if(r < t1) t1 = r; }
+      return true;
+    }
+    if(!(clipT(-dx, px-XMIN) && clipT(dx, XMAX-px) && clipT(-dy, py-YMIN) && clipT(dy, YMAX-py))) return null;
+    if(t1 <= t0) return null;
+    return [[px+t0*dx, py+t0*dy], [px+t1*dx, py+t1*dy]];
+  }
+  function drawLine(svg, S, a, b, c, color, width, opacity, dash){
+    var s = seg(a, b, c);
+    if(!s) return false;
+    var at = {x1:S.X(s[0][0]), y1:S.Y(s[0][1]), x2:S.X(s[1][0]), y2:S.Y(s[1][1]),
+      stroke:color, "stroke-width":width, "stroke-linecap":"round"};
+    if(opacity != null) at.opacity = opacity;
+    if(dash) at["stroke-dasharray"] = dash;
+    mk("line", at, svg);
+    return true;
+  }
+
+  /* The built equation, numbers shown as numbers -- including 1 -- because
+     the act is watching the x-number and the y-number shrink to nothing. */
+  function built(a, b, c){
+    var dx = Math.abs(a) < 1e-9, dy = Math.abs(b) < 1e-9;
+    var xt = '<span class="' + (dx ? 'dead' : '') + '">' + num(a) + '<i>x</i></span>';
+    var yt = '<span class="' + (dy ? 'dead' : '') + '">' + num(Math.abs(b)) + '<i>y</i></span>';
+    var sign = (b < 0 && !dy) ? " &minus; " : " + ";
+    var rhs = (dx && dy) ? '<span class="left">' + num(c) + '</span>' : num(c);
+    return '<span class="recipe">Equation &#9312; + k &times; Equation &#9313;</span>' +
+      xt + sign + yt + " = " + rhs;
+  }
+
+  /* ════════ ACT I — parallel ════════
+     (1)  x + 2y = 8      (2)  2x + 4y = 6      both letters die at k = −1/2 */
+  (function(){
+    var A1 = 1, B1 = 2, C1 = 8, A2 = 2, B2 = 4, C2 = 6, MAGIC = -0.5;
+    var svg = document.getElementById("chart1"), act = document.getElementById("nowaist");
+    var dial = document.getElementById("k1"), nudge = document.getElementById("nudge1");
+    var builtEl = document.getElementById("built1"), landedEl = document.getElementById("landed1");
+    var ghosts = {}, moved = 0, sawMagic = false;
+
+    function draw(){
+      var k = snapK(dial);
+      var a = A1 + k*A2, b = B1 + k*B2, c = C1 + k*C2;
+      var magic = Math.abs(k - MAGIC) < 1e-9;
+      var S = frame(svg), g;
+
+      for(g in ghosts) drawLine(svg, S, ghosts[g][0], ghosts[g][1], ghosts[g][2], CREAM, 1.3, .13);
+      drawLine(svg, S, A1, B1, C1, GOLD, 2.4, .95);
+      drawLine(svg, S, A2, B2, C2, LEAD, 2.4, .95);
+      var shown = magic ? false : drawLine(svg, S, a, b, c, CREAM, 2.8, 1);
+
+      document.getElementById("kv1").textContent = "k = " + num(k);
+      builtEl.innerHTML = built(a, b, c);
+
+      if(magic){
+        landedEl.className = "landed hit";
+        landedEl.innerHTML = "Both letters are gone at once. What&rsquo;s left is <span class='big'>0 = " + num(c) +
+          "</span> &mdash; false for every <i>x</i> and every <i>y</i>. There is no line to draw, because nothing on the whole plane makes it true.";
+        sawMagic = true;
+      } else if(!shown){
+        landedEl.className = "landed away";
+        landedEl.innerHTML = "Your line has run off the chart.";
+      } else {
+        landedEl.className = "landed";
+        landedEl.innerHTML = "&nbsp;";
+      }
+
+      if(sawMagic && moved >= 3) act.classList.add("touched");
+      else nudge.textContent = moved === 0 ? "Drag the slider."
+        : "Keep going — there is a k where both letters vanish at once.";
+    }
+    dial.addEventListener("input", function(){
+      var k = snapK(dial);
+      /* ghosts only on quarter steps, so the field of parallels stays legible */
+      if(Math.abs(k*4 - Math.round(k*4)) < 1e-9 && Math.abs(k - MAGIC) > 1e-9)
+        ghosts[k] = [A1 + k*A2, B1 + k*B2, C1 + k*C2];
+      moved++;
+      draw();
+    });
+    draw();
+  })();
+
+  /* ════════ ACT II — the same line ════════
+     (1)  x + 3y = 6      (2)  2x + 6y = 12      both letters die at k = −1/2 */
+  (function(){
+    var A1 = 1, B1 = 3, C1 = 6, A2 = 2, B2 = 6, C2 = 12, MAGIC = -0.5;
+    var svg = document.getElementById("chart2"), act = document.getElementById("nothing");
+    var dial = document.getElementById("k2"), nudge = document.getElementById("nudge2");
+    var builtEl = document.getElementById("built2"), landedEl = document.getElementById("landed2");
+    var visited = {}, moved = 0, sawMagic = false;
+
+    function draw(){
+      var k = snapK(dial);
+      var a = A1 + k*A2, b = B1 + k*B2, c = C1 + k*C2;
+      var magic = Math.abs(k - MAGIC) < 1e-9;
+      var S = frame(svg);
+      var built_n = Object.keys(visited).length;
+
+      if(magic){
+        /* 0 = 0 holds at every point of the plane -- a faint wash says so */
+        mk("rect", {x:S.X(XMIN), y:S.Y(YMAX), width:S.X(XMAX)-S.X(XMIN), height:S.Y(YMIN)-S.Y(YMAX),
+          fill:CREAM, opacity:.07}, svg);
+      }
+      drawLine(svg, S, A1, B1, C1, GOLD, 3, .95);
+      /* the combination sits exactly on the line; it brightens the more of
+         them you build, because you keep drawing the same thing */
+      if(!magic) drawLine(svg, S, a, b, c, CREAM, 5, Math.min(.18 + built_n*.035, .6));
+      drawLine(svg, S, A2, B2, C2, LEAD, 2.4, 1, "9 9");
+      if(magic) drawLine(svg, S, A1, B1, C1, CREAM, 2, .9, "2 10");
+
+      document.getElementById("kv2").textContent = "k = " + num(k);
+      builtEl.innerHTML = built(a, b, c);
+
+      if(magic){
+        landedEl.className = "landed hit";
+        landedEl.innerHTML = "Both letters are gone &mdash; and the number with them. What&rsquo;s left is <span class='big'>0 = 0</span>, true for every <i>x</i> and every <i>y</i>. It rules nothing out. All that&rsquo;s left to satisfy is the line itself.";
+        sawMagic = true;
+      } else if(built_n >= 4){
+        landedEl.className = "landed away";
+        landedEl.innerHTML = built_n + " different equations built so far. Count the lines on the chart.";
+      } else {
+        landedEl.className = "landed";
+        landedEl.innerHTML = "&nbsp;";
+      }
+
+      if(sawMagic && built_n >= 3) act.classList.add("touched");
+      else nudge.textContent = moved === 0 ? "Drag the slider."
+        : !sawMagic ? "There is still a k where both letters vanish. Find it."
+        : "Now drag somewhere else, and watch the chart.";
+    }
+    dial.addEventListener("input", function(){
+      var k = snapK(dial);
+      if(Math.abs(k - MAGIC) > 1e-9 && Math.abs(k) > 1e-9) visited[k] = true;
+      moved++;
+      draw();
+    });
+    draw();
+  })();
+
+  /* ── the reveals ───────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(b){
+    b.addEventListener("click", function(){
+      document.getElementById(b.dataset.act).classList.add("revealed");
+    });
+  });
+
+  /* ── the sky: parallels that never meet -- this page's own picture, as
+     chrome, and the opposite of Module 3's fan ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380, i;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    for(i = 1; i < 7; i++)
+      mk("line", {x1:0, y1:h - i*54, x2:w, y2:h - i*54, stroke:"#223650", "stroke-width":1, opacity:.5}, svg);
+    var slope = -0.22;
+    for(i = -4; i <= 6; i++){
+      var y0 = 250 + i*46;
+      var col = i === 0 ? GOLD : (i === 2 ? LEAD : CREAM);
+      mk("line", {x1:0, y1:y0, x2:w, y2:y0 + slope*w,
+        stroke:col, "stroke-width":1.6, opacity:(i === 0 || i === 2) ? .30 : .10}, svg);
+    }
+  })();
+})();
+</script>
