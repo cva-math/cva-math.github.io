@@ -1,0 +1,609 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Solve 50 − 3h > 20 the way you'd solve an equation and you get h > 10. Test it, and every value it promised fails. Then find the one step that turned the answer around.">
+<title>Wrong Way Round · Which Values Are Allowed</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the note stays, instead of the
+     chart sitting there as a silent empty box. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     WRONG WAY ROUND — IM 1/2H Unit 2, Module 3, Which Values Are Allowed
+
+     Built in the explore grammar (IM3 unit-2 explore, Pre-Calc unit-1 and
+     unit-2 explore, IM 1/2H unit-1 and unit-2 explore): one move per act,
+     and the name only after the student has seen the thing -- and asked.
+     NB: never write a path glob ending in star-slash inside a CSS comment;
+     it closes the comment early and the recovery eats the :root block.
+
+     WHY THE SIGN FLIP. This module's Pages build inequalities from
+     constraints -- the bus, the dog house, the texting plans, Diego's
+     steps -- and read open circles and rays. Not one problem on them
+     divides by a negative number, so the one move that turns an inequality
+     around never comes up. Students meet it anyway, the first time an
+     unknown sits on the losing side. This page puts it on the table the
+     honest way: solve like an equation, test the answer, watch it fail.
+
+       Act I, Test It: 50 − 3h > 20, solved the way you'd solve an
+       equation, says h > 10. Every test says the opposite. The boundary
+       was right; the side was wrong.
+       Act II, The Mirror: 3 < 7, both sides times k, k sliding from 1 to
+       −1. At 0 the two numbers meet; past it they come out swapped.
+       Multiplying by a negative flips the number line over 0.
+
+     WHAT IT DOESN'T SPEND. No bus, dog house, texting plans or Diego. No
+     whole-number domain (the bus's "why it's not a line"): hours of video
+     are continuous, so the ray here is honest. No writing an inequality
+     from a story's constraints -- that's the Pages' job; this one is given.
+
+     Two colours, each meaning one thing:
+       gold  — values that work: tests that pass, and the true ray
+       lead  — the move: multiplying by k, the mirror at 0, the sign
+     Numbers and the value you're testing are cream. Rose appears once,
+     on the answer the algebra gave, and always with its own words -- a
+     state, not a third thing.
+
+     Every number checked in Python first. 50 − 3h > 20 on the half-hour
+     grid from 0 to 16: it holds for every h from 0 through 9.5 and fails
+     for every h from 10 through 16; at h = 10 exactly 20 GB are left, so
+     10 itself fails -- the open circle. The equation-style answer h > 10
+     disagrees with the truth at every tested value except 10. 3k and 7k:
+     3k < 7k for every k > 0, equal at k = 0, and 3k > 7k for every k < 0;
+     at k = −1/3 they are −1 and −7/3. An hour of HD video is taken as 3 GB,
+     stated on the page as an assumption.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text, numbers, the value you're testing */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* values that work */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the move: times k, the mirror */
+    --lead-soft:rgba(157,178,255,.14);
+    --rose:#E0776B;         /* one state only: the answer that fails its test */
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .t{white-space:nowrap}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--gold);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:22px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  /* the algebra, done the way you'd do an equation */
+  .work{
+    display:inline-grid;grid-template-columns:auto auto;gap:4px 26px;align-items:baseline;
+    margin:0 0 26px;padding:16px 22px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+  }
+  .work .ln{font-family:var(--serif);font-size:clamp(20px,2.8vw,24px);color:var(--cream);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .work .ln i{font-style:italic}
+  .work .why{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .work .ln.claim{color:var(--rose)}
+  .work .why.claim{color:var(--rose);opacity:.85}
+
+  /* panel + charts */
+  .panel{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px 16px}
+  .panel svg.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+  #chart1{cursor:pointer}
+  .axis{stroke:#3A5272;stroke-width:1.4}
+  .tick{stroke:#3A5272;stroke-width:1}
+  .ticktext{fill:var(--faint);font-family:var(--mono);font-size:12px}
+  .ticktext.zero{fill:var(--lead)}
+  .lbl{font-family:var(--serif);font-style:italic;font-size:15px}
+  .lbl.rose{fill:var(--rose)}
+  .lbl.gold{fill:var(--gold)}
+  .lbl.cream{fill:var(--cream)}
+  .lbl.lead{fill:var(--lead)}
+  .lbl.faint{fill:var(--faint)}
+  .halo{paint-order:stroke;stroke:var(--panel);stroke-width:5px;stroke-linejoin:round}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* the data meter */
+  .meter{margin:2px 0 26px}
+  .meter .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+  .meter .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .meter .kv{font-family:var(--serif);font-size:19px;color:var(--cream);font-variant-numeric:tabular-nums}
+  .bar{position:relative;height:16px;border-radius:8px;background:var(--panel-2);border:1px solid var(--line)}
+  .bar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:var(--gold);transition:width .15s ease,background-color .15s ease}
+  .bar .fill.low{background:#4A5C74}
+  .bar .mark{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--cream);opacity:.75}
+  .bar .marklbl{
+    position:absolute;top:22px;transform:translateX(-50%);white-space:nowrap;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--dim);
+  }
+
+  /* the dial */
+  .dialrow{margin-top:8px}
+  .dialrow .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .dialrow .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .dialrow .kv{font-family:var(--mono);font-size:14px;color:var(--cream);font-variant-numeric:tabular-nums}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:30px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--night);border:2px solid var(--rc,var(--cream));margin-top:-9px;
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--rc,var(--cream)) 14%,transparent);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;background:var(--night);border:2px solid var(--rc,var(--cream));
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--rc,var(--cream)) 14%,transparent);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--rc,var(--cream));outline-offset:6px;border-radius:4px}
+  #k2{--rc:var(--lead)}
+  /* a variable inside an all-caps label stays the letter it is */
+  .kk i,.ck .math{text-transform:none;letter-spacing:0;font-family:var(--serif);font-size:13px}
+
+  /* the readout under act I's line: your test, and what the answer claimed */
+  .readout{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .cell{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+  .cell .ck{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .cell .cv{font-family:var(--serif);font-size:19px;line-height:1.4;margin-top:3px;color:var(--cream)}
+  .cell .cv i{font-style:italic}
+  .cell .yes{color:var(--gold)}
+  .cell .no{color:var(--dim)}
+  .cell .wrong{color:var(--rose);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-left:6px;white-space:nowrap}
+  .cell.test.works{border-color:rgba(227,179,76,.45)}
+
+  .verdict{
+    margin-top:14px;min-height:1.6em;font-family:var(--serif);font-size:clamp(17px,2.4vw,20px);line-height:1.5;color:var(--dim);
+  }
+  .verdict b{color:var(--cream);font-weight:normal}
+  .verdict .g{color:var(--gold)}
+  .verdict .l{color:var(--lead)}
+
+  /* act II: the two numbers and the sign between them */
+  .rel{display:flex;justify-content:center;align-items:flex-end;gap:clamp(16px,5vw,44px);margin:6px 0 4px}
+  .rel .side{text-align:center;min-width:5.2em}
+  .rel .num{font-family:var(--serif);font-size:clamp(30px,6vw,46px);line-height:1.1;color:var(--cream);font-variant-numeric:tabular-nums}
+  .rel .cap{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--faint);margin-top:4px}
+  .rel .sign{font-family:var(--serif);font-size:clamp(40px,8vw,62px);line-height:1;color:var(--lead);min-width:.8em;text-align:center;padding-bottom:18px}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation. Hidden until the student ASKS -- a reveal that
+     arrived on its own would hand over the noticing before they made it. */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold);background:transparent;border:1px solid rgba(227,179,76,.45);border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  .reveal:hover{border-color:var(--gold);background:var(--gold-soft)}
+  .reveal:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--gold);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--gold);font-size:1.06em}
+
+  /* the card the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:31em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:24px 28px 22px;
+  }
+  .ticket .from{display:block;margin-bottom:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .ticket .big{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.25;color:var(--cream)}
+  .ticket .never{margin-top:12px;font-family:var(--serif);font-size:clamp(17px,2.5vw,21px);line-height:1.5;color:var(--dim)}
+  .ticket .never b{color:var(--gold);font-weight:normal}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:23em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--gold)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:14px 12px 12px;border-radius:8px}
+    .ticktext{font-size:11px}
+    .work{gap:2px 16px;padding:12px 14px}
+    .readout{grid-template-columns:minmax(0,1fr)}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px 16px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM 1/2H &middot; Unit 2</a>
+    <div class="eyebrow">IM 1/2H &middot; Unit 2 &middot; Module 3 &middot; Which Values Are Allowed</div>
+    <h1>Wrong Way <em>Round</em></h1>
+    <p class="dek">Solve an inequality the way you&rsquo;d solve an equation &mdash; same moves, same order &mdash; and you get an answer that looks exactly right. This one looks exactly right. <strong>Don&rsquo;t trust it until a number has checked it.</strong></p>
+    <div class="hint">Test it before you trust it.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — TEST IT ════════ -->
+<section class="act" id="test">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> Test It</div>
+    <h2 class="ask">50&nbsp;GB of data left this month, and you want to keep more than 20&nbsp;GB. How many hours of video can you watch?</h2>
+    <p class="setup">Say an hour of HD video uses 3&nbsp;GB. After <i>h</i> hours you have <span class="math t">50 &minus; 3<i>h</i></span> GB left, so the question is <b class="math t">50 &minus; 3<i>h</i> &gt; 20</b>. Here it is, solved the way you&rsquo;d solve an equation:</p>
+
+    <div class="work" aria-label="The equation-style solution">
+      <span class="ln math">50 &minus; 3<i>h</i> &gt; 20</span><span class="why">the question</span>
+      <span class="ln math">&minus;3<i>h</i> &gt; &minus;30</span><span class="why">subtract 50 from both sides</span>
+      <span class="ln math claim"><i>h</i> &gt; 10</span><span class="why claim">divide both sides by &minus;3</span>
+    </div>
+
+    <p class="setup">More than 10 hours. <b>It looks right. Now test it</b> &mdash; drag <i>h</i> and let go, and the value stays on the line: gold if it keeps you above 20&nbsp;GB, hollow if it doesn&rsquo;t.</p>
+
+    <div class="panel" id="panel1">
+      <p class="needs-js">This line is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to test the answer.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <div class="meter" id="meter1">
+        <div class="kr"><span class="kk">Data left</span><span class="kv math" id="calc1"></span></div>
+        <div class="bar"><div class="fill" id="fill1"></div><div class="mark" style="left:40%"></div><div class="marklbl" style="left:40%">20 GB</div></div>
+      </div>
+      <svg class="chart" id="chart1" role="img" aria-label="A number line of hours from 0 to 16. Above it, the equation-style answer: a ray from an open circle at 10 running right. On it, every value you've tested: gold if it works, hollow if it doesn't."></svg>
+      <div class="dialrow">
+        <div class="kr"><label class="kk" for="h1">Hours of video, <i>h</i></label><span class="kv" id="hv1"></span></div>
+        <input type="range" id="h1" min="0" max="16" step="0.5" value="2" aria-label="h, hours of video">
+      </div>
+      <div class="readout">
+        <div class="cell test" id="cellTest"><div class="ck">Your test</div><div class="cv" id="testv"></div></div>
+        <div class="cell claim"><div class="ck">The answer, <span class="math"><i>h</i> &gt; 10</span>, says</div><div class="cv" id="claimv"></div></div>
+      </div>
+      <p class="verdict" id="verdict1" aria-live="polite"></p>
+    </div>
+
+    <p class="nudge" id="nudge1">Drag the dial. Let go to test the value.</p>
+    <button class="reveal" type="button" data-act="test">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>The answer was backwards. Every value it promised failed your test, and every value it threw out passed. But it wasn&rsquo;t all wrong: 10 really is where the data hits exactly 20&nbsp;GB, and 10 fails either way. The boundary was right. The side was wrong &mdash; which means one of those two steps turned the answer around, and nothing on the page said so.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: a value that makes the inequality true is a <b>solution</b>, and all of them together are the <b>solution set</b> &mdash; here <span class="math t"><i>h</i> &lt; 10</span>, a ray running left from 10. The 10 is the <b>boundary</b>: the answer to <span class="math t">50 &minus; 3<i>h</i> = 20</span>, the equation hiding inside the inequality. The <b>open circle</b> says the boundary itself isn&rsquo;t included, because 20 isn&rsquo;t more than 20. <span class="name">Solving like an equation finds the boundary. One tested number tells you which side of it is yours.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — THE MIRROR ════════ -->
+<section class="act" id="mirror">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> The Mirror</div>
+    <h2 class="ask">Which step turned it around? The suspect: dividing both sides by &minus;3.</h2>
+    <p class="setup">Dividing by &minus;3 is the same as multiplying by <span class="math t">&minus;&#8531;</span>. Try it on something nobody argues with: <b class="math t">3 &lt; 7</b>. Multiply both sides by the same number <i>k</i>, and <b>slide <i>k</i> from 1 down to &minus;1.</b> Watch the two numbers, and the sign between them.</p>
+
+    <div class="panel" id="panel2">
+      <p class="needs-js">This line is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to slide <i>k</i>.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <div class="rel" aria-live="polite">
+        <div class="side"><div class="num" id="a2"></div><div class="cap">3 &times; <i>k</i></div></div>
+        <div class="sign" id="sign2"></div>
+        <div class="side"><div class="num" id="b2"></div><div class="cap">7 &times; <i>k</i></div></div>
+      </div>
+      <svg class="chart" id="chart2" role="img" aria-label="A number line from −8 to 8 with 0 marked. Two points, 3 times k and 7 times k, slide as k changes; faint rings mark where 3 and 7 started."></svg>
+      <div class="dialrow">
+        <div class="kr"><label class="kk" for="k2">Multiply both sides by <i>k</i></label><span class="kv" id="kv2"></span></div>
+        <input type="range" id="k2" min="-1" max="1" step="0.05" value="1" aria-label="k, the multiplier">
+      </div>
+      <p class="verdict" id="verdict2" aria-live="polite"></p>
+    </div>
+
+    <p class="nudge" id="nudge2">Slide the dial down toward &minus;1.</p>
+    <button class="reveal" type="button" data-act="mirror">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Multiplying by a negative number flips the whole number line over 0, like a mirror: whatever was on the left lands on the right. 3 was left of 7; after the flip, &minus;3 is right of &minus;7. Every pair of numbers swaps order &mdash; so an inequality has to swap with them. Dividing by &minus;3 is multiplying by &minus;&#8531;, and it turns <span class="t">&minus;3<i>h</i> &gt; &minus;30</span> into <span class="t"><i>h</i> &lt; 10</span>. That&rsquo;s exactly what your tests found.</p>
+    </div>
+    <p class="notation">The rule, when you&rsquo;re ready for it: when you <b>multiply or divide both sides of an inequality by a negative number, reverse the inequality sign</b> &mdash; &gt; becomes &lt;, &ge; becomes &le;. Adding or subtracting the same number never needs it: that slides the number line, it doesn&rsquo;t flip it. Solved properly, <span class="math t">50 &minus; 3<i>h</i> &gt; 20</span> &rarr; <span class="math t">&minus;3<i>h</i> &gt; &minus;30</span> &rarr; <span class="math t"><i>h</i> &lt; 10</span>. <span class="name">And test one number anyway. It takes ten seconds, and it would have caught this.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THEN — THE CARD, left open ════════ -->
+<section class="act" id="card">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Card</div>
+    <h2 class="ask">One question the page won&rsquo;t answer for you.</h2>
+
+    <div class="ticket">
+      <span class="from">The one number in between</span>
+      <p class="big">At <i>k</i> = 0, the 3 and the 7 landed on the same spot, and 3 &lt; 7 became 0 = 0.</p>
+      <p class="never">So what happens to an inequality if you multiply both sides by zero? <b>And once you have, could anyone get the original back?</b></p>
+    </div>
+
+    <p class="setup">Say what you think &mdash; and what it means for the moves you&rsquo;re allowed to make.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">The algebra finds the boundary. Which side of it is yours is a separate question, and one number <em>answers it in ten seconds</em>.</p>
+    <div class="colophon">IM 1/2H &middot; Unit 2 &middot; Module 3 &middot; <span>Which Values Are Allowed</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD", ROSE = "#E0776B", PANEL = "#101E33";
+  var MINUS = "−";
+
+  function mk(tag, attrs, parent){
+    var e = document.createElementNS(SVGNS, tag);
+    for(var k in attrs) e.setAttribute(k, attrs[k]);
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+  /* numbers with a real minus sign, and no trailing zeros */
+  function num(v, dp){
+    var r = Math.round(v*Math.pow(10, dp))/Math.pow(10, dp);
+    if(Math.abs(r) < 1e-9) r = 0;
+    var s = String(Math.abs(r));
+    return (r < 0 ? MINUS : "") + s;
+  }
+  function fixed(v, dp){
+    var r = Math.round(v*Math.pow(10, dp))/Math.pow(10, dp);
+    if(Math.abs(r) < 1e-9) r = 0;
+    return (r < 0 ? MINUS : "") + Math.abs(r).toFixed(dp);
+  }
+  /* the chart's real width, one unit to one pixel, so labels stay readable
+     on a phone instead of shrinking with the picture */
+  function realWidth(svg){ return Math.max(280, Math.round(svg.getBoundingClientRect().width) || 880); }
+
+  /* ════════ ACT I — test it ════════ */
+  var actI = (function(){
+    var svg = document.getElementById("chart1"), act = document.getElementById("test");
+    var dial = document.getElementById("h1"), verdict = document.getElementById("verdict1");
+    var nudge = document.getElementById("nudge1");
+    var HMAX = 16, W = 880, H = 188, ML = 26, MR = 26, AY = 104;
+    var tested = [];                  /* every h the student has let go on */
+    function X(h){ return ML + h/HMAX*(W-ML-MR); }
+    function left(h){ return 50 - 3*h; }
+    function works(h){ return left(h) > 20; }
+    function claims(h){ return h > 10; }
+
+    function draw(){
+      W = realWidth(svg);
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      var narrow = W < 560, i;
+
+      /* the answer the algebra gave: rose, above the line, in its own words */
+      var cy = 56;
+      mk("line", {x1:X(10)+6, y1:cy, x2:X(HMAX)+8, y2:cy, stroke:ROSE, "stroke-width":3, "stroke-linecap":"round"}, svg);
+      mk("path", {d:"M" + (X(HMAX)+14) + " " + cy + " l-10 -6 l0 12 z", fill:ROSE}, svg);
+      mk("circle", {cx:X(10), cy:cy, r:6, fill:PANEL, stroke:ROSE, "stroke-width":2.4}, svg);
+      mk("text", {"class":"lbl rose halo", x:narrow ? W-MR : X(13), y:cy-16, "text-anchor":narrow ? "end" : "middle"}, svg)
+        .textContent = "the answer says: h > 10";
+
+      /* the line itself */
+      mk("line", {"class":"axis", x1:X(0), y1:AY, x2:X(HMAX), y2:AY}, svg);
+      for(i = 0; i <= HMAX; i++){
+        mk("line", {"class":"tick", x1:X(i), y1:AY-(i%2 ? 3 : 6), x2:X(i), y2:AY+(i%2 ? 3 : 6)}, svg);
+        if(i % 2 === 0) mk("text", {"class":"ticktext", x:X(i), y:AY+24, "text-anchor":"middle"}, svg).textContent = i;
+      }
+      mk("text", {"class":"ticktext", x:X(HMAX), y:AY+40, "text-anchor":"end", opacity:.7}, svg).textContent = "hours";
+
+      /* once revealed: what the tests found, gold, below the line */
+      if(act.classList.contains("revealed")){
+        var gy = AY + 52;
+        mk("line", {x1:X(0), y1:gy, x2:X(10)-6, y2:gy, stroke:GOLD, "stroke-width":3.4, "stroke-linecap":"round"}, svg);
+        mk("circle", {cx:X(10), cy:gy, r:6, fill:PANEL, stroke:GOLD, "stroke-width":2.4}, svg);
+        mk("text", {"class":"lbl gold halo", x:X(0), y:gy+22, "text-anchor":"start"}, svg)
+          .textContent = "what your tests found: h < 10";
+      }
+
+      /* where the dial is now */
+      var h = +dial.value;
+      mk("line", {x1:X(h), y1:AY-22, x2:X(h), y2:AY+10, stroke:CREAM, "stroke-width":1.6, opacity:.55}, svg);
+
+      /* every tested value, on the line */
+      tested.forEach(function(t){
+        if(works(t)) mk("circle", {cx:X(t), cy:AY, r:6.5, fill:GOLD, stroke:PANEL, "stroke-width":1.5}, svg);
+        else mk("circle", {cx:X(t), cy:AY, r:5.5, fill:PANEL, stroke:CREAM, "stroke-width":1.8, opacity:.85}, svg);
+      });
+    }
+
+    function readout(){
+      var h = +dial.value, L = left(h), ok = works(h), says = claims(h);
+      document.getElementById("hv1").textContent = "h = " + num(h, 1) + (h === 1 ? " hour" : " hours");
+      document.getElementById("calc1").innerHTML = "50 &minus; 3(" + num(h, 1) + ") = " + num(L, 1) + " GB";
+      var fill = document.getElementById("fill1");
+      fill.style.width = Math.max(0, L/50*100) + "%";
+      fill.classList.toggle("low", !ok);
+      document.getElementById("cellTest").classList.toggle("works", ok);
+      document.getElementById("testv").innerHTML = ok
+        ? "<span class='yes'>" + num(L, 1) + " GB left &mdash; it works</span>"
+        : "<span class='no'>" + num(L, 1) + " GB left &mdash; it doesn&rsquo;t</span>";
+      document.getElementById("claimv").innerHTML = (says ? "it works" : "it doesn&rsquo;t") +
+        (says !== ok ? "<span class='wrong'>wrong</span>" : "");
+    }
+
+    function test(h){
+      if(tested.indexOf(h) === -1) tested.push(h);
+      var L = left(h);
+      if(h === 10){
+        verdict.innerHTML = "Right at 10: exactly 20&nbsp;GB left. That isn&rsquo;t <i>more</i> than 20, so 10 doesn&rsquo;t work &mdash; and the answer agrees, which is why that circle is open.";
+      } else if(claims(h) && !works(h)){
+        verdict.innerHTML = "The answer says <b><i>h</i> = " + num(h, 1) + "</b> works. It leaves you <b>" + num(L, 1) + "&nbsp;GB</b>.";
+      } else if(!claims(h) && works(h)){
+        verdict.innerHTML = "The answer says <b><i>h</i> = " + num(h, 1) + "</b> doesn&rsquo;t work. It leaves you <b class='g'>" + num(L, 1) + "&nbsp;GB</b>.";
+      }
+      var sawFail = tested.some(function(t){ return t > 10; });
+      var sawWork = tested.some(function(t){ return t < 10; });
+      if(sawFail && sawWork){
+        act.classList.add("touched");
+        verdict.innerHTML += " <span>So far: every value past 10 has failed, and every value under 10 has worked.</span>";
+      } else {
+        nudge.textContent = sawFail || sawWork ? "Now test one on the other side of 10." : "Drag the dial. Let go to test the value.";
+      }
+      draw();
+    }
+
+    dial.addEventListener("input", function(){ readout(); draw(); });
+    dial.addEventListener("change", function(){ test(+dial.value); });
+    svg.addEventListener("click", function(e){
+      var r = svg.getBoundingClientRect(), vx = (e.clientX - r.left)/r.width*W;
+      var h = Math.max(0, Math.min(HMAX, Math.round((vx - ML)/(W-ML-MR)*HMAX*2)/2));
+      dial.value = h; readout(); test(h);
+    });
+    readout(); draw();
+    return { redraw: draw };
+  })();
+
+  /* ════════ ACT II — the mirror ════════ */
+  var actII = (function(){
+    var svg = document.getElementById("chart2"), act = document.getElementById("mirror");
+    var dial = document.getElementById("k2"), verdict = document.getElementById("verdict2");
+    var W = 880, H = 150, ML = 26, MR = 26, AY = 84, R = 8;
+    function X(v){ return ML + (v + R)/(2*R)*(W-ML-MR); }
+
+    function kNow(){ return Math.round(+dial.value*100)/100; }
+    function draw(){
+      W = realWidth(svg);
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      var narrow = W < 560, i, k = kNow(), a = 3*k, b = 7*k;
+
+      /* the mirror: 0, in the colour of the move */
+      mk("line", {x1:X(0), y1:14, x2:X(0), y2:AY+12, stroke:LEAD, "stroke-width":1.4, "stroke-dasharray":"4 5", opacity:.75}, svg);
+      mk("line", {"class":"axis", x1:X(-R), y1:AY, x2:X(R), y2:AY}, svg);
+      for(i = -R; i <= R; i++){
+        mk("line", {"class":"tick", x1:X(i), y1:AY-(i%2 ? 3 : 6), x2:X(i), y2:AY+(i%2 ? 3 : 6)}, svg);
+        if(i % 2 === 0 && !(narrow && i % 4 !== 0))
+          mk("text", {"class":"ticktext" + (i === 0 ? " zero" : ""), x:X(i), y:AY+24, "text-anchor":"middle"}, svg)
+            .textContent = i < 0 ? MINUS + (-i) : String(i);
+      }
+
+      /* where 3 and 7 started */
+      mk("circle", {cx:X(3), cy:AY, r:9, fill:"none", stroke:CREAM, "stroke-width":1, opacity:.25}, svg);
+      mk("circle", {cx:X(7), cy:AY, r:9, fill:"none", stroke:CREAM, "stroke-width":1, opacity:.25}, svg);
+
+      /* the two numbers now. 3k's name above the line, 7k's below, so they
+         never collide as they squeeze through 0 */
+      mk("circle", {cx:X(b), cy:AY, r:7, fill:CREAM, stroke:PANEL, "stroke-width":2}, svg);
+      mk("circle", {cx:X(a), cy:AY, r:7, fill:CREAM, stroke:PANEL, "stroke-width":2}, svg);
+      mk("text", {"class":"lbl cream halo", x:X(a), y:AY-18, "text-anchor":"middle"}, svg).textContent = "3k";
+      mk("text", {"class":"lbl cream halo", x:X(b), y:AY+46, "text-anchor":"middle"}, svg).textContent = "7k";
+    }
+
+    function readout(){
+      var k = kNow(), a = 3*k, b = 7*k;
+      var s = Math.abs(k) < 1e-9 ? "=" : (a < b ? "<" : ">");
+      document.getElementById("kv2").textContent = "k = " + fixed(k, 2);
+      document.getElementById("a2").textContent = num(a, 2);
+      document.getElementById("b2").textContent = num(b, 2);
+      document.getElementById("sign2").textContent = s;
+      if(k === 1) verdict.innerHTML = "3 &lt; 7. Nobody argues.";
+      else if(k > 0) verdict.innerHTML = "Both numbers shrink toward 0 together &mdash; but 3<i>k</i> is still on the left, so still <b>3<i>k</i> &lt; 7<i>k</i></b>.";
+      else if(k === 0) verdict.innerHTML = "Both land on 0. For this one moment, <b>3<i>k</i> = 7<i>k</i></b>.";
+      else verdict.innerHTML = "They&rsquo;ve come out the other side of 0 &mdash; swapped. Now <b class='l'>3<i>k</i> &gt; 7<i>k</i></b>" +
+        (k === -1 ? ": &minus;3 &gt; &minus;7." : ".");
+      if(k <= -0.25) act.classList.add("touched");
+    }
+    dial.addEventListener("input", function(){ readout(); draw(); });
+    readout(); draw();
+    return { redraw: draw };
+  })();
+
+  /* both charts are drawn at their real width, so a new width means a redraw */
+  var rz = 0;
+  window.addEventListener("resize", function(){
+    cancelAnimationFrame(rz);
+    rz = requestAnimationFrame(function(){ actI.redraw(); actII.redraw(); });
+  });
+
+  /* ── the reveals ───────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(b){
+    b.addEventListener("click", function(){
+      document.getElementById(b.dataset.act).classList.add("revealed");
+      if(b.dataset.act === "test") actI.redraw();
+    });
+  });
+
+  /* ── the sky: one boundary, a claim running right, the truth running left.
+     Kept to the right of the headline on a laptop, and cropped clean off a
+     phone, where the header is all text. ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380, i;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    var y = 200, x0 = 770, x1 = 1170, bx = 1020;
+    mk("line", {x1:x0, y1:y, x2:x1, y2:y, stroke:"#3A5272", "stroke-width":1.4, opacity:.8}, svg);
+    for(i = 0; i <= 16; i++){
+      var x = x0 + i*(x1-x0)/16;
+      mk("line", {x1:x, y1:y-(i%2 ? 4 : 8), x2:x, y2:y+(i%2 ? 4 : 8), stroke:"#3A5272", "stroke-width":1}, svg);
+    }
+    mk("line", {x1:bx+8, y1:y-58, x2:x1+10, y2:y-58, stroke:ROSE, "stroke-width":2, opacity:.35, "stroke-dasharray":"6 7"}, svg);
+    mk("circle", {cx:bx, cy:y-58, r:7, fill:"none", stroke:ROSE, "stroke-width":1.8, opacity:.35}, svg);
+    mk("line", {x1:x0, y1:y+46, x2:bx-8, y2:y+46, stroke:GOLD, "stroke-width":3, opacity:.5, "stroke-linecap":"round"}, svg);
+    mk("circle", {cx:bx, cy:y+46, r:7, fill:"none", stroke:GOLD, "stroke-width":2, opacity:.6}, svg);
+    for(i = 0; i < 20; i++){
+      var t = i*0.5, xx = x0 + t*(x1-x0)/16;
+      mk("circle", {cx:xx, cy:y, r:3.4, fill:GOLD, opacity:.5}, svg);
+    }
+  })();
+})();
+</script>

@@ -1,0 +1,682 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A phone's whole day is hidden. You get six questions, written in function notation, to find when its battery ran lowest. Then someone swears their phone had the same day, and agrees at all six of your times.">
+<title>Six Questions · Function Notation</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the note stays, instead of the
+     chart sitting there as a silent empty box. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     SIX QUESTIONS — IM 1/2H Unit 2, Module 1, Function Notation
+
+     Built in the explore grammar (IM3 unit-2 explore, Pre-Calc unit-1 and
+     unit-2 explore, IM 1/2H unit-1 and unit-2 explore): one move per act,
+     and the name only after the student has seen the thing -- and asked.
+     NB: never write a path glob ending in star-slash inside a CSS comment;
+     it closes the comment early and the recovery eats the :root block.
+
+     WHY THE GRAPH IS HIDDEN. This module's Pages already run statements
+     and graphs in both directions: the drone compares two values read off
+     a graph, the bathtub matches P(4) = 10 to a sentence and draws the four
+     points, the dog writes statements from a graph, and the mastery
+     interprets h(0) = 0, h(1) < h(7), h(10) = h(22), h(20) > h(40) and
+     draws. With the graph visible, notation is a caption on a picture you
+     can already see. Hide the graph and notation becomes the ONLY way to
+     learn anything: B(t) is a question you ask, and the function answers
+     it. That is what the notation is for, and it is the one thing none of
+     those Pages can do.
+
+       Act I, The Low Point: six questions to find when a phone ran lowest.
+       Each answer plants a point and writes the statement down. After the
+       sixth, the day draws itself -- and every answer sits on it.
+       Act II, Same Six Answers: a second phone agrees with the first at all
+       six of the student's times. The student asks it anything, and finds
+       where it isn't the same day. Two functions that agree at every input
+       you tried can still be different functions.
+
+     WHAT IT DOESN'T SPEND. No drone, bathtub, dog or Tyler. No comparison
+     statements (h(1) < h(7) is the mastery's). No drawing a graph from a
+     list of statements (the bathtub's and the mastery's). Act II's point
+     is stated about functions, never about sketching.
+
+     Two colours, each meaning one thing:
+       gold  — your phone, B, and its day once it shows itself
+       lead  — the other phone, D, and every answer it gives
+     Your six questions, and the points they plant, are cream.
+
+     Every number checked in Python first. B is piecewise linear through
+     (0,100) (2.5,80) (5,58) (6,80) (8,57) (10,34) (12.5,11) (14,72)
+     (16,58), t in hours after 7 a.m. -- charging and draining are close to
+     linear on a real phone. Its lowest point at any half hour is 11% at
+     t = 12.5, 7:30 p.m., and nowhere else; six evenly spaced questions
+     (0, 3, 6, 9, 12, 15) find 16% at best. The lunch charge peaks at 80%
+     at t = 6, between the answers at 5 and 7. D is B plus a single smooth
+     bump over the widest gap between the student's six times, so it
+     matches B exactly at every one of them.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text, and the questions you ask */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* your phone, B */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* the other phone, D */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .t{white-space:nowrap}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--gold);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  /* panel + chart */
+  .panel{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px 16px}
+  .panel svg.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none;cursor:crosshair}
+  .axis{stroke:#3A5272;stroke-width:1.4}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--faint);font-family:var(--mono);font-size:12px}
+  .axisname{fill:var(--dim);font-family:var(--serif);font-style:italic;font-size:15px}
+  .axisname.gold{fill:var(--gold)}
+  .hidden-note{fill:var(--faint);font-family:var(--mono);font-size:12.5px;letter-spacing:.2em;text-transform:uppercase}
+  /* a label that sits over grid and stems: a halo the colour of the panel */
+  .halo{paint-order:stroke;stroke:var(--panel);stroke-width:5px;stroke-linejoin:round}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .reveal-curve{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s ease-out forwards}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* the question row */
+  .asker{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:12px}
+  .asker .dial{flex:1 1 300px;min-width:0}
+  .asker .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .asker .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .asker .kv{font-family:var(--mono);font-size:14px;color:var(--dim);font-variant-numeric:tabular-nums}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:30px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--night);border:2px solid var(--cream);margin-top:-9px;
+    box-shadow:0 0 0 4px rgba(242,235,221,.12);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;background:var(--night);border:2px solid var(--cream);
+    box-shadow:0 0 0 4px rgba(242,235,221,.12);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--cream);outline-offset:6px;border-radius:4px}
+  .askbtn{
+    font-family:var(--serif);font-size:21px;letter-spacing:0;text-transform:none;
+    color:var(--night);background:var(--cream);border:0;border-radius:8px;padding:9px 20px;cursor:pointer;
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .askbtn i{font-style:italic}
+  .askbtn:hover{filter:brightness(.94)}
+  .askbtn:disabled{background:var(--line);color:var(--faint);cursor:default;filter:none}
+  .askbtn:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
+  #panel2 .askbtn{background:var(--lead)}
+  .left{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .left b{color:var(--cream);font-weight:normal;font-size:15px}
+
+  /* the ledger -- every statement you've made */
+  .ledger-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:18px 0 8px}
+  .ledger{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .ledger li{
+    display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:7px 12px;
+  }
+  .ledger .st{font-family:var(--serif);font-size:20px;color:var(--cream);font-variant-numeric:tabular-nums;min-width:8.5em}
+  .ledger .st .fn{font-style:italic}
+  .ledger .en{font-size:15px;color:var(--dim)}
+  .ledger li.new{animation:filed 1.2s ease both}
+  @keyframes filed{0%{border-color:var(--cream);background:rgba(242,235,221,.08)}100%{border-color:var(--line);background:var(--panel-2)}}
+  .ledger li.same .st{color:var(--dim)}
+  .ledger li.diff{border-color:rgba(157,178,255,.5)}
+  .ledger li.diff .st{color:var(--lead)}
+  .ledger .none{font-family:var(--serif);font-style:italic;color:var(--faint);font-size:15px;padding:4px 2px}
+
+  .verdict{
+    margin-top:14px;min-height:1.6em;font-family:var(--serif);font-size:clamp(17px,2.4vw,20px);line-height:1.5;color:var(--dim);
+  }
+  .verdict b{color:var(--gold);font-weight:normal}
+  .verdict .d{color:var(--lead)}
+
+  /* act II's lock, until act I is done */
+  .lock{
+    display:none;position:absolute;inset:0;z-index:3;border-radius:10px;
+    background:rgba(11,21,38,.86);align-items:center;justify-content:center;text-align:center;padding:24px;
+  }
+  .lock.on{display:flex}
+  .lock p{font-family:var(--serif);font-size:19px;color:var(--cream);max-width:24em;margin-bottom:16px}
+  .lock button{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:7px;padding:10px 16px;cursor:pointer;
+  }
+  .lock button:hover{color:var(--cream);border-color:var(--dim)}
+  .lock button:focus-visible{outline:2px solid var(--lead);outline-offset:3px}
+  html:not(.js) .lock{display:none!important}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation. Hidden until the student ASKS -- a reveal that
+     arrived on its own would hand over the noticing before they made it. */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold);background:transparent;border:1px solid rgba(227,179,76,.45);border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  .reveal:hover{border-color:var(--gold);background:var(--gold-soft)}
+  .reveal:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--gold);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--gold);font-size:1.06em}
+
+  /* the card the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:31em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:24px 28px 22px;
+  }
+  .ticket .from{display:block;margin-bottom:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .ticket .big{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.25;color:var(--cream)}
+  .ticket .never{margin-top:12px;font-family:var(--serif);font-size:clamp(17px,2.5vw,21px);line-height:1.5;color:var(--dim)}
+  .ticket .never b{color:var(--gold);font-weight:normal}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:23em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--gold)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:14px 12px 12px;border-radius:8px}
+    .ticktext{font-size:11px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px 16px}
+    .ledger .st{min-width:0}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM 1/2H &middot; Unit 2</a>
+    <div class="eyebrow">IM 1/2H &middot; Unit 2 &middot; Module 1 &middot; Function Notation</div>
+    <h1>Six <em>Questions</em></h1>
+    <p class="dek">Somewhere on this page is a phone&rsquo;s whole day &mdash; every minute of its battery, from breakfast to bed. You can&rsquo;t see it. You can only name a moment and ask, and it answers with a number. <strong>Here the graph is hidden, so asking is the only way to see anything.</strong></p>
+    <div class="hint">Ask well. You only get six.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE LOW POINT ════════ -->
+<section class="act" id="low">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Low Point</div>
+    <h2 class="ask">A phone, from 7 a.m. to 11 p.m. When did its battery run lowest &mdash; and how low? You get six questions.</h2>
+    <p class="setup">Each question is <b><i>B</i>(<i>t</i>)</b> for a <b><i>t</i></b> you choose, where <i>t</i> counts hours after 7 a.m. So <i>B</i>(3) asks for the battery at 10 a.m. The page answers, plants the point on the chart, and writes the statement down. <b>Spend them well &mdash; once all six are gone, the day shows itself.</b></p>
+
+    <div class="panel" id="panel1">
+      <p class="needs-js">This chart is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to ask it anything.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart1" role="img" aria-label="Battery percentage against time of day, from 7 a.m. to 11 p.m. The curve is hidden; each question you ask plants one point."></svg>
+      <div class="asker">
+        <div class="dial">
+          <div class="kr"><label class="kk" for="t1">Asking about</label><span class="kv" id="tv1"></span></div>
+          <input type="range" id="t1" min="0" max="16" step="0.5" value="4" aria-label="t, hours after 7 a.m.">
+        </div>
+        <button type="button" class="askbtn" id="ask1"></button>
+        <span class="left" id="left1">Questions left <b>6</b></span>
+      </div>
+      <div class="ledger-k">What you asked, and what it said</div>
+      <ol class="ledger" id="ledger1"><li class="none">Nothing yet. Pick a time and ask &mdash; or click the chart.</li></ol>
+      <p class="verdict" id="verdict1" aria-live="polite"></p>
+    </div>
+
+    <p class="nudge" id="nudge1">Six questions. Ask the first one.</p>
+    <button class="reveal" type="button" data-act="low">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every question you asked put one point on the chart &mdash; and when the day showed itself, every one of your points was sitting on it. That&rsquo;s not luck. The curve is just the answer to every question you <em>could</em> have asked, all at once: a point for every moment. You asked about six moments. Wherever the low point or the lunchtime charge fell between two of your questions, you had no way to see it.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: <i>B</i> is the <b>function</b> &mdash; the rule that takes a time and gives back a battery level. <i>t</i> is the <b>input</b>, and <span class="math t"><i>B</i>(<i>t</i>)</span>, read &ldquo;<i>B</i> of <i>t</i>,&rdquo; is the <b>output</b>. So <span class="math t"><i>B</i>(12.5) = 11</span> says: put in 12.5, get out 11. It is not <i>B</i> times 12.5 &mdash; the parentheses hold the question. <span class="name">And every statement <i>B</i>(<i>a</i>) = <i>b</i> is one point, (<i>a</i>, <i>b</i>), on the graph. Asking a function a question and reading its graph are the same act.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — SAME SIX ANSWERS ════════ -->
+<section class="act" id="same">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> Same Six Answers</div>
+    <h2 class="ask">Dani swears her phone had the exact same day as yours. At all six of your times, she&rsquo;s right. Is it the same day?</h2>
+    <p class="setup">Her phone is <b><i>D</i></b>. At every one of your six times, <i>D</i> gave the same answer <i>B</i> did &mdash; they&rsquo;re the rings on the chart. <b>Ask <i>D</i> anything you like, as many times as you like, and find out whether she&rsquo;s right.</b> Your phone&rsquo;s day is drawn in gold.</p>
+
+    <div class="panel" id="panel2">
+      <div class="lock on" id="lock2">
+        <div>
+          <p>Ask your six questions in Act I first &mdash; this act uses them.</p>
+          <button type="button" id="skip2">Skip ahead &mdash; ask six for me</button>
+        </div>
+      </div>
+      <p class="needs-js">This chart is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to question Dani&rsquo;s phone.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="chart2" role="img" aria-label="Your phone's day in gold, the six times the two phones agree, and the answers Dani's phone gives to your questions."></svg>
+      <div class="asker">
+        <div class="dial">
+          <div class="kr"><label class="kk" for="t2">Asking about</label><span class="kv" id="tv2"></span></div>
+          <input type="range" id="t2" min="0" max="16" step="0.5" value="8" aria-label="t, hours after 7 a.m.">
+        </div>
+        <button type="button" class="askbtn" id="ask2"></button>
+      </div>
+      <div class="ledger-k">What Dani&rsquo;s phone said</div>
+      <ol class="ledger" id="ledger2"><li class="none">Nothing yet.</li></ol>
+      <p class="verdict" id="verdict2" aria-live="polite"></p>
+    </div>
+
+    <p class="nudge" id="nudge2">Ask Dani&rsquo;s phone a question.</p>
+    <button class="reveal" type="button" data-act="same">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Dani&rsquo;s phone agreed with yours at every one of your six times, and it still had a different day. Six matching answers pinned down six matching points &mdash; and said nothing at all about the hours in between, which is where hers went its own way. Two functions can give the same output at every input you tried and still not be the same function.</p>
+    </div>
+    <p class="notation">The name: two functions are <b>equal</b> only when they give the same output for <b>every</b> input &mdash; every time of day, not six of them. <span class="math t"><i>B</i>(<i>t</i>) = <i>D</i>(<i>t</i>)</span> at your six times was true. <i>B</i> = <i>D</i> never was. <span class="name">A list of statements about a function tells you exactly what it says, point by point, and nothing about the places it doesn&rsquo;t mention.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THEN — THE CARD, left open ════════ -->
+<section class="act" id="card">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Card</div>
+    <h2 class="ask">One question the page won&rsquo;t answer for you.</h2>
+
+    <div class="ticket">
+      <span class="from">How many is enough?</span>
+      <p class="big">Suppose both phones drained in a perfectly straight line.</p>
+      <p class="never">How many matching answers would it take to prove they had the same day? <b>And for real phones, is any number of questions ever enough?</b></p>
+    </div>
+
+    <p class="setup">Say what you think &mdash; and what it is about a straight line that makes it different.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">A function answers every question you could ever ask it, and its graph is all of those answers at once. Six questions get you six points. <em>The day</em> happens in between.</p>
+    <div class="colophon">IM 1/2H &middot; Unit 2 &middot; Module 1 &middot; <span>Function Notation</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD";
+  var TMAX = 16, MAXQ = 6;
+
+  /* ── your phone's day. Verified in Python; see the header comment. ── */
+  var K = [[0,100],[2.5,80],[5,58],[6,80],[8,57],[10,34],[12.5,11],[14,72],[16,58]];
+  function B(t){
+    for(var i = 0; i < K.length - 1; i++){
+      var a = K[i], b = K[i+1];
+      if(t >= a[0] && t <= b[0]) return a[1] + (b[1]-a[1])*(t-a[0])/(b[0]-a[0]);
+    }
+    return K[K.length-1][1];
+  }
+  var LOW_T = 12.5, LOW_V = 11;
+
+  function clock(t){
+    var m = Math.round(420 + t*60), h = Math.floor(m/60), mm = m % 60;
+    if(h === 12 && mm === 0) return "noon";
+    var ap = h < 12 ? "a.m." : "p.m.", hh = h > 12 ? h - 12 : h;
+    return hh + ":" + (mm < 10 ? "0" : "") + mm + " " + ap;
+  }
+  /* a clock time that ends a sentence: "p.m." already carries the period */
+  function clockEnd(t){ var c = clock(t); return c.slice(-1) === "." ? c : c + "."; }
+  function tstr(t){ return (t % 1 === 0) ? String(t) : t.toFixed(1); }
+  function pct(v){ return Math.round(v); }
+
+  function mk(tag, attrs, parent){
+    var e = document.createElementNS(SVGNS, tag);
+    for(var k in attrs) e.setAttribute(k, attrs[k]);
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+
+  /* ── the frame: hours after 7 a.m. across, battery % up ───
+     Drawn at the chart's real width, one unit to one pixel, so the labels
+     stay readable on a phone instead of shrinking with the picture. */
+  var W = 880, H = 430, ML = 56, MR = 22, MT = 16, MB = 62, STEP = 2, NARROW = false;
+  function X(t){ return ML + t/TMAX*(W-ML-MR); }
+  function Y(v){ return H - MB - v/100*(H-MT-MB); }
+  var CLOCK = ["7a","9a","11a","1p","3p","5p","7p","9p","11p"];
+  function size(svg){
+    W = Math.max(280, Math.round(svg.getBoundingClientRect().width) || 880);
+    NARROW = W < 560;
+    H = Math.round(Math.min(430, Math.max(290, 0.49*W + 150)));
+    ML = NARROW ? 44 : 56; MR = NARROW ? 14 : 22; STEP = NARROW ? 4 : 2;
+  }
+  function frame(svg){
+    size(svg);
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var i;
+    for(i = 0; i <= 100; i += 25){
+      mk("line", {"class":"gridline", x1:ML, y1:Y(i), x2:W-MR, y2:Y(i)}, svg);
+      mk("text", {"class":"ticktext", x:ML-9, y:Y(i)+4, "text-anchor":"end"}, svg).textContent = i + "%";
+    }
+    for(i = 0; i <= TMAX; i += STEP){
+      mk("line", {"class":"gridline", x1:X(i), y1:MT, x2:X(i), y2:H-MB}, svg);
+      mk("text", {"class":"ticktext", x:X(i), y:H-MB+19, "text-anchor":"middle"}, svg).textContent = CLOCK[i/2];
+      mk("text", {"class":"ticktext", x:X(i), y:H-MB+35, "text-anchor":"middle", opacity:.6}, svg).textContent = "t=" + i;
+    }
+    mk("line", {"class":"axis", x1:ML, y1:H-MB, x2:W-MR, y2:H-MB}, svg);
+    mk("line", {"class":"axis", x1:ML, y1:MT, x2:ML, y2:H-MB}, svg);
+    return svg;
+  }
+  function curvePath(fn){
+    var d = "", t;
+    for(t = 0; t <= TMAX + 1e-9; t += 0.05) d += (t === 0 ? "M" : "L") + X(t).toFixed(1) + " " + Y(fn(t)).toFixed(1);
+    return d;
+  }
+  /* the t under a click, snapped to the half hour -- the same grid the slider uses */
+  function tFromClick(svg, e){
+    var r = svg.getBoundingClientRect();
+    var vx = (e.clientX - r.left)/r.width*W;
+    var t = (vx - ML)/(W-ML-MR)*TMAX;
+    return Math.max(0, Math.min(TMAX, Math.round(t*2)/2));
+  }
+
+  /* ════════ ACT I — six questions ════════ */
+  var asked = [];                       /* shared with act II once it's done */
+  var actI = (function(){
+    var svg = document.getElementById("chart1"), act = document.getElementById("low");
+    var dial = document.getElementById("t1"), btn = document.getElementById("ask1");
+    var ledger = document.getElementById("ledger1"), verdict = document.getElementById("verdict1");
+    var left = document.getElementById("left1"), nudge = document.getElementById("nudge1");
+    var revealed = false, drawnOnce = false;
+
+    function draw(){
+      frame(svg);
+      if(revealed){
+        /* the curve draws itself once, the moment the sixth answer lands;
+           every redraw after that just shows it */
+        mk("path", {"class":drawnOnce ? "" : "reveal-curve", d:curvePath(B), fill:"none", stroke:GOLD, "stroke-width":2.8,
+          "stroke-linejoin":"round", pathLength:1}, svg);
+        drawnOnce = true;
+        mk("circle", {cx:X(LOW_T), cy:Y(LOW_V), r:11, fill:"none", stroke:GOLD, "stroke-width":1.3, opacity:.6}, svg);
+        /* under the V, ending just past it -- the curve is nowhere near */
+        mk("text", {"class":"axisname halo gold", x:X(LOW_T)+14, y:Y(LOW_V)+30, "text-anchor":"end"}, svg)
+          .textContent = "lowest: 11% at 7:30 p.m.";
+      } else if(!asked.length){
+        var note = mk("text", {"class":"hidden-note halo", x:(ML+W-MR)/2, y:(MT+H-MB)/2, "text-anchor":"middle"}, svg);
+        if(NARROW){
+          mk("tspan", {x:(ML+W-MR)/2, dy:"-0.4em"}, note).textContent = "the day is hidden";
+          mk("tspan", {x:(ML+W-MR)/2, dy:"1.6em"}, note).textContent = "ask it something";
+        } else note.textContent = "the day is hidden — ask it something";
+      }
+      var t = +dial.value;
+      if(!revealed) mk("line", {x1:X(t), y1:MT, x2:X(t), y2:H-MB, stroke:CREAM, "stroke-width":1, opacity:.22,
+        "stroke-dasharray":"4 5"}, svg);
+      asked.forEach(function(a){
+        /* the stem says "you asked here"; once the day shows, the dot on
+           the curve says it better */
+        if(!revealed) mk("line", {x1:X(a), y1:H-MB, x2:X(a), y2:Y(B(a)), stroke:CREAM, "stroke-width":1, opacity:.25}, svg);
+        mk("circle", {cx:X(a), cy:Y(B(a)), r:6, fill:CREAM, stroke:"#0B1526", "stroke-width":2}, svg);
+      });
+    }
+    function labels(){
+      var t = +dial.value;
+      document.getElementById("tv1").textContent = "t = " + tstr(t) + " · " + clock(t);
+      btn.innerHTML = "Ask <i>B</i>(" + tstr(t) + ")";
+      btn.disabled = asked.length >= MAXQ;
+      left.innerHTML = "Questions left <b>" + (MAXQ - asked.length) + "</b>";
+    }
+    function ask(t){
+      if(asked.length >= MAXQ) return;
+      if(asked.indexOf(t) !== -1){
+        verdict.innerHTML = "You already asked about " + clock(t) + " &mdash; that one doesn&rsquo;t cost you a question.";
+        return;
+      }
+      asked.push(t);
+      var v = pct(B(t));
+      if(ledger.querySelector(".none")) ledger.innerHTML = "";
+      var li = document.createElement("li");
+      li.className = "new";
+      li.innerHTML = "<span class='st math'><span class='fn'>B</span>(" + tstr(t) + ") = " + v + "</span>" +
+        "<span class='en'>At " + clock(t) + ", the battery was at " + v + "%.</span>";
+      ledger.appendChild(li);
+      if(asked.length >= MAXQ) finish();
+      else {
+        verdict.innerHTML = "";
+        nudge.textContent = (MAXQ - asked.length) + " left. Where would the next one tell you the most?";
+      }
+      labels(); draw();
+    }
+    function finish(){
+      revealed = true;
+      dial.disabled = true;                /* no questions left to aim */
+      var best = asked.reduce(function(m, a){ return B(a) < B(m) ? a : m; }, asked[0]);
+      var hit = asked.indexOf(LOW_T) !== -1;
+      verdict.innerHTML = hit
+        ? "The day shows itself. You found it: <b><i>B</i>(12.5) = 11</b> &mdash; at 7:30 p.m. the battery hit its lowest, 11%."
+        : "The day shows itself. The real low was <b><i>B</i>(12.5) = 11</b>, at 7:30 p.m. Your lowest answer was <i>B</i>(" +
+          tstr(best) + ") = " + pct(B(best)) + ", at " + clockEnd(best);
+      act.classList.add("touched");
+      actII.unlock(asked.slice());
+    }
+    dial.addEventListener("input", function(){ labels(); draw(); });
+    btn.addEventListener("click", function(){ ask(+dial.value); });
+    svg.addEventListener("click", function(e){
+      if(revealed) return;
+      var t = tFromClick(svg, e); dial.value = t; ask(t);
+    });
+    labels(); draw();
+    return {
+      askAll: function(list){ list.forEach(function(t){ dial.value = t; ask(t); }); },
+      redraw: draw
+    };
+  })();
+
+  /* ════════ ACT II — same six answers ════════ */
+  var actII = (function(){
+    var svg = document.getElementById("chart2"), act = document.getElementById("same");
+    var dial = document.getElementById("t2"), btn = document.getElementById("ask2");
+    var ledger = document.getElementById("ledger2"), verdict = document.getElementById("verdict2");
+    var nudge = document.getElementById("nudge2"), lock = document.getElementById("lock2");
+    var shared = [], D = null, probes = [], caught = false, open = false;
+
+    /* Dani's day: yours, plus one smooth bump over the widest gap between
+       the six shared times. The bump is zero at every shared time, so the
+       two phones agree exactly where the student looked -- and only there
+       is that guaranteed. Edge gaps get half a bump, free at the boundary. */
+    function build(times){
+      shared = times.slice().sort(function(a,b){ return a - b; });
+      var gaps = [[0, shared[0], "left"]], i;
+      for(i = 0; i < shared.length - 1; i++) gaps.push([shared[i], shared[i+1], "mid"]);
+      gaps.push([shared[shared.length-1], TMAX, "right"]);
+      var g = gaps.reduce(function(m, x){ return (x[1]-x[0]) > (m[1]-m[0]) ? x : m; }, gaps[0]);
+      function shape(t){
+        if(t < g[0] || t > g[1] || g[1] - g[0] < 1e-9) return 0;
+        var s;
+        if(g[2] === "mid")  s = Math.sin(Math.PI*(t - g[0])/(g[1] - g[0]));
+        else if(g[2] === "left")  s = Math.sin(Math.PI/2*(g[1] - t)/(g[1] - g[0]));
+        else s = Math.sin(Math.PI/2*(t - g[0])/(g[1] - g[0]));
+        return s*s;
+      }
+      /* the biggest bump, up or down, that keeps her battery between 0 and
+         100 the whole way -- capped at 35 points so it reads as a different
+         day, not a different phone */
+      var roomUp = 35, roomDown = 35, t, s;
+      for(t = g[0]; t <= g[1] + 1e-9; t += 0.05){
+        s = shape(t);
+        if(s > 1e-6){ roomUp = Math.min(roomUp, (100 - B(t))/s); roomDown = Math.min(roomDown, B(t)/s); }
+      }
+      var A = roomUp >= roomDown ? roomUp : -roomDown;
+      D = function(t){ return Math.max(0, Math.min(100, B(t) + A*shape(t))); };
+    }
+    function draw(){
+      frame(svg);
+      mk("path", {d:curvePath(B), fill:"none", stroke:GOLD, "stroke-width":2.6, "stroke-linejoin":"round", opacity:.9}, svg);
+      if(act.classList.contains("revealed") && D)
+        mk("path", {d:curvePath(D), fill:"none", stroke:LEAD, "stroke-width":2.4, "stroke-dasharray":"7 6",
+          "stroke-linejoin":"round"}, svg);
+      shared.forEach(function(a){
+        mk("circle", {cx:X(a), cy:Y(B(a)), r:8, fill:"none", stroke:CREAM, "stroke-width":1.8}, svg);
+      });
+      var t = +dial.value;
+      if(open) mk("line", {x1:X(t), y1:MT, x2:X(t), y2:H-MB, stroke:LEAD, "stroke-width":1, opacity:.25,
+        "stroke-dasharray":"4 5"}, svg);
+      probes.forEach(function(a){
+        var same = pct(D(a)) === pct(B(a));
+        if(!same) mk("line", {x1:X(a), y1:Y(B(a)), x2:X(a), y2:Y(D(a)), stroke:LEAD, "stroke-width":1.6, opacity:.6}, svg);
+        mk("circle", {cx:X(a), cy:Y(D(a)), r:5.5, fill:LEAD, stroke:"#0B1526", "stroke-width":2}, svg);
+      });
+    }
+    function labels(){
+      var t = +dial.value;
+      document.getElementById("tv2").textContent = "t = " + tstr(t) + " · " + clock(t);
+      btn.innerHTML = "Ask <i>D</i>(" + tstr(t) + ")";
+      btn.disabled = !open;
+    }
+    function ask(t){
+      if(!open) return;
+      if(probes.indexOf(t) === -1) probes.push(t);
+      var d = pct(D(t)), b = pct(B(t)), same = d === b, isShared = shared.indexOf(t) !== -1;
+      if(ledger.querySelector(".none")) ledger.innerHTML = "";
+      var li = document.createElement("li");
+      li.className = "new " + (same ? "same" : "diff");
+      li.innerHTML = "<span class='st math'><span class='fn'>D</span>(" + tstr(t) + ") = " + d + "</span>" +
+        "<span class='en'>" + (same
+          ? "Same as <i>B</i>(" + tstr(t) + ") = " + b + (isShared ? " &mdash; one of your six." : ".")
+          : "But <i>B</i>(" + tstr(t) + ") = " + b + ". At " + clock(t) + ", the phones disagree.") + "</span>";
+      ledger.insertBefore(li, ledger.firstChild);
+      while(ledger.children.length > 7) ledger.removeChild(ledger.lastChild);
+      if(!same){
+        caught = true;
+        verdict.innerHTML = "<span class='d'>Caught it.</span> Same six answers, different day &mdash; at " + clock(t) +
+          " Dani&rsquo;s phone was at " + d + "% and yours was at " + b + "%.";
+        act.classList.add("touched");
+      } else if(!caught){
+        verdict.innerHTML = "Still agreeing. " + (isShared
+          ? "Of course &mdash; that&rsquo;s one of the six times you already knew about."
+          : "Try somewhere you know less about.");
+        nudge.textContent = "Where are you least sure what happened?";
+      }
+      labels(); draw();
+    }
+    dial.addEventListener("input", function(){ labels(); draw(); });
+    btn.addEventListener("click", function(){ ask(+dial.value); });
+    svg.addEventListener("click", function(e){ var t = tFromClick(svg, e); dial.value = t; ask(t); });
+    document.getElementById("skip2").addEventListener("click", function(){
+      actI.askAll([0, 3, 6, 9, 12, 15].filter(function(t){ return asked.indexOf(t) === -1; }).slice(0, MAXQ - asked.length));
+    });
+    labels(); draw();
+    return {
+      unlock: function(times){ build(times); open = true; lock.classList.remove("on"); labels(); draw(); },
+      redraw: draw
+    };
+  })();
+
+  /* both charts are drawn at their real width, so a new width means a redraw */
+  var rz = 0;
+  window.addEventListener("resize", function(){
+    cancelAnimationFrame(rz);
+    rz = requestAnimationFrame(function(){ actI.redraw(); actII.redraw(); });
+  });
+
+  /* ── the reveals ───────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(b){
+    b.addEventListener("click", function(){
+      document.getElementById(b.dataset.act).classList.add("revealed");
+      if(b.dataset.act === "same") actII.redraw();
+    });
+  });
+
+  /* ── the sky: six points, and the curve between them left out.
+     Kept to the right of the headline on a laptop, and cropped clean off a
+     phone, where the header is all text. ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380, i;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    for(i = 1; i < 7; i++) mk("line", {x1:0, y1:h - i*54, x2:w, y2:h - i*54, stroke:"#223650", "stroke-width":1, opacity:.5}, svg);
+    var pts = [[760,90],[824,150],[888,120],[952,230],[1016,280],[1080,170]];
+    pts.forEach(function(p){
+      mk("line", {x1:p[0], y1:340, x2:p[0], y2:p[1], stroke:CREAM, "stroke-width":1, opacity:.14}, svg);
+      mk("circle", {cx:p[0], cy:p[1], r:5, fill:CREAM, opacity:.38}, svg);
+    });
+    mk("path", {d:"M760 90 L792 70 L824 150 L850 60 L888 120 L926 250 L952 230 L990 300 L1016 280 L1050 120 L1080 170",
+      fill:"none", stroke:GOLD, "stroke-width":1.6, opacity:.16, "stroke-dasharray":"3 7"}, svg);
+  })();
+})();
+</script>
