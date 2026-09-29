@@ -1,0 +1,748 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The old rule was a week’s wages for a month’s rent. Pick a real Anaheim job and a real Anaheim rent and see how many weeks of work it takes now, what the rent asks you to earn, and which of twelve lives the numbers let in.">
+<title>A Week’s Wages</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" notes below never flash. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     A WEEK'S WAGES — the trailer for IM 1/2H Unit 2, Can You Afford to
+     Live Here? Cut from the finished unit: Modules 1–4, the four
+     Applications and the Case.
+
+     Same night room as The Crossover and The Shape of Money. The unit's
+     thesis (Notion, the Units row): "The answer to an affordability
+     question is not yes or no — it is the set of lives in which the
+     answer is yes." So the page is built on one cast: FOUR JOBS x THREE
+     PLACES = TWELVE LIVES, the same twelve in every act.
+       Act I, The Old Rule: one life at a time, rent measured in weeks of
+       work on a calendar of the month.
+       Act II, The Rule, Backwards: one rent at a time, turned into the
+       least wage that works -- a ray on the wage line.
+       Act III, Twelve Lives: every life at once, under one line you can
+       tilt with the hours and the percentage. The set of lives.
+
+     Colour is the verdict, never the job or the place:
+       gold  — inside the 30% line: rent that fits, wages that clear it,
+               lives that work
+       rose  — past the line. A state, always with its own words.
+     The line itself, and every marker, is cream.
+
+     Every figure is the unit's own, from case/sources.md (checked 11 Sep
+     2026), and every derived number was checked in Python first:
+       rents   $1,618 half a 2BR, $3,236 a 2BR (HUD FMR FY2026, the metro);
+               $2,690 a studio (HUD Small Area FMR, Anaheim, FY2026)
+       wages   $16.90 CA minimum; $21.13 Anaheim Measure L; $30.79 MIT
+               living wage, one adult; $37.15 BLS mean, all jobs, May 2025
+       month   52/12 weeks = 21 2/3 weekdays; 30% of it = 1.3 weeks = 6.5 days
+     Weeks of work = rent / (40 w). Only one of the twelve fits inside 1.3
+     weeks (the area average with a roommate, 1.09); none fits the old
+     rule's one week; the minimum wage in a two-bedroom runs 2.27 weekdays
+     past the end of the month. Least wage = rent / 52 at 30% and 40 h:
+     $31.12, $51.73, $62.23. Lives that work, rent <= p(52/12)hw: 1 of 12
+     at 40 h and 30%; 0 at 25% (closest: the area average with a roommate,
+     $8.17 short); 4 at 50%; 7 at 80 h; the living wage with a roommate
+     misses by $16.92 at 40 h, the same gap Application 4 finds.
+     NB: never write a path glob ending in star-slash inside a CSS comment;
+     it closes the comment early and the recovery eats the :root block.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised instrument panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text, the line, the markers */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* inside the line */
+    --gold-soft:rgba(227,179,76,.14);
+    --rose:#E0776B;         /* past the line */
+    --rose-soft:rgba(224,119,107,.16);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  .t{white-space:nowrap}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.5;width:100%;height:100%}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 30px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--gold);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:22px}
+  .setup b{color:var(--cream);font-weight:normal}
+  .setup code,.notation code{
+    font-family:var(--mono);font-size:.86em;color:var(--cream);
+    background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap;
+  }
+
+  /* the cast: four jobs, three places */
+  .pick{margin:0 0 14px}
+  .pick .pk{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{
+    flex:1 1 150px;min-width:0;text-align:left;cursor:pointer;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:9px 12px 8px;color:var(--cream);
+    font-family:var(--body);
+  }
+  .opt .on{display:block;font-family:var(--serif);font-size:16.5px;line-height:1.25}
+  .opt .ov{display:block;margin-top:2px;font-family:var(--mono);font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .opt:hover{border-color:var(--dim)}
+  .opt[aria-pressed="true"]{border-color:var(--cream);background:rgba(242,235,221,.07)}
+  .opt[aria-pressed="true"] .ov{color:var(--cream)}
+  .opt:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .chip{flex:1 1 140px;min-width:130px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 14px 9px}
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap}
+  .chip .v.gold{color:var(--gold)}
+  .chip .v.rose{color:var(--rose)}
+
+  /* the instrument panel */
+  .panel{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 18px 14px}
+  .panel svg.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+  html:not(.js) .cal,html:not(.js) svg.chart{display:none}
+
+  /* act I — the month, as a calendar of weekdays */
+  .cal{display:grid;grid-template-columns:64px repeat(5,minmax(0,1fr));gap:6px;align-items:center}
+  .cal .ch{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);text-align:center}
+  .cal .rh{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);line-height:1.25}
+  .cal .rh small{display:block;letter-spacing:0;color:var(--dim);text-transform:none;font-family:var(--serif);font-style:italic;font-size:12px}
+  .day{position:relative;height:40px;border:1px solid var(--line);border-radius:6px;background:var(--panel-2);overflow:hidden}
+  .day i{position:absolute;top:0;bottom:0;display:block;transition:width .35s ease,left .35s ease}
+  .day i.g{left:0;background:var(--gold)}
+  .day i.r{background:var(--rose)}
+  .day.wk1{border-color:rgba(242,235,221,.55)}
+  .day.out{border-style:dashed;background:transparent;opacity:0;transition:opacity .3s ease}
+  .day.out.show{opacity:1}
+  .day .edge{position:absolute;top:-1px;bottom:-1px;width:0;border-left:2px solid var(--cream);z-index:2}
+  .day .tick{position:absolute;top:-1px;bottom:-1px;width:0;border-left:2px dotted var(--cream);z-index:2;opacity:.9}
+  .cal .gap{height:40px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--dim)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend .sw{width:14px;height:10px;border-radius:2px;display:inline-block}
+  .legend .sw.g{background:var(--gold)}
+  .legend .sw.r{background:var(--rose)}
+  .legend .sw.w{border:1px solid rgba(242,235,221,.7)}
+  .legend .sw.e{width:0;height:12px;border-left:2px solid var(--cream);border-radius:0}
+  .legend .sw.d{width:0;height:12px;border-left:2px dotted var(--cream);border-radius:0}
+  .say{margin-top:14px;font-family:var(--serif);font-size:clamp(18px,2.5vw,21px);line-height:1.45;color:var(--dim)}
+  .say b{color:var(--cream);font-weight:normal}
+  .say .g{color:var(--gold)}
+  .say .r{color:var(--rose)}
+
+  /* sliders */
+  .controls{display:flex;align-items:center;gap:16px;margin-top:12px;flex-wrap:wrap}
+  .knob{flex:1 1 260px;min-width:0}
+  .knob .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .knob .kk{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .knob .kv{font-family:var(--mono);font-size:15px;color:var(--cream);font-variant-numeric:tabular-nums}
+  .marks{position:relative;height:18px;margin:-4px 11px 0}
+  .marks span{position:absolute;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--faint);text-align:center;line-height:1.35}
+  .marks.two{height:30px}
+  input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:32px;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--cream);margin-top:-10px;box-shadow:0 0 0 4px rgba(242,235,221,.12);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--cream);box-shadow:0 0 0 4px rgba(242,235,221,.12);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--cream);outline-offset:6px;border-radius:4px}
+
+  /* act III — the lives that work */
+  .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;min-height:30px}
+  .tag{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--night);background:var(--gold);
+    border-radius:5px;padding:4px 9px;white-space:nowrap;
+  }
+  .tags .none{font-family:var(--serif);font-style:italic;color:var(--dim);font-size:16px;padding:3px 0}
+
+  /* svg shared */
+  .axis{stroke:#3A5272;stroke-width:1.4}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .guide{stroke:var(--line);stroke-width:1;stroke-dasharray:3 5}
+  .ticktext{fill:var(--faint);font-family:var(--mono);font-size:12px}
+  .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+  .lbl.dim{fill:var(--dim)}
+  .lbl.faint{fill:var(--faint)}
+  .lbl.cream{fill:var(--cream)}
+  .lbl.gold{fill:var(--gold)}
+  .serif{font-family:var(--serif);font-size:15px;letter-spacing:0}
+  .halo{paint-order:stroke;stroke:var(--panel);stroke-width:5px;stroke-linejoin:round}
+
+  /* discovery + notation — the trailer's way: they arrive once you've moved something */
+  .insight{margin:26px 0 0;max-width:37em;opacity:0;transform:translateY(8px);transition:opacity .7s ease,transform .7s ease}
+  .act.touched .insight,.insight.always{opacity:1;transform:none}
+  .insight .tag2{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--gold);padding-left:18px}
+  .notation{margin:22px 0 0;color:var(--faint);font-size:15px;max-width:42em;opacity:0;transition:opacity .7s ease .35s}
+  .act.touched .notation{opacity:1}
+  .notation .name{color:var(--dim);font-style:italic}
+
+  /* punchline cards, each tied to one state */
+  .punch{
+    display:none;margin-top:16px;border-radius:8px;padding:14px 18px;
+    font-family:var(--serif);font-size:19px;line-height:1.45;
+  }
+  .punch.g{background:var(--gold-soft);border:1px solid rgba(227,179,76,.35)}
+  .punch.g b{color:var(--gold);font-weight:normal}
+  .punch.r{background:var(--rose-soft);border:1px solid rgba(224,119,107,.4)}
+  .punch.r b{color:var(--rose);font-weight:normal}
+  .act.over .punch.over,.act.inside .punch.inside,.act.none .punch.none,.act.all .punch.all{display:block}
+
+  /* coda */
+  .cav{list-style:none;max-width:40em;margin-top:8px}
+  .cav li{position:relative;padding-left:20px;margin-bottom:12px;color:var(--dim)}
+  .cav li::before{content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+  .cav li b{color:var(--cream);font-weight:normal;font-style:italic}
+  .sources{margin-top:34px;max-width:46em;font-size:13.5px;line-height:1.75;color:var(--faint)}
+  .sources .sk{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin-right:8px}
+  .sources a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line)}
+  .sources a:hover{color:var(--cream);border-bottom-color:var(--dim)}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--gold)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 24px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px;min-width:104px}
+    .opt{flex-basis:calc(50% - 4px)}
+    .cal{grid-template-columns:50px repeat(5,minmax(0,1fr));gap:4px}
+    .cal .rh{letter-spacing:.04em}
+    .sky{display:none}
+    .cal .rh small{display:none}
+    .day,.cal .gap{height:32px}
+    .ticktext{font-size:11px}
+    .insight p{font-size:19px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; IM 1/2H &middot; Unit 2</a>
+    <div class="eyebrow">IM 1/2H &middot; Unit 2 &middot; Can You Afford to Live Here?</div>
+    <h1>A Week&rsquo;s <em>Wages</em></h1>
+    <p class="dek">There&rsquo;s an old rule for rent, older than anyone you know: <i>a week&rsquo;s wages for a month&rsquo;s rent.</i> This unit asks what that rule says about living here now, and it runs on one sentence: <strong>the answer to an affordability question is not yes or no &mdash; it is the set of lives in which the answer is yes.</strong> Nobody believes that by being told it. This page is built so you can see it &mdash; three instruments, twelve lives.</p>
+    <div class="hint">Every number here is real, and all of it moves</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE OLD RULE ════════ -->
+<section class="act" id="act1">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Old Rule</div>
+    <h2 class="ask">Pick a job. Pick a place. How many weeks of work does one month of rent cost?</h2>
+    <p class="setup">A month of full-time work is about 4&#8531; weeks &mdash; twenty-one and two-thirds weekdays. The old rule said a month&rsquo;s rent should cost <b>one week&rsquo;s wages</b>. Today&rsquo;s line is 30% of your pay, which is <b>1.3 weeks</b>. Every wage and rent below is real, public, and covers Anaheim.</p>
+
+    <div class="pick"><div class="pk" id="jobs-k">The job</div><div class="opts" id="a1-jobs" role="group" aria-labelledby="jobs-k"></div></div>
+    <div class="pick"><div class="pk" id="places-k">The place</div><div class="opts" id="a1-places" role="group" aria-labelledby="places-k"></div></div>
+
+    <div class="chips">
+      <div class="chip"><div class="k">A week&rsquo;s pay</div><div class="v" id="a1-week"></div></div>
+      <div class="chip"><div class="k">The rent</div><div class="v" id="a1-rent"></div></div>
+      <div class="chip"><div class="k">Weeks of work</div><div class="v" id="a1-weeks"></div></div>
+      <div class="chip"><div class="k">Of your month</div><div class="v" id="a1-pct"></div></div>
+    </div>
+
+    <div class="panel">
+      <p class="needs-js">This calendar is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to fill it.</p>
+      <div class="cal" id="cal" role="img" aria-label="A month of weekdays, Monday to Friday, four and a third weeks. The rent fills the days in order: gold inside the 30% line, rose past it."></div>
+      <div class="legend">
+        <span><i class="sw g"></i>rent inside the 30% line</span>
+        <span><i class="sw r"></i>rent past it</span>
+        <span><i class="sw w"></i>week 1: all the old rule allowed</span>
+        <span><i class="sw d"></i>the 30% line</span>
+        <span><i class="sw e"></i>the end of the month</span>
+      </div>
+      <p class="say" id="a1-say" aria-live="polite"></p>
+    </div>
+
+    <div class="punch r over"><b>More than the whole month.</b> At California&rsquo;s minimum wage, a two-bedroom here costs more than every hour you&rsquo;d work in it &mdash; the rent runs past the end of the month before it&rsquo;s paid.</div>
+    <div class="punch g inside"><b>That one fits.</b> Of the twelve lives on this page, it&rsquo;s the only one inside the 30% line &mdash; and even it takes more than the old rule&rsquo;s one week.</div>
+
+    <div class="insight"><span class="tag2">What you just saw</span>
+      <p>Rent is a number of weeks of your life. The old rule gave it one. Here, on Anaheim&rsquo;s own resort wage, a studio takes more than three &mdash; you&rsquo;d work for the rent until the Monday of week four &mdash; and not one of the twelve lives on this page fits inside a single week.</p>
+    </div>
+    <p class="notation">The arithmetic, when you want it: <code>weeks of work = rent &divide; (40 &times; hourly wage)</code>. A month is 52 &divide; 12 &asymp; 4&#8531; weeks, so 30% of it is 1.3 weeks. <span class="name">One week out of 4&#8531; is about 23% &mdash; close to the 25% Congress wrote into law in 1969, before it moved the line to 30% in 1981.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — THE RULE, BACKWARDS ════════ -->
+<section class="act" id="act2">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> The Rule, Backwards</div>
+    <h2 class="ask">Turn it around. Start from the rent &mdash; what&rsquo;s the least you&rsquo;d have to earn?</h2>
+    <p class="setup">Inside the 30% line, a month&rsquo;s rent can cost at most 1.3 weeks of pay. Run that backwards and every rent turns into a wage: the smallest one that works. <b>Drag the rent, or tap a place.</b></p>
+
+    <div class="pick"><div class="opts" id="a2-places" role="group" aria-label="The place"></div></div>
+
+    <div class="chips">
+      <div class="chip"><div class="k">The rent</div><div class="v" id="a2-rent"></div></div>
+      <div class="chip"><div class="k">Least that works</div><div class="v gold" id="a2-wage"></div></div>
+      <div class="chip"><div class="k">That&rsquo;s a year of</div><div class="v" id="a2-year"></div></div>
+    </div>
+
+    <div class="panel">
+      <p class="needs-js">This line is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to move it.</p>
+      <svg class="chart" id="a2-svg" role="img" aria-label="A number line of hourly wages from 0 to 70 dollars. A gold ray starts at the least wage the rent needs and runs right. The four real wages sit on the line: gold if they clear it, hollow if not."></svg>
+      <div class="controls">
+        <div class="knob">
+          <div class="kr"><label class="kk" for="a2-range">The rent, a month</label><span class="kv" id="a2-rv"></span></div>
+          <input type="range" id="a2-range" min="800" max="3500" step="1" value="1618" aria-label="Monthly rent, 800 to 3,500 dollars">
+        </div>
+      </div>
+      <p class="say" id="a2-say" aria-live="polite"></p>
+    </div>
+
+    <div class="insight"><span class="tag2">What you just saw</span>
+      <p>Every rent is secretly a wage &mdash; the least you&rsquo;d have to earn to keep it inside the line. And the answer isn&rsquo;t one number. It&rsquo;s that wage and every wage above it: a ray, running right. Push the rent up and watch real jobs fall off the end of it, one by one.</p>
+    </div>
+    <p class="notation">Forward, the rule is <code>rent &le; 0.30 &times; monthly pay</code>. Backwards, at forty hours a week, <code>hourly wage &ge; rent &divide; 52</code>. <span class="name">Why 52? Thirty percent of 40 hours times 52&frasl;12 weeks is exactly 52 &mdash; the most rent each dollar of hourly wage can carry.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT III — TWELVE LIVES ════════ -->
+<section class="act" id="act3">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act III</b> Twelve Lives</div>
+    <h2 class="ask">All twelve lives at once. Which ones work &mdash; and what would it take to let more of them in?</h2>
+    <p class="setup">Four jobs across, three places up. The line is the rule, and every life on or under it works. You can move two things: <b>how many hours you work a week</b>, and <b>where the line itself sits</b>. Congress set it at 25% in 1969 and moved it to 30% in 1981; past 50%, HUD calls you <i>severely</i> cost burdened.</p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Hours a week</div><div class="v" id="a3-h"></div></div>
+      <div class="chip"><div class="k">The line</div><div class="v" id="a3-p"></div></div>
+      <div class="chip"><div class="k">Lives that work</div><div class="v" id="a3-n"></div></div>
+    </div>
+
+    <div class="panel">
+      <p class="needs-js">This chart is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to move the line.</p>
+      <svg class="chart" id="a3-svg" role="img" aria-label="Rent a month against hourly wage. Four real wages across, three real rents up: twelve lives. A line through the corner is the rule; every life on or under it works and is gold."></svg>
+      <div class="controls">
+        <div class="knob">
+          <div class="kr"><label class="kk" for="a3-hours">Hours you work a week</label><span class="kv" id="a3-hv"></span></div>
+          <input type="range" id="a3-hours" min="20" max="80" step="1" value="40" aria-label="Hours worked a week, 20 to 80">
+          <div class="marks"><span style="left:0%">20</span><span style="left:33.33%">40 &middot; full time</span><span style="left:100%">80</span></div>
+        </div>
+        <div class="knob">
+          <div class="kr"><label class="kk" for="a3-line">The line</label><span class="kv" id="a3-pv"></span></div>
+          <input type="range" id="a3-line" min="20" max="60" step="1" value="30" aria-label="The line, percent of pay, 20 to 60">
+          <div class="marks two"><span style="left:12.5%">25%<br>1969</span><span style="left:25%">30%<br>1981</span><span style="left:75%">50%<br>severe</span></div>
+        </div>
+      </div>
+      <div class="tags" id="a3-tags" aria-live="polite"></div>
+    </div>
+
+    <div class="punch r none" id="a3-none"></div>
+    <div class="punch g all" id="a3-all"></div>
+
+    <div class="insight"><span class="tag2">What you just saw</span>
+      <p>That&rsquo;s the unit&rsquo;s whole answer, drawn. <i>Can you afford to live here?</i> isn&rsquo;t a yes or a no &mdash; it&rsquo;s a set: every life that lands under the line. More hours tilt the line up. So does a bigger percentage. And every life you pull in, you pay for with something &mdash; the hours, a roommate, a bigger slice of every paycheck.</p>
+    </div>
+    <p class="notation">Every life under the line satisfies <code>rent &le; line &times; 52&frasl;12 &times; hours &times; wage</code>. <span class="name">One inequality, two variables. Its answer isn&rsquo;t a number &mdash; it&rsquo;s a region, and every point in it is a life.</span></p>
+  </div>
+</section>
+
+<!-- ════════ CODA ════════ -->
+<section class="act" id="coda">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Coda</b> The Part the Graph Can&rsquo;t See</div>
+    <h2 class="ask">Every number on this page is real. None of it is the whole story.</h2>
+    <ul class="cav">
+      <li><b>Every week here is pay before taxes.</b> That&rsquo;s how the 30% rule is usually figured. The check you&rsquo;d actually take home is smaller.</li>
+      <li><b>Forty hours, fifty-two weeks, no days off.</b> It&rsquo;s the standard figure, and an optimistic one &mdash; real jobs have holidays, sick days, and shifts that get cut.</li>
+      <li><b>HUD&rsquo;s rent is the 40th percentile.</b> About four in ten places here rent for less, and six in ten for more.</li>
+      <li><b>Rent isn&rsquo;t the only bill.</b> MIT&rsquo;s $30.79 counts food, transportation, medical care and taxes too &mdash; and it assumes you&rsquo;re sharing a place.</li>
+      <li><b>Anaheim is the default, not the rule.</b> Every source below publishes the same numbers for your own city.</li>
+    </ul>
+    <div class="insight always"><span class="tag2">Which is the assignment</span>
+      <p>At the end of this unit you make your case &mdash; what it would take, where you&rsquo;d put the line, which corner of your region you&rsquo;d choose, and what it costs you &mdash; to someone who moved here, or moved away, because of what it cost. The math is the evidence. The verdict is yours.</p>
+    </div>
+    <p class="sources"><span class="sk">Sources</span>
+      <a href="https://rentlimits.com/years/2026">HUD Fair Market Rents, FY2026</a> &middot;
+      <a href="https://fmr.fyi/city/anaheim-ca">Anaheim&rsquo;s rents by bedroom</a> &middot;
+      <a href="https://www.dir.ca.gov/dlse/faq_minimumwage.htm">California minimum wage</a> &middot;
+      <a href="https://www.anaheim.net/DocumentCenter/View/47472/Measure-L-flyer">Anaheim Measure L</a> &middot;
+      <a href="https://livingwage.mit.edu/metros/31080">MIT Living Wage Calculator</a> &middot;
+      <a href="https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_losangeles.htm">BLS wages, Los Angeles&ndash;Long Beach&ndash;Anaheim, May 2025</a> &middot;
+      <a href="https://en.wikipedia.org/wiki/Brooke_Amendment">The Brooke Amendment, 1969, and the move to 30% in 1981</a>
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">&ldquo;The answer to an affordability question is not yes or no &mdash; it is <em>the set of lives</em> in which the answer is yes.&rdquo;</p>
+    <p class="colophon">Mr. Kim &middot; Cambridge Virtual Academy &middot; <span>IM 1/2H Unit 2</span></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", ROSE = "#E0776B", CREAM = "#F2EBDD", PANEL = "#101E33";
+
+  /* ── the cast: four jobs x three places. Figures from case/sources.md ── */
+  var JOBS = [
+    {name:"California minimum",    short:"CA minimum",   say:"the California minimum",  w:16.90},
+    {name:"Anaheim resort job",    short:"Resort",       say:"the resort wage",         w:21.13, note:"Measure L"},
+    {name:"What one adult needs",  short:"Living wage",  say:"the living wage",         w:30.79, note:"MIT"},
+    {name:"The area’s average job", short:"Area average", say:"the area’s average wage", w:37.15, note:"BLS"}
+  ];
+  var PLACES = [
+    {name:"Half a two-bedroom", short:"half a 2-bedroom", tiny:"½ 2BR", note:"with a roommate", r:1618},
+    {name:"A studio",           short:"a studio",         tiny:"studio", note:"a place of your own", r:2690},
+    {name:"A two-bedroom",      short:"a 2-bedroom",      tiny:"2BR",   note:"to yourself", r:3236}
+  ];
+  var MONTH = 52/12;                 /* weeks in a month */
+  var MDAYS = MONTH*5;               /* 21 2/3 weekdays */
+  var LINE_DAYS = 0.3*MONTH*5;       /* 6.5 weekdays: the 30% line */
+  var DAYNAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+
+  function mk(tag, attrs, parent){
+    var e = document.createElementNS(SVGNS, tag);
+    for(var k in attrs) e.setAttribute(k, attrs[k]);
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+  function money(v, cents){
+    var s = Math.abs(v).toLocaleString("en-US", {minimumFractionDigits:cents ? 2 : 0, maximumFractionDigits:cents ? 2 : 0});
+    return (v < 0 ? "−$" : "$") + s;
+  }
+  /* "a", "a and b", "a, b and c" */
+  function list(xs){ return xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " and " + xs[xs.length-1]; }
+  function realWidth(svg){ return Math.max(280, Math.round(svg.getBoundingClientRect().width) || 880); }
+  function touch(id){ document.getElementById(id).classList.add("touched"); }
+
+  /* a row of choice buttons; one pressed at a time */
+  function choices(host, items, label, value, onPick){
+    host.innerHTML = "";
+    var btns = items.map(function(it, i){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "opt";
+      b.innerHTML = "<span class='on'>" + it.name + "</span><span class='ov'>" + label(it) + "</span>";
+      b.addEventListener("click", function(){ onPick(i); });
+      host.appendChild(b);
+      return b;
+    });
+    return function(sel){ btns.forEach(function(b, i){ b.setAttribute("aria-pressed", i === sel ? "true" : "false"); }); };
+  }
+
+  /* ════════ ACT I — the old rule ════════ */
+  (function(){
+    var act = document.getElementById("act1"), cal = document.getElementById("cal");
+    var job = 1, place = 1;              /* the resort wage, a studio of your own */
+    var cells = [];
+    /* build the month once: 5 rows of weekdays, the fifth only 2/3 of a Tuesday deep,
+       plus the days past the end of it, which show only when the rent needs them */
+    var head = "<div></div>" + ["Mon","Tue","Wed","Thu","Fri"].map(function(d){ return "<div class='ch'>" + d + "</div>"; }).join("");
+    cal.insertAdjacentHTML("beforeend", head);
+    for(var wk = 1; wk <= 5; wk++){
+      var rh = document.createElement("div");
+      rh.className = "rh";
+      rh.innerHTML = "Week " + wk + (wk === 1 ? "<small>the old rule</small>" : wk === 5 ? "<small>&#8531; of it</small>" : "");
+      cal.appendChild(rh);
+      for(var dw = 0; dw < 5; dw++){
+        var d = (wk-1)*5 + dw + 1;       /* this cell covers weekdays (d-1, d] */
+        var c = document.createElement("div");
+        c.className = "day" + (wk === 1 ? " wk1" : "") + (d - 1 >= MDAYS ? " out" : "");
+        c.innerHTML = "<i class='g'></i><i class='r'></i>";
+        if(d - 1 < LINE_DAYS && LINE_DAYS < d){
+          var tk = document.createElement("span"); tk.className = "tick"; tk.style.left = ((LINE_DAYS - (d-1))*100) + "%"; c.appendChild(tk);
+        }
+        if(d - 1 < MDAYS && MDAYS < d){
+          var ed = document.createElement("span"); ed.className = "edge"; ed.style.left = ((MDAYS - (d-1))*100) + "%"; c.appendChild(ed);
+        }
+        cal.appendChild(c);
+        cells.push({el:c, d:d, g:c.children[0], r:c.children[1]});
+      }
+    }
+
+    var setJob = choices(document.getElementById("a1-jobs"), JOBS,
+      function(j){ return money(j.w, true) + " an hour" + (j.note ? " · " + j.note : ""); }, job,
+      function(i){ job = i; touch("act1"); draw(); });
+    var setPlace = choices(document.getElementById("a1-places"), PLACES,
+      function(p){ return money(p.r) + " · " + p.note; }, place,
+      function(i){ place = i; touch("act1"); draw(); });
+
+    function draw(){
+      setJob(job); setPlace(place);
+      var w = JOBS[job].w, r = PLACES[place].r;
+      var weekly = 40*w, weeks = r/weekly, D = weeks*5, pct = weeks/MONTH*100;
+      cells.forEach(function(c){
+        var lo = c.d - 1;
+        var total = Math.max(0, Math.min(D, c.d) - lo);
+        var gold = Math.max(0, Math.min(D, LINE_DAYS, c.d) - lo);
+        var rose = total - gold;
+        c.g.style.width = (gold*100) + "%";
+        c.r.style.left = (gold*100) + "%";
+        c.r.style.width = (rose*100) + "%";
+        if(c.el.classList.contains("out")) c.el.classList.toggle("show", D > lo + 1e-9);
+      });
+      document.getElementById("a1-week").textContent = money(weekly, true);
+      document.getElementById("a1-rent").textContent = money(r);
+      var wv = document.getElementById("a1-weeks");
+      wv.textContent = weeks.toFixed(2);
+      wv.className = "v " + (weeks <= 1.3 + 1e-9 ? "gold" : "rose");
+      document.getElementById("a1-pct").textContent = pct.toFixed(1) + "%";
+
+      var say = document.getElementById("a1-say");
+      if(D > MDAYS){
+        say.innerHTML = "That&rsquo;s <b class='r'>more than the whole month</b>. The rent runs <b>" + (D - MDAYS).toFixed(1) +
+          " more weekdays</b> past the end of it.";
+      } else {
+        var day = Math.ceil(D - 1e-9), wkN = Math.floor((day-1)/5) + 1;
+        say.innerHTML = "You&rsquo;d be working for the rent until <b>" + DAYNAMES[(day-1) % 5] + " of week " + wkN + "</b> &mdash; " +
+          pct.toFixed(1) + "% of your month" + (weeks <= 1.3 + 1e-9 ? ", <b class='g'>inside the 30% line</b>." :
+          pct < 31 ? ", <b class='r'>just past the 30% line</b>." : ".");
+      }
+      act.classList.toggle("over", D > MDAYS);
+      act.classList.toggle("inside", weeks <= 1.3 + 1e-9);
+    }
+    draw();
+  })();
+
+  /* ════════ ACT II — the rule, backwards ════════ */
+  var actII = (function(){
+    var svg = document.getElementById("a2-svg"), rng = document.getElementById("a2-range");
+    var WMAX = 70;
+    var setPlace = choices(document.getElementById("a2-places"), PLACES,
+      function(p){ return money(p.r) + " · " + p.note; }, 0,
+      function(i){ rng.value = PLACES[i].r; touch("act2"); draw(); });
+
+    function draw(){
+      var r = +rng.value, T = r/52;
+      var sel = -1;
+      PLACES.forEach(function(p, i){ if(p.r === r) sel = i; });
+      setPlace(sel);
+
+      var W = realWidth(svg), narrow = W < 560, H = 168, ML = 22, MR = 30, AY = 112;
+      function X(v){ return ML + v/WMAX*(W-ML-MR); }
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+      /* the line of wages */
+      mk("line", {"class":"axis", x1:X(0), y1:AY, x2:X(WMAX), y2:AY}, svg);
+      for(var v = 0; v <= WMAX; v += 10){
+        mk("line", {"class":"gridline", x1:X(v), y1:AY-5, x2:X(v), y2:AY+5}, svg);
+        if(!narrow || v % 20 === 0)
+          mk("text", {"class":"ticktext", x:X(v), y:AY+24, "text-anchor":"middle"}, svg).textContent = "$" + v;
+      }
+      mk("text", {"class":"ticktext", x:X(WMAX), y:AY+42, "text-anchor":"end", opacity:.75}, svg).textContent = "an hour";
+
+      /* every wage that works: the threshold, and the ray running right from it */
+      var tx = Math.min(X(WMAX), X(T));
+      if(T <= WMAX){
+        mk("line", {x1:tx, y1:AY, x2:X(WMAX)+4, y2:AY, stroke:GOLD, "stroke-width":5, "stroke-linecap":"round", opacity:.9}, svg);
+        mk("path", {d:"M" + (X(WMAX)+14) + " " + AY + " l-11 -7 l0 14 z", fill:GOLD}, svg);
+      }
+      mk("line", {x1:tx, y1:16, x2:tx, y2:AY+8, stroke:CREAM, "stroke-width":1.4, "stroke-dasharray":"4 4", opacity:.8}, svg);
+      var tl = mk("text", {"class":"lbl cream halo", x:tx, y:12, "text-anchor":tx > W*0.7 ? "end" : (tx < W*0.3 ? "start" : "middle")}, svg);
+      tl.textContent = "at least " + money(T, true);
+      if(T <= WMAX) mk("circle", {cx:tx, cy:AY, r:6.5, fill:GOLD, stroke:PANEL, "stroke-width":2}, svg);
+
+      /* the four real wages, labels on two levels so neighbours never collide */
+      JOBS.forEach(function(j, i){
+        var ok = j.w >= T - 1e-9, x = X(j.w), ly = AY - (i % 2 ? 52 : 30);
+        mk("line", {x1:x, y1:ly+5, x2:x, y2:AY-8, stroke:CREAM, "stroke-width":1, opacity:.25}, svg);
+        mk("text", {"class":"lbl halo " + (ok ? "gold" : "dim"), x:x, y:ly, "text-anchor":"middle"}, svg)
+          .textContent = narrow ? money(j.w, true) : j.short + " " + money(j.w, true);
+        if(ok) mk("circle", {cx:x, cy:AY, r:6, fill:GOLD, stroke:PANEL, "stroke-width":1.5}, svg);
+        else mk("circle", {cx:x, cy:AY, r:5.5, fill:PANEL, stroke:CREAM, "stroke-width":1.8, opacity:.85}, svg);
+      });
+
+      document.getElementById("a2-rv").textContent = money(r) + " a month";
+      document.getElementById("a2-rent").textContent = money(r);
+      document.getElementById("a2-wage").textContent = money(T, true) + "/hr";
+      document.getElementById("a2-year").textContent = money(Math.round(r/0.3*12));
+      var clear = JOBS.filter(function(j){ return j.w >= T - 1e-9; });
+      var what = sel >= 0 ? PLACES[sel].name + " (" + PLACES[sel].note + ")" : "A rent of " + money(r);
+      document.getElementById("a2-say").innerHTML = what + " asks for at least <b>" + money(T, true) + " an hour</b>. " +
+        (clear.length === 0 ? "<b class='r'>None of the four wages on the line clears it.</b>" :
+         clear.length === 4 ? "<b class='g'>All four wages on the line clear it.</b>" :
+         "<b class='g'>" + (clear.length === 1 ? "One" : clear.length === 2 ? "Two" : "Three") + " of the four</b> clear" + (clear.length === 1 ? "s" : "") + " it: " +
+         list(clear.map(function(j){ return j.say; })) + ".");
+    }
+    rng.addEventListener("input", function(){ touch("act2"); draw(); });
+    draw();
+    return {redraw: draw};
+  })();
+
+  /* ════════ ACT III — twelve lives ════════ */
+  var actIII = (function(){
+    var svg = document.getElementById("a3-svg"), act = document.getElementById("act3");
+    var hr = document.getElementById("a3-hours"), ln = document.getElementById("a3-line");
+    var WMAX = 40, RMAX = 3500;
+
+    function draw(){
+      var h = +hr.value, p = +ln.value, k = p/100*MONTH*h;   /* the most rent each $1/hr carries */
+      var W = realWidth(svg), narrow = W < 560;
+      var H = narrow ? 384 : 450, ML = narrow ? 50 : 66, MR = 14, MT = 50, MB = 44;
+      function X(v){ return ML + v/WMAX*(W-ML-MR); }
+      function Y(v){ return H - MB - v/RMAX*(H-MT-MB); }
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+      /* grid */
+      for(var r = 0; r <= RMAX; r += (narrow ? 1000 : 500)){
+        mk("line", {"class":"gridline", x1:X(0), y1:Y(r), x2:X(WMAX), y2:Y(r)}, svg);
+        if(r % 1000 === 0) mk("text", {"class":"ticktext", x:X(0)-8, y:Y(r)+4, "text-anchor":"end"}, svg).textContent = money(r);
+      }
+      for(var v = 0; v <= WMAX; v += 10){
+        mk("line", {"class":"gridline", x1:X(v), y1:Y(0), x2:X(v), y2:Y(0)+5}, svg);
+        mk("text", {"class":"ticktext", x:X(v), y:Y(0)+20, "text-anchor":v === 0 ? "start" : "middle"}, svg).textContent = "$" + v;
+      }
+      mk("text", {"class":"ticktext", x:X(WMAX), y:Y(0)+38, "text-anchor":"end", opacity:.75}, svg).textContent = "hourly wage";
+      mk("text", {"class":"ticktext", x:4, y:MT-30, "text-anchor":"start", opacity:.75}, svg).textContent = "rent a month";
+
+      /* the region under the line, clipped to the chart */
+      var wTop = RMAX/k, pts;
+      if(wTop < WMAX) pts = [[0,0],[wTop,RMAX],[WMAX,RMAX],[WMAX,0]];
+      else pts = [[0,0],[WMAX,k*WMAX],[WMAX,0]];
+      mk("polygon", {points:pts.map(function(q){ return X(q[0]).toFixed(1) + "," + Y(q[1]).toFixed(1); }).join(" "),
+        fill:GOLD, opacity:.13}, svg);
+
+      /* guides: the four wages down, the three rents across */
+      JOBS.forEach(function(j, i){
+        mk("line", {"class":"guide", x1:X(j.w), y1:MT-6, x2:X(j.w), y2:Y(0)}, svg);
+        var ly = MT - 14 - (i % 2 ? 16 : 0);
+        mk("text", {"class":"lbl dim halo", x:X(j.w), y:ly, "text-anchor":"middle"}, svg)
+          .textContent = narrow ? money(j.w, true) : j.short + " " + money(j.w, true);
+      });
+      PLACES.forEach(function(pl){
+        mk("line", {"class":"guide", x1:X(0), y1:Y(pl.r), x2:X(WMAX), y2:Y(pl.r)}, svg);
+        mk("text", {"class":"lbl faint halo", x:X(0)+6, y:Y(pl.r)-6, "text-anchor":"start"}, svg)
+          .textContent = (narrow ? pl.tiny : pl.short) + " " + money(pl.r);
+      });
+
+      /* the line itself */
+      var end = wTop < WMAX ? [wTop, RMAX] : [WMAX, k*WMAX];
+      mk("line", {x1:X(0), y1:Y(0), x2:X(end[0]), y2:Y(end[1]), stroke:CREAM, "stroke-width":2, "stroke-linecap":"round"}, svg);
+      /* named where nothing else lives: under every rent, inside the region */
+      mk("text", {"class":"lbl cream halo", x:X(WMAX) - 8, y:Y(0) - 12, "text-anchor":"end"}, svg)
+        .textContent = narrow ? p + "% of pay · " + h + " h" : "the line: " + p + "% of pay, " + h + " h a week";
+
+      /* the twelve lives */
+      var works = [], best = null;
+      JOBS.forEach(function(j){
+        PLACES.forEach(function(pl){
+          var cap = k*j.w, ok = pl.r <= cap + 1e-9, x = X(j.w), y = Y(pl.r);
+          if(ok){
+            works.push(j.short + " · " + pl.short);
+            mk("circle", {cx:x, cy:y, r:7.5, fill:GOLD, stroke:PANEL, "stroke-width":2}, svg);
+          } else {
+            mk("circle", {cx:x, cy:y, r:6.5, fill:PANEL, stroke:CREAM, "stroke-width":1.8, opacity:.8}, svg);
+            if(!best || pl.r - cap < best.gap) best = {gap:pl.r - cap, j:j, pl:pl};
+          }
+        });
+      });
+
+      document.getElementById("a3-hv").textContent = h + " hours";
+      document.getElementById("a3-pv").textContent = p + "% of pay";
+      document.getElementById("a3-h").textContent = h;
+      document.getElementById("a3-p").textContent = p + "%";
+      var nv = document.getElementById("a3-n");
+      nv.textContent = works.length + " of 12";
+      nv.className = "v " + (works.length ? "gold" : "rose");
+      document.getElementById("a3-tags").innerHTML = works.length
+        ? works.map(function(t){ return "<span class='tag'>" + t + "</span>"; }).join("")
+        : "<span class='none'>No life on this chart works at " + h + " hours and " + p + "%.</span>";
+      document.getElementById("a3-none").innerHTML = best ? "<b>Not one life works.</b> The closest is " + best.j.say +
+        " with " + best.pl.short + " &mdash; " + money(best.gap, true) + " a month short of the line." : "";
+      document.getElementById("a3-all").innerHTML = "<b>Every life works</b> &mdash; at " + h + " hours a week and " + p +
+        "% of every paycheck. That&rsquo;s the price of getting all twelve in.";
+      act.classList.toggle("none", works.length === 0);
+      act.classList.toggle("all", works.length === 12);
+    }
+    hr.addEventListener("input", function(){ touch("act3"); draw(); });
+    ln.addEventListener("input", function(){ touch("act3"); draw(); });
+    draw();
+    return {redraw: draw};
+  })();
+
+  /* both charts are drawn at their real width, so a new width means a redraw */
+  var rz = 0;
+  window.addEventListener("resize", function(){
+    cancelAnimationFrame(rz);
+    rz = requestAnimationFrame(function(){ actII.redraw(); actIII.redraw(); });
+  });
+
+  /* ── the sky: twelve faint lives, one line, one of them under it.
+     Pinned to the right edge, clear of the headline on a laptop; a phone's
+     header is all text, so there it isn't drawn at all. ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    for(var i = 1; i < 7; i++) mk("line", {x1:920, y1:h - i*50, x2:w, y2:h - i*50, stroke:"#223650", "stroke-width":1, opacity:.5}, svg);
+    var xs = [960, 1020, 1080, 1140], ys = [140, 200, 260];
+    function lineY(x){ return 320 - (x - 930)*0.346; }
+    mk("line", {x1:930, y1:320, x2:1190, y2:lineY(1190), stroke:CREAM, "stroke-width":1.6, opacity:.35}, svg);
+    xs.forEach(function(x){ ys.forEach(function(y){
+      var under = y > lineY(x);
+      mk("circle", {cx:x, cy:y, r:6, fill:under ? GOLD : "none", stroke:under ? "none" : CREAM, "stroke-width":1.4, opacity:under ? .8 : .3}, svg);
+    }); });
+  })();
+})();
+</script>
