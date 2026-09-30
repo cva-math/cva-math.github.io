@@ -51,7 +51,23 @@
      EVERY TICK CARRIES ITS NUMBER, on every screen (Jae, 30 Sept 2026).
      Where eleven labels won't fit in one row -- a phone, or a whole like 37,
      whose ticks read 3.7, 7.4, 11.1 -- every other label drops to a second
-     row on a longer tick, instead of being skipped.
+     row on a longer tick, instead of being skipped. A whole in the millions
+     takes a third or fourth row and smaller type; each label wears a halo in
+     the panel's colour, so a longer tick passing behind it never cuts it.
+
+     THE WHOLE IS ANY NUMBER (Jae, 30 Sept 2026). The whole in the sentence
+     is a box: tap the 50 and type anything above 0, to the cent, up to ten
+     million. Cents keep every label exact -- a tick then has at most three
+     decimals, an answer or a square at most four, and fmt() carries four.
+     Checked in Python for 20,000 wholes: every one prints exactly, and every
+     one's labels fit without touching at 400px and on 360px phones and up.
+
+     THE SWAP trades the two numbers in the sentence: the amount colored
+     becomes the whole, and the old whole becomes the percent to color in
+     next. So 8% of 50 swaps to 50% of 8, as it always did, and any other
+     pair swaps the same way. The old whole is about to become a count of
+     squares, so the swap needs it to be 1 to 100 with no decimals; when it
+     isn't, the button rests and says why.
 
      NO RATIO LANGUAGE (Jae, 28 Sept 2026): proportional relationships are
      spring's. The page says "percent of", "double number line", "tick",
@@ -150,6 +166,7 @@
   .ln{stroke:var(--cream);stroke-width:1.6;fill:none;opacity:.85}
   .tk{stroke:#3A5170;stroke-width:1.3}
   .lb{font-family:var(--mono);font-size:12px;fill:var(--dim);font-variant-numeric:tabular-nums}
+  .tl{paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
   .cap{font-family:var(--mono);font-size:10px;letter-spacing:.16em;fill:var(--faint)}
   .sq{fill:transparent;stroke:var(--line);stroke-width:1}
   .sq.on{fill-opacity:.85;stroke:var(--night);stroke-width:1.5}
@@ -184,6 +201,17 @@
   }
   .swap:hover{border-color:var(--dim)}
   .swap:focus-visible{outline:2px solid var(--hero);outline-offset:3px}
+  .swap:disabled{opacity:.45;cursor:default}
+  .why{margin-top:8px;min-height:1.5em;font-family:var(--mono);font-size:11px;letter-spacing:.05em;line-height:1.5;color:var(--faint)}
+  /* the whole, in the sentence, is a box you can type in */
+  .whole-in{
+    -webkit-appearance:none;appearance:none;font:inherit;font-variant-numeric:tabular-nums;
+    background:transparent;border:0;border-bottom:2px dashed currentColor;border-radius:0;
+    padding:0 .05em;margin:0;text-align:center;cursor:text;min-width:1.4ch;
+  }
+  .whole-in:hover{background:rgba(242,235,221,.05)}
+  .whole-in:focus{outline:none;background:rgba(242,235,221,.08);border-bottom-style:solid}
+  .whole-in.bad{border-bottom-color:#E0806B}
 
   /* shown only where the page's script can't run */
   .needs-js{
@@ -302,16 +330,17 @@
   <div class="wrap">
     <div class="act-eyebrow"><b>Act I</b> The Swap</div>
     <h2 class="ask">Color in 8% of 50. Then swap the two numbers and color in 50% of 8.</h2>
-    <p class="setup">The line and the grid are the same whole, 50. Every tick is another 10%, and every square is 1%. Drag the dot along the line, or tap squares to color them in &mdash; either way you&rsquo;re choosing how much is covered, and the other one follows. <b>Then swap the numbers and do it again. Watch everything that changes, and the one thing that doesn&rsquo;t.</b></p>
+    <p class="setup">The line and the grid are the same whole &mdash; 50 to start, but tap the 50 and type any number you like. Every tick is another 10%, and every square is 1%. Drag the dot along the line, or tap squares to color them in &mdash; either way you&rsquo;re choosing how much is covered, and the other one follows. <b>Then swap the numbers and do it again. Watch everything that changes, and the one thing that doesn&rsquo;t.</b></p>
 
     <div class="panel">
       <div class="stage">
-        <p class="says" id="says1" aria-live="polite"></p>
+        <p class="says" id="says1"><span class="l" id="pct1">0</span>% of <input class="whole-in g" id="whole1" type="text" inputmode="decimal" value="50" maxlength="14" autocomplete="off" spellcheck="false" aria-label="The whole. Type any number."> = <span class="ans" id="ans1" aria-live="polite">0</span></p>
         <div class="st-inst"><svg class="inst" id="inst1" aria-label="A double number line over a hundred grid. The arrow keys cover more or less."></svg></div>
         <div class="side">
           <p class="note" id="note1"></p>
           <div class="targets"><span class="tg" id="tg1"></span><span class="tg" id="tg2"></span></div>
           <button class="swap" type="button" id="swapBtn">Swap the two numbers</button>
+          <p class="why" id="why1"></p>
         </div>
       </div>
       <p class="needs-js">This line and grid are drawn by the page &mdash; <b>open it in Chrome or Safari</b> to color them in.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
@@ -394,11 +423,12 @@
   var SVGNS = "http://www.w3.org/2000/svg";
   var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD", NIGHT = "#0B1526";
 
-  /* 4 → "4", 2.8 → "2.8", 0.625 → "0.63", 1234 → "1,234" */
+  /* 4 → "4", 2.8 → "2.8", 4.625 → "4.625", 1234 → "1,234". Four decimals is
+     exact for any whole in cents: 37% of 12.49 is 4.6213. */
   function fmt(v){
-    var r = Math.round(v*100)/100;
+    var r = Math.round(v*1e4)/1e4;
     if(Object.is(r, -0)) r = 0;
-    return r.toLocaleString("en-US", {maximumFractionDigits:2});
+    return r.toLocaleString("en-US", {maximumFractionDigits:4});
   }
   /* A `fill` passed alongside a class goes on as a STYLE, not an attribute:
      an SVG presentation attribute loses to any CSS rule, so `.lb{fill:dim}`
@@ -448,35 +478,50 @@
 
     function draw(){
       var w = Math.round(svg.getBoundingClientRect().width) || 360;
-      var fs = w < 520 ? 11 : 12, L = 18, R = w - 18, len = R - L, cw = len/10, k;
-      var X = function(p){ return L + len*p/100; };
-      var amt = [], pct = [];
+      var fs0 = w < 520 ? 11 : 12, amt = [], pct = [], k, t, m, cw, fa = null, fp = null;
       for(k = 0; k <= 10; k++){ amt.push(fmt(S.whole*k/10)); pct.push(k*10 + "%"); }
-      /* crowded if any two neighbours would come within 6px of each other */
-      function crowded(a){
-        for(var k = 0; k < 10; k++) if((a[k].length + a[k+1].length)/2*fs*0.62 + 6 > cw) return true;
-        return false;
+      /* Every label, always: the fewest rows, then the biggest type, that
+         keeps neighbours in a row 6px apart. Monospace, so a label's width is
+         its length; the side margins make room for the whole's own label. */
+      var tries = [[fs0,1],[fs0,2],[fs0-1,2],[fs0,3],[fs0-1,3],[fs0-2,3],[fs0,4],[fs0-1,4],[9,4]];
+      function fits(a, f, cw){
+        for(var k = 0; k + f.rows <= 10; k++) if((a[k].length + a[k+f.rows].length)/2*f.fs*0.62 + 6 > cw*f.rows) return false;
+        return true;
       }
-      var sA = crowded(amt), sP = crowded(pct);
-      /* rows, top to bottom */
-      var yCap = 13, yAfar = 30, yAnear = sA ? 44 : 32, top = yAnear + 10, bot = top + 72;
-      var yPnear = bot + 21, yPfar = bot + 35, gt = (sP ? yPfar : yPnear) + 14, h = Math.ceil(gt + len + 2);
+      for(t = 0; t < tries.length; t++){
+        fa = {fs:tries[t][0], rows:tries[t][1]};
+        m = Math.max(18, amt[10].length*fa.fs*0.31 + 3); cw = (w - 2*m)/10;
+        if(fits(amt, fa, cw)) break;
+      }
+      for(t = 0; t < tries.length; t++){ fp = {fs:tries[t][0], rows:tries[t][1]}; if(fits(pct, fp, cw)) break; }
+      var L = m, R = w - m, len = R - L;
+      var X = function(p){ return L + len*p/100; };
+      /* rows, top to bottom: the caption, the amounts (farthest row first),
+         the band between the two lines, the percents, then the grid */
+      var yCap = 13, yA = function(r){ return yCap + 17 + (fa.rows - 1 - r)*(fa.fs + 3); };
+      var top = yA(0) + 10, bot = top + 72;
+      var yP = function(r){ return bot + 21 + r*(fp.fs + 3); };
+      var gt = yP(fp.rows - 1) + 14, h = Math.ceil(gt + len + 2);
       G = {w:w, h:h, L:L, len:len, cw:cw, gt:gt};
       while(svg.firstChild) svg.removeChild(svg.firstChild);
       svg.setAttribute("viewBox", "0 0 " + w + " " + h);
       svg.setAttribute("height", h);
 
-      var mx = X(S.p), v = S.whole*S.p/100, st = "font-size:" + fs + "px";
+      var mx = X(S.p), v = S.whole*S.p/100;
       /* how much is covered, on the line */
       el(svg, "rect", {x:L, y:top, width:Math.max(0, mx - L), height:bot - top, fill:S.cP, opacity:.24});
       el(svg, "line", {x1:L, y1:top, x2:R, y2:top, "class":"ln"});
       el(svg, "line", {x1:L, y1:bot, x2:R, y2:bot, "class":"ln"});
+      /* ticks first, labels over them: a label further out rides a longer
+         tick, and its halo hides any tick that passes behind it */
       for(k = 0; k <= 10; k++){
-        var x = X(k*10), farA = sA && k % 2 === 1, farP = sP && k % 2 === 1;
-        el(svg, "line", {x1:x, y1:farA ? yAfar + 5 : top - 6, x2:x, y2:top + 6, "class":"tk"});
-        el(svg, "line", {x1:x, y1:bot - 6, x2:x, y2:farP ? yPfar - 12 : bot + 6, "class":"tk"});
-        el(svg, "text", {x:x, y:farA ? yAfar : yAnear, "text-anchor":"middle", "class":"lb", fill:k === 10 ? S.cW : null, style:st}, amt[k]);
-        el(svg, "text", {x:x, y:farP ? yPfar : yPnear, "text-anchor":"middle", "class":"lb", style:st}, pct[k]);
+        var x = X(k*10), ra = k % fa.rows, rp = k % fp.rows;
+        el(svg, "line", {x1:x, y1:ra ? yA(ra) + 5 : top - 6, x2:x, y2:top + 6, "class":"tk"});
+        el(svg, "line", {x1:x, y1:bot - 6, x2:x, y2:rp ? yP(rp) - fp.fs - 1 : bot + 6, "class":"tk"});
+      }
+      for(k = 0; k <= 10; k++){
+        el(svg, "text", {x:X(k*10), y:yA(k % fa.rows), "text-anchor":"middle", "class":"lb tl", fill:k === 10 ? S.cW : null, style:"font-size:" + fa.fs + "px"}, amt[k]);
+        el(svg, "text", {x:X(k*10), y:yP(k % fp.rows), "text-anchor":"middle", "class":"lb tl", style:"font-size:" + fp.fs + "px"}, pct[k]);
       }
       el(svg, "text", {x:R, y:yCap, "text-anchor":"end", "class":"cap", fill:S.cW}, "THE WHOLE");
 
@@ -593,23 +638,32 @@
 
   /* ── ACT I · the swap ───────────────────────────────────────── */
   (function(){
-    var act = document.getElementById("swap"), says = document.getElementById("says1"), note = document.getElementById("note1");
-    var nudge = document.getElementById("nudge1"), btn = document.getElementById("swapBtn");
+    var act = document.getElementById("swap"), note = document.getElementById("note1");
+    var pctEl = document.getElementById("pct1"), wIn = document.getElementById("whole1"), ans = document.getElementById("ans1");
+    var nudge = document.getElementById("nudge1"), btn = document.getElementById("swapBtn"), why = document.getElementById("why1");
     var tg1 = document.getElementById("tg1"), tg2 = document.getElementById("tg2");
-    var swapped = false, done = [false, false];
+    /* 8 starts as the percent (lead) and 50 as the whole (gold); a swap trades
+       the numbers and their colours. `pending` is the percent a swap asks for
+       next; `bad` says why the typed whole won't do, for as long as it won't. */
+    var W = 50, cW = GOLD, cP = LEAD, pending = null, bad = "", done = [false, false];
     var N8 = '<span class="l">8</span>', N50 = '<span class="g">50</span>';
-    var inst = instrument(document.getElementById("inst1"), {whole:50, cW:GOLD, cP:LEAD, onInput:show, onCommit:check});
+    var inst = instrument(document.getElementById("inst1"), {whole:W, cW:cW, cP:cP, onInput:show, onCommit:check});
     all.push(inst);
 
-    /* unswapped: 8 is the percent (lead), 50 is the whole (gold); the
-       percent's colour goes to whatever amount the student has covered */
+    function tone(c){ return c === GOLD ? "g" : "l"; }
+    /* the old whole is about to become a count of squares, so it has to be one */
+    function wholeOk(){ return W % 1 === 0 && W <= 100; }
     function show(){
-      var p = inst.p(), whole = swapped ? 8 : 50;
-      says.innerHTML = '<span class="' + (swapped ? "g" : "l") + '">' + p + '</span>% of ' + (swapped ? N8 : N50) +
-        ' = <span class="ans" id="ans1">' + fmt(whole*p/100) + '</span>';
-      note.innerHTML = p === 0
-        ? "Drag the dot, or tap squares. Tap a colored one to take it back."
-        : "<b>" + p + "</b> square" + (p === 1 ? "" : "s") + ", each worth <b>" + fmt(whole/100) + "</b>";
+      var p = inst.p();
+      pctEl.textContent = p; pctEl.className = tone(cP);
+      wIn.className = "whole-in " + tone(cW) + (bad ? " bad" : "");
+      wIn.style.width = (Math.max(wIn.value.length, 1) + .6) + "ch";
+      ans.textContent = bad ? "?" : fmt(W*p/100);
+      note.innerHTML = bad ? bad
+        : p === 0 ? "Drag the dot, or tap squares. Tap a colored one to take it back."
+        : "<b>" + p + "</b> square" + (p === 1 ? "" : "s") + ", each worth <b>" + fmt(W/100) + "</b>";
+      btn.disabled = !!bad || !wholeOk();
+      why.textContent = bad || wholeOk() ? "" : "To swap, the whole has to be 1 to 100 with no decimals \u2014 it\u2019s about to become the percent.";
     }
     function targets(){
       tg1.className = "tg" + (done[0] ? " done" : "");
@@ -618,23 +672,54 @@
       tg2.innerHTML = N50 + "% of " + N8 + (done[1] ? " = 4" : "");
     }
     function guide(){
-      nudge.textContent = !swapped
-        ? (done[0] ? "Now swap the two numbers." : "Color in 8% of 50.")
-        : (done[1] ? "Swap back, and color in 8% of 50." : "Now color in 50% of 8.");
+      nudge.textContent = pending != null ? "Now color in " + pending + "% of " + fmt(W) + "."
+        : !done[0] ? "Color in 8% of 50."
+        : !done[1] ? (W === 50 && inst.p() === 8 ? "Now swap the two numbers." : "Now color in 50% of 8.")
+        : "";
     }
     function check(){
-      var k = swapped ? 1 : 0, hit = inst.p() === (swapped ? 50 : 8);
-      if(hit && !done[k]){
-        done[k] = true; targets();
-        var a = document.getElementById("ans1"); a.classList.remove("pop"); void a.offsetWidth; a.classList.add("pop");
-      }
+      if(bad) return;
+      var p = inst.p(), hit = false;
+      if(W === 50 && p === 8 && !done[0]) done[0] = hit = true;
+      if(W === 8 && p === 50 && !done[1]) done[1] = hit = true;
+      if(pending != null && p === pending){ pending = null; hit = true; }
+      if(hit){ targets(); ans.classList.remove("pop"); void ans.offsetWidth; ans.classList.add("pop"); }
       if(done[0] && done[1]) act.classList.add("touched");
       guide();
     }
+
+    /* what a typed whole means, or why it can't be one: any number above 0,
+       to the cent, up to ten million -- so every label prints exactly */
+    function parse(str){
+      var t = String(str).replace(/[\s,$]/g, "");
+      if(t === "") return {err:"Type a whole \u2014 any number more than 0."};
+      if(!/^-?(\d+\.?\d*|\.\d+)$/.test(t)) return {err:"The whole has to be a number."};
+      var v = parseFloat(t);
+      if(!(v > 0)) return {err:"The whole has to be more than 0."};
+      if((t.split(".")[1] || "").length > 2) return {err:"The whole can go to two decimal places."};
+      if(v > 1e7) return {err:"Keep the whole to 10,000,000 or less."};
+      return {v:v};
+    }
+    wIn.addEventListener("focus", function(){ wIn.select(); });
+    wIn.addEventListener("input", function(){
+      var r = parse(wIn.value);
+      bad = r.err || "";
+      if(!bad && r.v !== W){ W = r.v; pending = null; inst.set({whole:W}); }
+      show(); guide();
+    });
+    wIn.addEventListener("keydown", function(e){
+      if(e.key === "Enter") wIn.blur();
+      else if(e.key === "Escape"){ bad = ""; wIn.value = fmt(W); wIn.blur(); }
+    });
+    wIn.addEventListener("blur", function(){ bad = ""; wIn.value = fmt(W); show(); check(); });
+
     btn.addEventListener("click", function(){
-      swapped = !swapped;
-      inst.set({whole:swapped ? 8 : 50, cW:swapped ? LEAD : GOLD, cP:swapped ? GOLD : LEAD, clear:true});
-      btn.textContent = swapped ? "Swap them back" : "Swap the two numbers";
+      if(bad || !wholeOk()) return;
+      if(inst.p() === 0){ why.textContent = "Color something in first, then swap."; return; }
+      var c = cW;
+      pending = W; W = inst.p(); cW = cP; cP = c;
+      inst.set({whole:W, cW:cW, cP:cP, clear:true});
+      wIn.value = fmt(W);
       show(); guide();
     });
     show(); targets(); guide();
