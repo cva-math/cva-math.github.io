@@ -1,0 +1,477 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Six minutes into an update, the bar says 30% — so the whole thing takes twenty minutes. Drag the bar down and watch the whole run away: an hour at 10%, ten hours at 1%, and nothing at all at 0%.">
+<title>Stuck at One Percent &middot; Finding the Whole and the Percent</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     STUCK AT ONE PERCENT — M7 Unit 2, Module 2, Finding the Whole and
+     the Percent
+
+     Built in the explore grammar: one move per act, and the name only
+     after the student has seen the thing -- and asked. NB: never write a
+     path glob ending in star-slash inside a CSS comment.
+
+     WHAT THIS PAGE DOES NOT SPEND. The module's one new thing is that the
+     100% isn't drawn, and its Pages each find ONE whole from ONE part at ONE
+     percent: Jada's puppy (9 lb at 20%, the tape diagram), Andre's puppy
+     (9 lb at 30%, extend the line), the gas price (find the percent). The
+     intro video is Omar's class, 21 of 28. So this page never uses a puppy,
+     a class, gas or money, and never puts 9 at 20% or 30%.
+     The Case spends housing, paychecks, and two different-sized wholes
+     compared; this page has one part and never compares two wholes.
+     IM 7.4's lesson 9 (percents under 1%) is parked for this unit, so the
+     bar only ever takes whole percents from 1 to 100.
+
+     WHAT IT SHOWS INSTEAD -- the part none of those pages can: hold the
+     part still and move the percent. Six minutes of an update at 30% is
+     twenty minutes of update; at 10% it is an hour; at 1% it is ten hours.
+     Every Page is one dot. This page draws the whole curve, and the curve
+     runs off the top as the percent heads for zero. The card asks what
+     happens AT zero, which is a question with no whole behind it.
+
+     A game update, because every student has watched one sit at 1%. The
+     bar is assumed to move at a steady pace, and the page says so.
+
+     NO RATIO LANGUAGE (Jae, 28 Sept 2026). The notation names the method
+     the Pages teach -- find what one tick is worth, count to 100 -- as
+     "part × 100 ÷ percent", in whole numbers, so module 3's decimals are
+     not pre-empted.
+
+     Two colours, each meaning one thing:
+       lead — what you know: the six minutes, and how full the bar is
+       gold — what you're finding: the whole update, its 100%
+
+     Every number checked in Python first: whole = 600 ÷ p minutes; 60 at
+     10%, 120 at 5%, 600 at 1%; a whole number of minutes at 19 of the 100
+     whole percents, so the rest are shown rounded to the minute.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526; --panel:#101E33; --panel-2:#0E1A2E; --line:#2A3F5A; --line-soft:#223650;
+    --cream:#F2EBDD; --dim:#8FA0B5; --faint:#5C6E85;
+    --gold:#E3B34C;  --gold-soft:rgba(227,179,76,.14);    /* the whole update */
+    --lead:#9DB2FF;  --lead-soft:rgba(157,178,255,.14);   /* what you know */
+    --hero:var(--gold); --hero-soft:var(--gold-soft);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .t{white-space:nowrap}
+  .g{color:var(--gold)} .l{color:var(--lead)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--hero)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--hero);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--hero)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--hero)}
+  .up:focus-visible{outline:2px solid var(--hero);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--hero);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px 16px}
+  .panel svg.chart{display:block;width:100%;overflow:visible}
+
+  /* readout chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .chip{flex:1 1 150px;min-width:130px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 14px 9px}
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .chip.l .v{color:var(--lead)} .chip.g .v{color:var(--gold)}
+  .chip.g{border-color:rgba(227,179,76,.4)}
+
+  /* the progress bar, as the game shows it */
+  .bar{
+    position:relative;height:34px;border-radius:17px;background:var(--panel-2);
+    border:1px solid var(--line);overflow:hidden;margin:4px 0 8px;
+  }
+  .bar .fill{position:absolute;inset:0 auto 0 0;background:var(--lead-soft);border-right:2px solid var(--lead);width:30%}
+  .bar .txt{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+  }
+  .bar .txt b{color:var(--lead);font-weight:normal;font-variant-numeric:tabular-nums}
+  .ruler-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:18px 0 4px}
+
+  /* the knob */
+  .knob{margin-top:10px}
+  .knob .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .knob .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .knob .kv{font-family:var(--mono);font-size:16px;color:var(--lead);font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:30px;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--night);
+    border:2px solid var(--lead);margin-top:-9px;box-shadow:0 0 0 4px var(--lead-soft);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--night);border:2px solid var(--lead);box-shadow:0 0 0 4px var(--lead-soft)}
+  input[type=range]:focus-visible{outline:2px solid var(--lead);outline-offset:6px;border-radius:4px}
+
+  /* the three targets */
+  .targets{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .target{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--dim);border:1px dashed var(--line);border-radius:999px;padding:7px 14px;
+  }
+  .target.hit{color:var(--gold);border-style:solid;border-color:rgba(227,179,76,.55);background:var(--gold-soft)}
+  .target.hit::before{content:"\2713\00a0"}
+
+  .punch{
+    display:none;margin-top:16px;background:var(--gold-soft);border:1px solid rgba(227,179,76,.35);
+    border-radius:8px;padding:14px 18px;font-family:var(--serif);font-size:clamp(17px,2.4vw,19px);line-height:1.45;
+  }
+  .punch b{color:var(--gold);font-weight:normal}
+
+  /* chart ink */
+  .ax{stroke:var(--line);stroke-width:1}
+  .gr{stroke:var(--line-soft);stroke-width:1}
+  .lb{font-family:var(--mono);font-size:12px;fill:var(--faint);font-variant-numeric:tabular-nums}
+  .cap{font-family:var(--mono);font-size:10px;letter-spacing:.16em;fill:var(--faint)}
+
+  .needs-js{
+    margin:14px 0 4px;padding:22px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--hero);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation. Hidden until the student ASKS. */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--hero);background:transparent;border:1px solid rgba(227,179,76,.45);border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  .reveal:hover{border-color:var(--hero);background:var(--hero-soft)}
+  .reveal:focus-visible{outline:2px solid var(--hero);outline-offset:3px}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--hero)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--hero);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--cream);font-size:1.06em}
+
+  .ticket{margin:18px 0 26px;max-width:31em;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px 28px 22px}
+  .ticket .from{display:block;margin-bottom:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .ticket .big{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.2;color:var(--cream)}
+  .ticket .never{margin-top:12px;font-family:var(--serif);font-size:clamp(17px,2.5vw,21px);line-height:1.5;color:var(--dim)}
+  .ticket .never b{color:var(--hero);font-weight:normal}
+
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:23em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--hero)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:14px 12px 12px;border-radius:8px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px 16px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; M7 &middot; Unit 2</a>
+    <div class="eyebrow">M7 &middot; Unit 2 &middot; Module 2 &middot; Finding the Whole and the Percent</div>
+    <h1>Stuck at One <em>Percent</em></h1>
+    <p class="dek">Every progress bar is a question with the whole left out. <strong>Six minutes in at 30% means the whole update takes twenty minutes.</strong> Six minutes in at 1% means something much worse.</p>
+    <div class="hint">Drag the bar. Watch the whole.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE BAR ════════ -->
+<section class="act" id="bar">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Bar</div>
+    <h2 class="ask">Six minutes into an update. Drag how far the bar has gotten, and find out how long the whole thing takes.</h2>
+    <p class="setup">Say the bar fills at a steady pace &mdash; real ones don&rsquo;t always, but say this one does. The six minutes you&rsquo;ve waited are whatever percent the bar shows, so the whole update is 100% of that. <b>Drag the bar until the whole update takes an hour. Then two. Then ten.</b></p>
+
+    <div class="panel">
+      <div class="chips">
+        <div class="chip l"><div class="k">The bar says</div><div class="v" id="pv">30%</div></div>
+        <div class="chip l"><div class="k">Waited so far</div><div class="v">6 min</div></div>
+        <div class="chip g"><div class="k">The whole update</div><div class="v" id="wv">20 min</div></div>
+      </div>
+      <div class="bar" aria-hidden="true"><div class="fill" id="fill"></div>
+        <div class="txt"><span>Updating&hellip;</span><b id="barpct">30%</b></div></div>
+      <div class="ruler-k">The same update, on a clock that runs to ten hours</div>
+      <svg class="chart" id="ruler" role="img" aria-label="A ten-hour time ruler with the six minutes and the end of the whole update marked"></svg>
+      <p class="needs-js">This bar is built by the page &mdash; <b>open it in Chrome or Safari</b> to drag it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <div class="knob">
+        <div class="kr"><label class="kk" for="p">How far the bar has gotten</label><span class="kv" id="pk">30%</span></div>
+        <input type="range" id="p" min="1" max="100" step="1" value="30" aria-label="How far the bar has gotten, 1 to 100 percent">
+      </div>
+      <div class="targets" aria-live="polite">
+        <span class="target" id="t60">A whole hour</span>
+        <span class="target" id="t120">Two hours</span>
+        <span class="target" id="t600">Ten hours</span>
+      </div>
+    </div>
+
+    <div class="punch" id="punch1"></div>
+    <p class="nudge" id="nudge1">Make the whole update take an hour.</p>
+    <button class="reveal" type="button" data-act="bar">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>An hour at 10%. Two hours at 5%. Ten hours at 1%. Every time you halved how far the bar had gotten, the whole update doubled. The six minutes never changed &mdash; what changed was how big a piece of the whole they were. When a part is a small percent, the whole behind it is big.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: the part is so many hundredths of the whole, so <span class="math t">the whole = the part &times; 100 &divide; the percent</span>. Six minutes at 1% is <span class="math t">6 &times; 100 &divide; 1 = 600</span> minutes. At 30% it is <span class="math t">6 &times; 100 &divide; 30 = 20</span>. <span class="name">The percent is what you divide by &mdash; which is why shrinking it blows the whole up.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — EVERY BAR AT ONCE ════════ -->
+<section class="act" id="every">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> Every Bar at Once</div>
+    <h2 class="ask">Now leave a dot every time you let go, and see what shape the whole update makes.</h2>
+    <p class="setup">Across is how far the bar says it has gotten. Up is how long the whole update must take, for the same six minutes. <b>Drag and let go, again and again &mdash; and watch where the dots go as the bar heads toward zero.</b></p>
+
+    <div class="panel">
+      <svg class="chart" id="plot" role="img" aria-label="A chart of how long the whole update takes against how far the bar has gotten, with a dot for every position let go of"></svg>
+      <p class="needs-js">This chart is drawn by the page &mdash; <b>open it in Chrome or Safari</b> to leave dots on it.</p>
+      <div class="knob">
+        <div class="kr"><label class="kk" for="p2">How far the bar has gotten</label><span class="kv" id="pk2">50% &rarr; <span class="g" id="wk2">12 min</span></span></div>
+        <input type="range" id="p2" min="1" max="100" step="1" value="50" aria-label="How far the bar has gotten, 1 to 100 percent">
+      </div>
+    </div>
+
+    <p class="nudge" id="nudge2">Drag and let go. Six dots, then look at the shape.</p>
+    <button class="reveal" type="button" data-act="every">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>The dots hug the floor most of the way across &mdash; anything past 20% is a short update. Then, as the bar heads toward zero, they climb faster and faster, and at 1% they reach ten hours. The curve never touches the left edge. There is no percent small enough to make it stop climbing.</p>
+    </div>
+    <p class="notation">Every dot is the same fact, <span class="math t">6 &times; 100 &divide; the percent</span>, read at a different percent. <span class="name">Each problem on this module&rsquo;s Pages was one dot on a curve like this one &mdash; one part, one percent, one whole. Here you can see all of them at once.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THEN — THE CARD, left open ════════ -->
+<section class="act" id="card">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Card</div>
+    <h2 class="ask">One bar the page won&rsquo;t let you drag to.</h2>
+    <div class="ticket">
+      <span class="from">The bar that won&rsquo;t move</span>
+      <p class="big">Six minutes in, and it still says 0%.</p>
+      <p class="never">Every percent you tried gave you a whole update, even when it was a very long one. <b>So how long is an update that&rsquo;s still at 0% after six minutes?</b></p>
+    </div>
+    <p class="setup">Try to find it. If you can&rsquo;t, say what&rsquo;s stopping you.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Six minutes is a big piece of a short update &mdash; and <em>almost nothing</em> of a long one.</p>
+    <div class="colophon">M7 &middot; Unit 2 &middot; Module 2 &middot; <span>Finding the Whole and the Percent</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD";
+  var PART = 6, MAXMIN = 600;                        /* six minutes; the clock runs to ten hours */
+  function whole(p){ return PART*100/p; }
+
+  /* 20 → "20 min", 60 → "1 h", 85.7 → "1 h 26 min", 12.5 → "12.5 min" */
+  function dur(m){
+    if(m < 60){ var r = Math.round(m*10)/10; return (r % 1 ? r.toFixed(1) : r) + " min"; }
+    var mm = Math.round(m), h = Math.floor(mm/60), rest = mm - h*60;
+    return h + " h" + (rest ? " " + rest + " min" : "");
+  }
+  /* `fill` alongside a class goes on as a STYLE: a presentation attribute
+     loses to any CSS rule and the label would repaint faint. `style` merges. */
+  function el(svg, tag, attrs, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for(var k in attrs){
+      if(attrs[k] == null) continue;
+      if(k === "fill" && attrs["class"]) e.style.fill = attrs[k];
+      else if(k === "style") e.style.cssText += ";" + attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    if(text != null) e.textContent = text;
+    svg.appendChild(e); return e;
+  }
+  function size(svg, h){
+    var w = Math.max(300, Math.round(svg.getBoundingClientRect().width || 600));
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h); svg.setAttribute("height", h);
+    return w;
+  }
+
+  /* ── ACT I · the bar ───────────────────────────────────────── */
+  (function(){
+    var act = document.getElementById("bar"), range = document.getElementById("p");
+    var svg = document.getElementById("ruler"), fill = document.getElementById("fill");
+    var punch = document.getElementById("punch1"), nudge = document.getElementById("nudge1");
+    var hit = {60:false, 120:false, 600:false};
+
+    function drawRuler(p){
+      var w = size(svg, 96), L = 14, R = w - 14, y = 48, narrow = w < 520;
+      var X = function(m){ return L + (R - L)*m/MAXMIN; }, W = whole(p);
+      el(svg, "line", {x1:L, y1:y, x2:R, y2:y, "class":"ax"});
+      for(var hr = 0; hr <= 10; hr++){
+        var x = X(hr*60);
+        el(svg, "line", {x1:x, y1:y-5, x2:x, y2:y+5, "class":"ax"});
+        if(!narrow || hr % 2 === 0) el(svg, "text", {x:x, y:y+22, "text-anchor":"middle", "class":"lb"}, hr + " h");
+      }
+      /* the whole update as a span, then the six minutes inside it */
+      el(svg, "rect", {x:L, y:y-7, width:Math.max(1.5, X(W) - L), height:14, rx:3, fill:GOLD, opacity:.22});
+      el(svg, "line", {x1:X(W), y1:y-16, x2:X(W), y2:y+9, stroke:GOLD, "stroke-width":2.4});   /* stops short of the hour labels */
+      el(svg, "rect", {x:L, y:y-7, width:Math.max(1.5, X(PART) - L), height:14, rx:2, fill:LEAD, opacity:.85});
+      /* labels: the six minutes above, the end of the whole above too but pushed clear of it */
+      var endLab = "the whole: " + dur(W), half = endLab.length*3.7;
+      var ex = Math.min(Math.max(X(W), L + half), R - half);
+      el(svg, "text", {x:ex, y:y-24, "text-anchor":"middle", "class":"lb", fill:GOLD}, endLab);
+      el(svg, "text", {x:L, y:y+40, "class":"lb", fill:LEAD}, "↑ your six minutes");
+    }
+
+    function draw(){
+      var p = +range.value, W = whole(p);
+      document.getElementById("pv").textContent = p + "%";
+      document.getElementById("pk").textContent = p + "%";
+      document.getElementById("barpct").textContent = p + "%";
+      document.getElementById("wv").textContent = dur(W);
+      fill.style.width = p + "%";
+      drawRuler(p);
+      [60, 120, 600].forEach(function(m){
+        if(!hit[m] && Math.abs(W - m) < 1e-9){ hit[m] = true; document.getElementById("t" + m).classList.add("hit"); }
+      });
+      var n = (hit[60]?1:0) + (hit[120]?1:0) + (hit[600]?1:0);
+      nudge.textContent = !hit[60] ? "Make the whole update take an hour."
+                        : !hit[120] ? "Now two hours." : !hit[600] ? "Now ten." : "";
+      if(n === 3 && !act.classList.contains("touched")){
+        act.classList.add("touched");
+        punch.style.display = "block";
+        punch.innerHTML = "The same six minutes: <b>an hour</b> at 10%, <b>two hours</b> at 5%, <b>ten hours</b> at 1%.";
+      }
+    }
+    range.addEventListener("input", draw);
+    draw();
+    var rt; window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(draw, 120); });
+  })();
+
+  /* ── ACT II · every bar at once ─────────────────────────────── */
+  (function(){
+    var act = document.getElementById("every"), range = document.getElementById("p2");
+    var svg = document.getElementById("plot"), nudge = document.getElementById("nudge2");
+    var dots = [];
+
+    function draw(){
+      var p = +range.value, W = whole(p);
+      document.getElementById("pk2").firstChild.nodeValue = p + "% → ";
+      document.getElementById("wk2").textContent = dur(W);
+      var w = size(svg, 312), L = 52, R = w - 16, T = 36, B = 268, narrow = w < 520;   /* T gives the axis title its own row, above the 1% dot */
+      var X = function(q){ return L + (R - L)*q/100; }, Y = function(m){ return B - (B - T)*m/MAXMIN; };
+      for(var hr = 0; hr <= 10; hr += 2){
+        el(svg, "line", {x1:L, y1:Y(hr*60), x2:R, y2:Y(hr*60), "class":"gr"});
+        el(svg, "text", {x:L-8, y:Y(hr*60)+4, "text-anchor":"end", "class":"lb"}, hr + " h");
+      }
+      for(var q = 0; q <= 100; q += (narrow ? 20 : 10)){
+        el(svg, "line", {x1:X(q), y1:B, x2:X(q), y2:B+5, "class":"ax"});
+        el(svg, "text", {x:X(q), y:B+20, "text-anchor":"middle", "class":"lb"}, q + "%");
+      }
+      el(svg, "line", {x1:L, y1:B, x2:R, y2:B, "class":"ax"});
+      el(svg, "line", {x1:L, y1:T, x2:L, y2:B, "class":"ax"});
+      el(svg, "text", {x:R, y:B+40, "text-anchor":"end", "class":"cap"}, "HOW FAR THE BAR HAS GOTTEN →");
+      el(svg, "text", {x:L-44, y:14, "class":"cap", fill:GOLD}, "↑ THE WHOLE UPDATE");
+
+      /* once revealed, the whole curve, faintly, under the student's dots */
+      if(act.classList.contains("revealed")){
+        var d = "";
+        for(var s = 1; s <= 100; s += 0.25) d += (d ? " L " : "M ") + X(s).toFixed(1) + " " + Y(whole(s)).toFixed(1);
+        el(svg, "path", {d:d, fill:"none", stroke:GOLD, "stroke-width":1.5, opacity:.35});
+      }
+      dots.forEach(function(q){ el(svg, "circle", {cx:X(q), cy:Y(whole(q)), r:5, fill:GOLD}); });
+      el(svg, "circle", {cx:X(p), cy:Y(W), r:7, fill:"none", stroke:GOLD, "stroke-width":2});
+      el(svg, "line", {x1:X(p), y1:Y(W)+8, x2:X(p), y2:B, stroke:LEAD, "stroke-width":1, opacity:.5, "stroke-dasharray":"3 4"});
+    }
+    function record(){
+      var p = +range.value;
+      if(dots.indexOf(p) < 0) dots.push(p);
+      draw();
+      if(dots.length >= 6) act.classList.add("touched");
+      else nudge.textContent = dots.length + (dots.length === 1 ? " dot" : " dots") + ". Keep going &mdash; try some close to zero.".replace("&mdash;", "—");
+    }
+    range.addEventListener("input", draw);
+    range.addEventListener("change", record);
+    act.querySelector(".reveal").addEventListener("click", function(){ setTimeout(draw, 0); });
+    draw();
+    var rt; window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(draw, 120); });
+  })();
+
+  /* ── the reveals ───────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(b){
+    b.addEventListener("click", function(){ document.getElementById(b.dataset.act).classList.add("revealed"); });
+  });
+
+  /* ── the sky: a bar barely started, and a long empty track after it.
+     Kept right of the headline (x >= 760) and cropped off a phone. ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380, i;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    for(i = 1; i < 7; i++) el(svg, "line", {x1:0, y1:h - i*54, x2:w, y2:h - i*54, stroke:"#223650", "stroke-width":1, opacity:.5});
+    el(svg, "rect", {x:780, y:150, width:360, height:30, rx:15, fill:"none", stroke:CREAM, "stroke-width":1.2, opacity:.28});
+    el(svg, "rect", {x:782, y:152, width:12, height:26, rx:13, fill:LEAD, opacity:.5});
+    el(svg, "line", {x1:780, y1:236, x2:1140, y2:236, stroke:CREAM, "stroke-width":1, opacity:.24});
+    for(i = 0; i <= 10; i++) el(svg, "line", {x1:780 + i*36, y1:230, x2:780 + i*36, y2:242, stroke:CREAM, "stroke-width":1, opacity:.2});
+    el(svg, "line", {x1:1140, y1:218, x2:1140, y2:254, stroke:GOLD, "stroke-width":2, opacity:.55});
+  })();
+})();
+</script>

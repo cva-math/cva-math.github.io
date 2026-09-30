@@ -1,0 +1,491 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A $50 hoodie at 20% off, with an extra 10% off at the register. That's 30% off — isn't it? Ring it up both ways and find the dollar that went missing, then stack any two discounts and watch the sum come up short every time.">
+<title>Twenty Plus Ten &middot; Tax, Tip and Markup</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     TWENTY PLUS TEN — M7 Unit 2, Module 4, Tax, Tip and Markup
+
+     Built in the explore grammar: one move per act, and the name only
+     after the student has seen the thing -- and asked. NB: never write a
+     path glob ending in star-slash inside a CSS comment.
+
+     WHAT THIS PAGE DOES NOT SPEND. The module's one new thing is that the
+     percentage arrives attached to money and already named, and its Pages
+     spend every name once: the conference's Ohio tax table (7.25% on a
+     pillow, a blanket, a trash can), City 3's tax rate and Kiran and Lin's
+     argument, the car dealership's 32% markup then 10% discount, and the
+     restaurant check's tax, total and tip. The intro is the $10 sunglasses
+     that ring up at $10.45; the video does 106%, 65% and 145% of a price.
+     The spares left in candidates/ were a shirt at 20% off and a bike
+     markup. So this page has no tax, no tip, no markup, no car, no
+     restaurant and no shirt -- a hoodie, and two discounts.
+
+     WHY TWO DISCOUNTS, AND NOT A MARKUP AND A DISCOUNT. The dealership
+     already chains two percents, but a markup and a discount never tempt
+     anyone to add them (32 and -10 do not look like 22). Two discounts do:
+     "20% off, plus an extra 10% off" reads as 30% off, and it is 28%. That
+     is the part none of the Pages can show -- the second percent comes off
+     what the first one LEFT, so stacked discounts never add up.
+
+     The receipt keeps the two discounts as two separate lines, the way the
+     dealership problem asks its markup and discount to be kept. Folding
+     them into one multiplier (0.8 x 0.9 = 0.72) is only the name, after.
+
+     NO RATIO LANGUAGE (Jae, 28 Sept 2026).
+
+     Colours, each meaning one thing:
+       gold  — the sale, the first discount
+       lead  — the extra discount, the second, and the hero: it is the
+               one that misbehaves
+       cream — what you pay
+
+     Every number checked in Python first: $50, 20% then 10% is $36, and a
+     straight 30% is $35 -- the extra 10% took $4, not $5. For every pair
+     in 10% steps up to 50%, the discount you get is a + b - a x b / 100,
+     and every receipt line lands exactly on the cent at $50. Stacking
+     50%-off coupons halves the price forever and never reaches zero.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526; --panel:#101E33; --panel-2:#0E1A2E; --line:#2A3F5A; --line-soft:#223650;
+    --cream:#F2EBDD; --dim:#8FA0B5; --faint:#5C6E85;
+    --gold:#E3B34C;  --gold-soft:rgba(227,179,76,.14);    /* the sale */
+    --lead:#9DB2FF;  --lead-soft:rgba(157,178,255,.14);   /* the extra discount */
+    --hero:var(--lead); --hero-soft:var(--lead-soft);
+    --paper:#F3EEE2; --ink:#1B2230; --ink-dim:#6B7280;    /* the receipt itself */
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .t{white-space:nowrap}
+  .g{color:var(--gold)} .l{color:var(--lead)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--hero)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--hero);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--hero)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--hero)}
+  .up:focus-visible{outline:2px solid var(--hero);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--hero);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px 18px}
+
+  /* ── the receipts ────────────────────────────────────────────
+     Paper on the dark room, because a receipt is a thing you hold. Built
+     in HTML so it wraps to one column on a phone and reads as text. */
+  .tills{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .till{display:flex;flex-direction:column;gap:10px}
+  .till-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .ring{
+    align-self:flex-start;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 16px;cursor:pointer;
+  }
+  .ring:hover{border-color:var(--dim)}
+  .ring:focus-visible{outline:2px solid var(--hero);outline-offset:3px}
+  .ring:disabled{opacity:.4;cursor:default}
+  .receipt{
+    background:var(--paper);color:var(--ink);border-radius:3px;padding:16px 18px 14px;min-height:190px;
+    font-family:var(--mono);font-size:14px;line-height:1.7;font-variant-numeric:tabular-nums;
+    box-shadow:0 1px 0 rgba(0,0,0,.2);
+    -webkit-mask:linear-gradient(#000,#000) top/100% calc(100% - 8px) no-repeat,
+      radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) bottom/12px 8px repeat-x;
+            mask:linear-gradient(#000,#000) top/100% calc(100% - 8px) no-repeat,
+      radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) bottom/12px 8px repeat-x;
+  }
+  .receipt.blank{display:flex;align-items:center;justify-content:center;color:var(--ink-dim);font-style:italic;font-family:var(--serif)}
+  .receipt .shop{text-align:center;letter-spacing:.2em;font-size:12px;color:var(--ink-dim);margin-bottom:6px}
+  .receipt .r{display:flex;justify-content:space-between;gap:12px}
+  .receipt .r span:first-child{text-transform:uppercase;letter-spacing:.04em}
+  .receipt .rule{border-top:1px dashed #9aa3b0;margin:6px 0}
+  .receipt .rule2{border-top:2px solid var(--ink);margin:8px 0 6px}
+  .receipt .sale{color:#8A6212}
+  .receipt .extra{color:#3E55B8}
+  .receipt .pay{font-size:17px;font-weight:bold}
+  .receipt .foot{margin-top:6px;font-size:12px;color:var(--ink-dim);text-align:center}
+  @keyframes print{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .receipt .ln{animation:print .35s ease both}
+
+  .punch{
+    display:none;margin-top:16px;background:var(--lead-soft);border:1px solid rgba(157,178,255,.35);
+    border-radius:8px;padding:14px 18px;font-family:var(--serif);font-size:clamp(17px,2.4vw,19px);line-height:1.45;
+  }
+  .punch b{color:var(--cream);font-weight:normal}
+  .punch b.l{color:var(--lead)}
+
+  /* act II */
+  .knobs{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:14px}
+  .knob .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .knob .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .knob .kv{font-family:var(--mono);font-size:16px;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:30px;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--night);
+    border:2px solid var(--thumb);margin-top:-9px;box-shadow:0 0 0 4px var(--thumb-soft);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--night);border:2px solid var(--thumb);box-shadow:0 0 0 4px var(--thumb-soft)}
+  input[type=range]:focus-visible{outline:2px solid var(--hero);outline-offset:6px;border-radius:4px}
+  #sale{--thumb:var(--gold);--thumb-soft:var(--gold-soft)}
+  #extra{--thumb:var(--lead);--thumb-soft:var(--lead-soft)}
+  .live{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:18px;align-items:start}
+  .verdict{font-family:var(--serif);font-size:clamp(18px,2.6vw,22px);line-height:1.5;color:var(--dim)}
+  .verdict b{color:var(--cream);font-weight:normal}
+  .log-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:20px 0 6px}
+  .logwrap{overflow-x:auto}
+  table.log{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  table.log th{
+    font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:normal;
+    color:var(--faint);text-align:right;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  table.log td{font-family:var(--mono);font-size:15px;text-align:right;padding:7px 10px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+  table.log td.empty{text-align:center;color:var(--faint);font-family:var(--serif);font-style:italic}
+  table.log td.got{color:var(--cream)}
+  table.log td.lost{color:var(--dim)}
+
+  .needs-js{
+    margin:14px 0 4px;padding:22px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--hero);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  .act.touched .nudge{display:none}
+
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--hero);background:transparent;border:1px solid rgba(157,178,255,.45);border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  .reveal:hover{border-color:var(--hero);background:var(--hero-soft)}
+  .reveal:focus-visible{outline:2px solid var(--hero);outline-offset:3px}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--hero)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--hero);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--cream);font-size:1.06em}
+
+  .ticket{margin:18px 0 26px;max-width:31em;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px 28px 22px}
+  .ticket .from{display:block;margin-bottom:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .ticket .big{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.2;color:var(--cream)}
+  .ticket .never{margin-top:12px;font-family:var(--serif);font-size:clamp(17px,2.5vw,21px);line-height:1.5;color:var(--dim)}
+  .ticket .never b{color:var(--hero);font-weight:normal}
+
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:23em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--hero)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  @media (max-width:640px){
+    .tills,.live{grid-template-columns:1fr}
+    .knobs{grid-template-columns:1fr;gap:4px}
+  }
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:14px 12px 14px;border-radius:8px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px 16px}
+    /* all five columns on a phone -- "short by" is where the pattern is */
+    table.log th{white-space:normal;padding:6px 5px;vertical-align:bottom}
+    table.log td{padding:7px 5px;font-size:14px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; M7 &middot; Unit 2</a>
+    <div class="eyebrow">M7 &middot; Unit 2 &middot; Module 4 &middot; Tax, Tip and Markup</div>
+    <h1>Twenty Plus <em>Ten</em></h1>
+    <p class="dek">The sign says 20% off. At the register there&rsquo;s another 10% off on top. <strong>That&rsquo;s 30% off &mdash; isn&rsquo;t it?</strong> The receipt says otherwise.</p>
+    <div class="hint">Ring it up both ways.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — RING IT UP ════════ -->
+<section class="act" id="ring">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> Ring It Up</div>
+    <h2 class="ask">A $50 hoodie is 20% off, with an extra 10% off at the register. Is that the same as 30% off?</h2>
+    <p class="setup">Ring it up the way the store does &mdash; the sale first, then the extra 10% off whatever is left. Then ring it up as one straight 30% off. <b>Compare what you&rsquo;d pay.</b></p>
+
+    <div class="panel">
+      <div class="tills">
+        <div class="till">
+          <div class="till-k">The store&rsquo;s way</div>
+          <button class="ring" type="button" id="ringA">Ring up the store&rsquo;s way</button>
+          <div class="receipt blank" id="recA">Nothing rung up yet.</div>
+        </div>
+        <div class="till">
+          <div class="till-k">One straight 30% off</div>
+          <button class="ring" type="button" id="ringB">Ring up 30% off</button>
+          <div class="receipt blank" id="recB">Nothing rung up yet.</div>
+        </div>
+      </div>
+      <p class="needs-js">These receipts are printed by the page &mdash; <b>open it in Chrome or Safari</b> to ring them up.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+    </div>
+
+    <div class="punch" id="punch1"></div>
+    <p class="nudge" id="nudge1">Ring up both.</p>
+    <button class="reveal" type="button" data-act="ring">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>The extra 10% didn&rsquo;t come off the $50 &mdash; it came off the $40 the sale had already left. Ten percent of forty is four, not five. So the two discounts together took $14 off a $50 hoodie, and $14 out of $50 is 28%. Twenty plus ten came out to twenty-eight.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: a discount leaves a percent of what it started with. 20% off leaves <span class="math t">80%</span>, and an extra 10% off leaves <span class="math t">90%</span> of <i>that</i>. Together, <span class="math t">0.8 &times; 0.9 = 0.72</span> &mdash; you pay 72%, so the discount is 28%. <span class="name">Discounts stack by multiplying what&rsquo;s left, never by adding what&rsquo;s taken.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — ANY TWO DISCOUNTS ════════ -->
+<section class="act" id="stack">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> Any Two Discounts</div>
+    <h2 class="ask">Now set any two discounts. Can stacking them ever do as well as adding them?</h2>
+    <p class="setup">Set the sale and the extra discount on the same $50 hoodie, and let go. Each pair goes in the log &mdash; what the two add up to, and what you actually get. <b>Look for a pair where they match.</b></p>
+
+    <div class="panel">
+      <div class="knobs">
+        <div class="knob"><div class="kr"><label class="kk" for="sale">The sale</label><span class="kv g" id="sv">20% off</span></div>
+          <input type="range" id="sale" min="0" max="50" step="10" value="20" aria-label="The sale, 0 to 50 percent off"></div>
+        <div class="knob"><div class="kr"><label class="kk" for="extra">The extra, at the register</label><span class="kv l" id="xv">10% off</span></div>
+          <input type="range" id="extra" min="0" max="50" step="10" value="10" aria-label="The extra discount, 0 to 50 percent off"></div>
+      </div>
+      <div class="live">
+        <div class="receipt" id="recC"></div>
+        <p class="verdict" id="verdict" aria-live="polite"></p>
+      </div>
+      <p class="needs-js">This receipt is printed by the page &mdash; <b>open it in Chrome or Safari</b> to stack discounts.</p>
+      <div class="log-k">The log</div>
+      <div class="logwrap">
+        <table class="log">
+          <thead><tr><th>Sale</th><th>Extra</th><th>Added up</th><th>Actually off</th><th>Short by</th></tr></thead>
+          <tbody id="log"><tr><td class="empty" colspan="5">Nothing yet &mdash; drag and let go.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="nudge" id="nudge2">Drag either discount and let go.</p>
+    <button class="reveal" type="button" data-act="stack">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>They only match when one of the discounts is zero. Every other pair comes out smaller than its sum &mdash; and the bigger both get, the more goes missing. 50% off and another 50% off add up to 100%, but you still pay a quarter of the price. The second discount always comes off a smaller number than the first one did.</p>
+    </div>
+    <p class="notation">The gap has a size. Stacking <i>a</i>% off and then <i>b</i>% off gives you <span class="math t"><i>a</i> + <i>b</i> &minus; <i>a</i> &times; <i>b</i> &divide; 100</span> percent off. Twenty and ten: <span class="math t">20 + 10 &minus; 2 = 28</span>. <span class="name">The part that goes missing is the second discount&rsquo;s cut of the first one.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THEN — THE CARD, left open ════════ -->
+<section class="act" id="card">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Card</div>
+    <h2 class="ask">One stack the page won&rsquo;t ring up for you.</h2>
+    <div class="ticket">
+      <span class="from">Half off, then half off again</span>
+      <p class="big">Could you ever get it free?</p>
+      <p class="never">50% off and another 50% off leaves you paying a quarter. Say the store kept handing you more 50%-off coupons, one after another. <b>How many would it take before the hoodie is free?</b></p>
+    </div>
+    <p class="setup">Try it. Say what you find.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">A second discount comes off what&rsquo;s left, not off the price &mdash; so twenty plus ten is <em>twenty-eight</em>.</p>
+    <div class="colophon">M7 &middot; Unit 2 &middot; Module 4 &middot; <span>Tax, Tip and Markup</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD";
+  var PRICE = 50;
+
+  /* Work in cents, as whole numbers, so a receipt line never shows float
+     noise. At $50 with discounts in 10% steps every line is exact anyway;
+     this keeps it exact if the steps ever change. */
+  function cents(dollars){ return Math.round(dollars*100); }
+  function money(c){ return (c < 0 ? "−" : "") + (Math.abs(c)/100).toFixed(2); }
+  function row(label, c, cls){
+    return '<div class="r ln ' + (cls || "") + '"><span>' + label + '</span><span>' + money(c) + '</span></div>';
+  }
+  function print(el, html){
+    /* each printed line fades in a beat after the last -- decoration only;
+       the receipt's contents are all there before any of it plays */
+    el.classList.remove("blank");
+    el.innerHTML = html;
+    Array.prototype.forEach.call(el.querySelectorAll(".ln"), function(n, i){ n.style.animationDelay = (0.12*i) + "s"; });
+  }
+
+  /* the store's way: sale first, then the extra off what is left */
+  function stacked(a, b){
+    var p = cents(PRICE), s = Math.round(p*a/100), left = p - s, x = Math.round(left*b/100);
+    return {price:p, sale:s, left:left, extra:x, pay:left - x};
+  }
+
+  /* ── ACT I · ring it up ─────────────────────────────────────── */
+  (function(){
+    var act = document.getElementById("ring");
+    var A = document.getElementById("recA"), B = document.getElementById("recB");
+    var punch = document.getElementById("punch1"), nudge = document.getElementById("nudge1");
+    var done = {a:false, b:false};
+
+    function check(){
+      if(done.a && done.b){
+        act.classList.add("touched");
+        punch.style.display = "block";
+        punch.innerHTML = "The store&rsquo;s way came to <b>$36.00</b>. A straight 30% off would be <b>$35.00</b>. The extra 10% took <b class='l'>$4</b>, not $5.";
+      } else nudge.textContent = done.a ? "Now ring up the straight 30% off." : "Now ring up the store’s way.";
+    }
+    document.getElementById("ringA").addEventListener("click", function(){
+      var r = stacked(20, 10);
+      print(A, '<div class="shop">THE STORE</div>' +
+        row("Hoodie", r.price) +
+        row("Sale 20% off", -r.sale, "sale") +
+        '<div class="rule ln"></div>' + row("", r.left) +
+        row("Extra 10% off", -r.extra, "extra") +
+        '<div class="rule2 ln"></div>' + row("You pay", r.pay, "pay") +
+        '<div class="foot ln">saved ' + money(r.price - r.pay) + '</div>');
+      this.disabled = true; done.a = true; check();
+    });
+    document.getElementById("ringB").addEventListener("click", function(){
+      var p = cents(PRICE), off = Math.round(p*30/100);
+      print(B, '<div class="shop">IF IT WERE 30% OFF</div>' +
+        row("Hoodie", p) +
+        row("30% off", -off) +
+        '<div class="rule2 ln"></div>' + row("You pay", p - off, "pay") +
+        '<div class="foot ln">saved ' + money(off) + '</div>');
+      this.disabled = true; done.b = true; check();
+    });
+  })();
+
+  /* ── ACT II · any two discounts ─────────────────────────────── */
+  (function(){
+    var act = document.getElementById("stack");
+    var S = document.getElementById("sale"), X = document.getElementById("extra");
+    var rec = document.getElementById("recC"), verdict = document.getElementById("verdict");
+    var tbody = document.getElementById("log"), nudge = document.getElementById("nudge2");
+    var logged = [];
+
+    function draw(){
+      var a = +S.value, b = +X.value, r = stacked(a, b);
+      var got = (r.price - r.pay)*100/r.price;                       /* the discount you actually get */
+      document.getElementById("sv").textContent = a + "% off";
+      document.getElementById("xv").textContent = b + "% off";
+      rec.innerHTML = '<div class="shop">THE STORE</div>' +
+        '<div class="r"><span>Hoodie</span><span>' + money(r.price) + '</span></div>' +
+        '<div class="r sale"><span>Sale ' + a + '% off</span><span>' + money(-r.sale) + '</span></div>' +
+        '<div class="rule"></div><div class="r"><span></span><span>' + money(r.left) + '</span></div>' +
+        '<div class="r extra"><span>Extra ' + b + '% off</span><span>' + money(-r.extra) + '</span></div>' +
+        '<div class="rule2"></div><div class="r pay"><span>You pay</span><span>' + money(r.pay) + '</span></div>' +
+        '<div class="foot">saved ' + money(r.price - r.pay) + '</div>';
+      var short = Math.round((a + b - got)*100)/100;
+      verdict.innerHTML = "Added up, that&rsquo;s <b>" + (a + b) + "% off</b>.<br>What you actually saved is <b>" +
+        (Math.round(got*100)/100) + "%</b> of the price" +
+        (short === 0 ? " &mdash; <span class='t'><b>the same</b>.</span>" : " &mdash; <span class='t'>short by <b>" + short + "</b>.</span>");
+    }
+    function record(){
+      var a = +S.value, b = +X.value, key = a + "," + b;
+      /* a pair already in the log moves back to the top instead of
+         counting twice -- four different pairs before the reveal */
+      logged = logged.filter(function(x){ return x.key !== key; });
+      var r = stacked(a, b), got = Math.round((r.price - r.pay)*10000/r.price)/100;
+      logged.unshift({key:key, a:a, b:b, got:got});
+      if(logged.length > 8) logged.pop();
+      tbody.innerHTML = logged.map(function(x){
+        var miss = Math.round((x.a + x.b - x.got)*100)/100;
+        return "<tr><td class='g'>" + x.a + "%</td><td class='l'>" + x.b + "%</td><td>" + (x.a + x.b) + "%</td>" +
+               "<td class='got'>" + x.got + "%</td><td class='lost'>" + miss + "</td></tr>";
+      }).join("");
+      if(logged.length >= 4) act.classList.add("touched");
+      else nudge.textContent = "Logged " + logged.length + ". A few more pairs — try a big one, and try a zero.";
+    }
+    [S, X].forEach(function(r){
+      r.addEventListener("input", draw);
+      r.addEventListener("change", function(){ draw(); record(); });
+    });
+    draw();
+  })();
+
+  /* ── the reveals ───────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(b){
+    b.addEventListener("click", function(){ document.getElementById(b.dataset.act).classList.add("revealed"); });
+  });
+
+  /* ── the sky: two price tags, each marked down, one over the other.
+     Kept right of the headline (x >= 760) and cropped off a phone. ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380, i;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    function mk(tag, a){ var e = document.createElementNS(SVGNS, tag); for(var k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; }
+    for(i = 1; i < 7; i++) mk("line", {x1:0, y1:h - i*54, x2:w, y2:h - i*54, stroke:"#223650", "stroke-width":1, opacity:.5});
+    [[820, 120, GOLD, -8], [960, 176, LEAD, 6]].forEach(function(t){
+      var x = t[0], y = t[1];
+      mk("g", {transform:"rotate(" + t[3] + " " + (x+80) + " " + (y+50) + ")"});
+      var g = svg.lastChild;
+      function sub(tag, a){ var e = document.createElementNS(SVGNS, tag); for(var k in a) e.setAttribute(k, a[k]); g.appendChild(e); }
+      sub("path", {d:"M" + x + " " + (y+50) + " L" + (x+30) + " " + y + " H" + (x+170) + " V" + (y+100) + " H" + (x+30) + " Z",
+        fill:"none", stroke:CREAM, "stroke-width":1.2, opacity:.3});
+      sub("circle", {cx:x+26, cy:y+50, r:6, fill:"none", stroke:CREAM, "stroke-width":1.2, opacity:.3});
+      sub("line", {x1:x+60, y1:y+36, x2:x+150, y2:y+36, stroke:CREAM, "stroke-width":1, opacity:.22});
+      sub("line", {x1:x+60, y1:y+62, x2:x+150, y2:y+62, stroke:t[2], "stroke-width":2, opacity:.5});
+    });
+  })();
+})();
+</script>

@@ -1,0 +1,725 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Eight percent of fifty is a slog. Fifty percent of eight is easy. Color one in on a double number line and a hundred grid, swap the two numbers, color in the other — and everything moves except the answer.">
+<title>Eight Percent of Fifty &middot; Percentages of a Number</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" note below never flashes. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the note stays, instead of the
+     line sitting there as a silent empty box. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     EIGHT PERCENT OF FIFTY — M7 Unit 2, Module 1, Percentages of a Number
+
+     Built in the explore grammar (IM3, Pre-Calc and IM 1/2H explore): one
+     move per act, and the name only after the student has seen the thing --
+     and asked. NB: never write a path glob ending in star-slash inside a CSS
+     comment; it closes the comment early and the recovery eats :root.
+
+     WHAT THIS PAGE DOES NOT SPEND. The module's one new thing is that one
+     tick mark is worth the same amount the whole way along, and its Pages
+     spend that three times, each on ONE line with ONE whole: the gas tank
+     (150% of 12), the $50 line with its 25% ticks, the popcorn (80% of 15).
+     The unit's Case spends everything about housing, paychecks and
+     comparing two things of different sizes. So this page never uses a tank,
+     a bag, a house or a paycheck, never goes past 100%, and never compares
+     two wholes against each other.
+
+     WHAT IT SHOWS INSTEAD -- the part none of those pages can: TWO numbers,
+     and what happens when they trade places. The student colors in 8% of
+     50, swaps the numbers, and colors in 50% of 8: a new whole, new ticks,
+     squares worth a different amount, fifty squares instead of eight -- and
+     the one thing that does not move is the answer. Percent OF a number is
+     multiplication in disguise, and multiplication does not care about
+     order. Nothing in IM 7.4 asks this.
+
+     THE INSTRUMENT (Jae, 30 Sept 2026): a double number line with a hundred
+     grid hung under it, the grid's columns standing on the line's ticks --
+     so a column is 10%, a square is 1%, and the grid fills a column at a
+     time, top to bottom, keeping pace with the marker. The student decides
+     how much is covered, either way: drag along the line, or tap squares to
+     color them (a mouse can paint by dragging across). Whichever they
+     touch, the other follows. Squares colored by hand stay where they are
+     when the line moves; the line only adds or takes away at the end of the
+     fill. The module's Pages never use a grid, so this spends nothing.
+
+     On a phone the instrument takes a sideways drag and lets a vertical
+     one scroll the page (touch-action: pan-y), and a tap only counts once
+     the finger lifts -- so a student scrolling past the grid never colors a
+     square by accident.
+
+     EVERY TICK CARRIES ITS NUMBER, on every screen (Jae, 30 Sept 2026).
+     Where eleven labels won't fit in one row -- a phone, or a whole like 37,
+     whose ticks read 3.7, 7.4, 11.1 -- every other label drops to a second
+     row on a longer tick, instead of being skipped.
+
+     NO RATIO LANGUAGE (Jae, 28 Sept 2026): proportional relationships are
+     spring's. The page says "percent of", "double number line", "tick",
+     "square"; never proportion, rate or cross-multiply.
+
+     Two colours, each meaning one number, and they travel with it through
+     the swap so the eye can follow which number went where:
+       gold — the 50
+       lead — the 8
+     Whichever one is the percent colours the squares; whichever is the
+     whole colours the end of the line. The answer is cream, because it
+     belongs to neither. Student-facing words are American ("color").
+
+     Every number checked in Python first: a% of b = b% of a for all 10,000
+     pairs from 1 to 100 (exact, in fractions), and a squares worth b/100
+     each is b squares worth a/100 each. Every tick label, k x b / 10, has at
+     most one decimal and at most four characters. The card's pair does NOT
+     swap: 10% more than 40 is 44, and 40% more than 10 is 14.
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526; --panel:#101E33; --panel-2:#0E1A2E; --line:#2A3F5A; --line-soft:#223650;
+    --cream:#F2EBDD; --dim:#8FA0B5; --faint:#5C6E85;
+    --gold:#E3B34C;  --gold-soft:rgba(227,179,76,.14);    /* the 50 */
+    --lead:#9DB2FF;  --lead-soft:rgba(157,178,255,.14);   /* the 8  */
+    --hero:var(--lead); --hero-soft:var(--lead-soft);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .t{white-space:nowrap}
+  .g{color:var(--gold)} .l{color:var(--lead)}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--hero)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .dek i{color:var(--cream)}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--hero);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--hero)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--hero)}
+  .up:focus-visible{outline:2px solid var(--hero);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--hero);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 20px 18px}
+
+  /* ── the instrument: a double number line over a hundred grid ──
+     Drawn by the script at its real pixel width, so a label is the same
+     size on a phone as on a laptop. */
+  svg.inst{
+    display:block;width:100%;max-width:400px;height:auto;margin:0 auto;overflow:visible;
+    touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  }
+  svg.inst:focus{outline:none}
+  svg.inst:focus-visible{outline:2px solid var(--hero);outline-offset:8px;border-radius:6px}
+  .ln{stroke:var(--cream);stroke-width:1.6;fill:none;opacity:.85}
+  .tk{stroke:#3A5170;stroke-width:1.3}
+  .lb{font-family:var(--mono);font-size:12px;fill:var(--dim);font-variant-numeric:tabular-nums}
+  .cap{font-family:var(--mono);font-size:10px;letter-spacing:.16em;fill:var(--faint)}
+  .sq{fill:transparent;stroke:var(--line);stroke-width:1}
+  .sq.on{fill-opacity:.85;stroke:var(--night);stroke-width:1.5}
+  .frame{fill:none;stroke:#3A5170;stroke-width:1.2}
+
+  /* act I: the instrument on the left, what it says on the right */
+  .stage{
+    display:grid;grid-template-columns:minmax(0,400px) 1fr;grid-template-areas:"inst says" "inst side";
+    gap:0 36px;align-items:center;
+  }
+  .st-inst{grid-area:inst}
+  .says{
+    grid-area:says;align-self:end;font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.3;
+    margin:0 0 4px;font-variant-numeric:tabular-nums;
+  }
+  .says .ans{color:var(--cream)}
+  .says .ans.pop{animation:pop .5s ease}
+  @keyframes pop{0%{text-shadow:0 0 0 rgba(242,235,221,0)}40%{text-shadow:0 0 18px rgba(242,235,221,.55)}100%{text-shadow:0 0 0 rgba(242,235,221,0)}}
+  .side{grid-area:side;align-self:start}
+  .note{min-height:3.2em;font-family:var(--serif);font-size:clamp(16px,2.3vw,19px);line-height:1.5;color:var(--dim)}
+  .note b{color:var(--cream);font-weight:normal}
+  .targets{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 16px}
+  .tg{
+    font-family:var(--mono);font-size:13px;letter-spacing:.03em;color:var(--dim);font-variant-numeric:tabular-nums;
+    border:1px dashed var(--line);border-radius:999px;padding:6px 13px;
+  }
+  .tg.done{color:var(--cream);border-style:solid;border-color:rgba(242,235,221,.4);background:rgba(242,235,221,.06)}
+  .tg.done::before{content:"\2713\00a0"}
+  .swap{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:11px 20px;cursor:pointer;
+  }
+  .swap:hover{border-color:var(--dim)}
+  .swap:focus-visible{outline:2px solid var(--hero);outline-offset:3px}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:14px 0 4px;padding:22px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--hero);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* act II */
+  .knobs{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:6px}
+  .knob .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .knob .kk{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .knob .kv{font-family:var(--mono);font-size:16px;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:30px;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--night);
+    border:2px solid var(--thumb,var(--hero));margin-top:-9px;box-shadow:0 0 0 4px var(--thumb-soft,var(--hero-soft));
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;background:var(--night);
+    border:2px solid var(--thumb,var(--hero));box-shadow:0 0 0 4px var(--thumb-soft,var(--hero-soft));
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--hero);outline-offset:6px;border-radius:4px}
+  #a{--thumb:var(--lead);--thumb-soft:var(--lead-soft)}
+  #b{--thumb:var(--gold);--thumb-soft:var(--gold-soft)}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:14px}
+  .duo .which{font-family:var(--serif);font-size:clamp(19px,2.6vw,23px);font-variant-numeric:tabular-nums;text-align:center}
+  .duo .each{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--dim);text-align:center;margin:2px 0 12px;font-variant-numeric:tabular-nums}
+  .log-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:24px 0 6px}
+  .logwrap{overflow-x:auto}
+  table.log{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  table.log th{
+    font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:normal;
+    color:var(--faint);text-align:right;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  table.log td{font-family:var(--mono);font-size:15px;text-align:right;padding:7px 10px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+  table.log td.empty{text-align:center;color:var(--faint);font-family:var(--serif);font-style:italic}
+  table.log td.same{color:var(--cream)}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation. Hidden until the student ASKS -- a reveal that
+     arrived on its own would hand over the noticing before they made it. */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reveal{
+    display:none;margin-top:22px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--hero);background:transparent;border:1px solid rgba(157,178,255,.45);border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  .reveal:hover{border-color:var(--hero);background:var(--hero-soft)}
+  .reveal:focus-visible{outline:2px solid var(--hero);outline-offset:3px}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--hero)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--hero);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--cream);font-size:1.06em}
+
+  /* the card the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:31em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:24px 28px 22px;
+  }
+  .ticket .from{display:block;margin-bottom:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .ticket .big{font-family:var(--serif);font-size:clamp(26px,4.4vw,38px);line-height:1.2;color:var(--cream)}
+  .ticket .never{margin-top:12px;font-family:var(--serif);font-size:clamp(17px,2.5vw,21px);line-height:1.5;color:var(--dim)}
+  .ticket .never b{color:var(--hero);font-weight:normal}
+
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:23em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--hero)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  @media (max-width:760px){
+    .stage{grid-template-columns:1fr;grid-template-areas:"says" "inst" "side";gap:0}
+    .says{text-align:center;margin-bottom:12px}
+    .side{text-align:center;margin-top:16px}
+    .targets{justify-content:center}
+    .duo{grid-template-columns:1fr;gap:34px}
+  }
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:16px 12px 14px;border-radius:8px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px 16px}
+    .knobs{grid-template-columns:1fr;gap:4px}
+    /* all four columns on a phone -- the last two are the whole point */
+    table.log th{white-space:normal;padding:6px 5px;vertical-align:bottom}
+    table.log td{padding:7px 5px;font-size:14px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; M7 &middot; Unit 2</a>
+    <div class="eyebrow">M7 &middot; Unit 2 &middot; Module 1 &middot; Percentages of a Number</div>
+    <h1>Eight Percent of <em>Fifty</em></h1>
+    <p class="dek">Some percentages come straight off the line and some take real work. Eight percent of fifty takes real work. <strong>The strange part is that you never have to do it.</strong></p>
+    <div class="hint">Color it in. Swap the numbers. Watch what stays.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE SWAP ════════ -->
+<section class="act" id="swap">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Swap</div>
+    <h2 class="ask">Color in 8% of 50. Then swap the two numbers and color in 50% of 8.</h2>
+    <p class="setup">The line and the grid are the same whole, 50. Every tick is another 10%, and every square is 1%. Drag the dot along the line, or tap squares to color them in &mdash; either way you&rsquo;re choosing how much is covered, and the other one follows. <b>Then swap the numbers and do it again. Watch everything that changes, and the one thing that doesn&rsquo;t.</b></p>
+
+    <div class="panel">
+      <div class="stage">
+        <p class="says" id="says1" aria-live="polite"></p>
+        <div class="st-inst"><svg class="inst" id="inst1" aria-label="A double number line over a hundred grid. The arrow keys cover more or less."></svg></div>
+        <div class="side">
+          <p class="note" id="note1"></p>
+          <div class="targets"><span class="tg" id="tg1"></span><span class="tg" id="tg2"></span></div>
+          <button class="swap" type="button" id="swapBtn">Swap the two numbers</button>
+        </div>
+      </div>
+      <p class="needs-js">This line and grid are drawn by the page &mdash; <b>open it in Chrome or Safari</b> to color them in.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+    </div>
+
+    <p class="nudge" id="nudge1">Color in 8% of 50.</p>
+    <button class="reveal" type="button" data-act="swap">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Everything changed. The whole went from 50 to 8, the ticks went from fives to eight-tenths, and each square went from worth 0.5 to worth 0.08. You colored 8 squares the first time and 50 the second. The answer stayed at 4. Eight percent of fifty and fifty percent of eight are the same amount &mdash; so when one of them is hard, do the other one.</p>
+    </div>
+    <p class="notation">The name for this, when you&rsquo;re ready for it: 8% means eight hundredths, so 8% of 50 is <span class="math t">8 &times; 50 &divide; 100</span> and 50% of 8 is <span class="math t">50 &times; 8 &divide; 100</span> &mdash; 8 squares of 0.5, or 50 squares of 0.08. Same three numbers, multiplied in a different order. <span class="name">Multiplying doesn&rsquo;t care about order &mdash; that&rsquo;s the <b>commutative property</b>, hiding inside a percent.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — ANY TWO NUMBERS ════════ -->
+<section class="act" id="any">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> Any Two Numbers</div>
+    <h2 class="ask">Now pick any two numbers and try to break it.</h2>
+    <p class="setup">Choose the two numbers with the sliders, or right on either line or grid. One side shows the first number as a percent of the second; the other shows the second as a percent of the first. Each pair you let go of goes into the log. <b>Look for a pair where the two answers aren&rsquo;t the same.</b></p>
+
+    <div class="panel">
+      <div class="knobs">
+        <div class="knob"><div class="kr"><label class="kk" for="a">The first number</label><span class="kv l" id="av">12</span></div>
+          <input type="range" id="a" min="1" max="100" step="1" value="12"></div>
+        <div class="knob"><div class="kr"><label class="kk" for="b">The second number</label><span class="kv g" id="bv">25</span></div>
+          <input type="range" id="b" min="1" max="100" step="1" value="25"></div>
+      </div>
+      <div class="duo">
+        <div><div class="which" id="w1"></div><div class="each" id="e1"></div>
+          <svg class="inst" id="inst2a" aria-label="The first number as a percent of the second"></svg></div>
+        <div><div class="which" id="w2"></div><div class="each" id="e2"></div>
+          <svg class="inst" id="inst2b" aria-label="The second number as a percent of the first"></svg></div>
+      </div>
+      <p class="needs-js">These lines and grids are drawn by the page &mdash; <b>open it in Chrome or Safari</b> to pick numbers.</p>
+      <div class="log-k">The log</div>
+      <div class="logwrap">
+        <table class="log">
+          <thead><tr><th>First</th><th>Second</th><th>First % of second</th><th>Second % of first</th></tr></thead>
+          <tbody id="log"><tr><td class="empty" colspan="4">Nothing yet &mdash; drag and let go.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="nudge" id="nudge2">Drag either number and let go.</p>
+    <button class="reveal" type="button" data-act="any">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every pair came out the same, whichever number you called the percent. So you can always turn a hard one around: 4% of 75 is 75% of 4, which is 3. And 16% of 25 is 25% of 16, which is 4. Neither one needs a calculator once it&rsquo;s the right way around.</p>
+    </div>
+    <p class="notation">Written once, for any two numbers: <span class="math t"><i>a</i>% of <i>b</i> = <i>b</i>% of <i>a</i></span>, because both are <span class="math t"><i>a</i> &times; <i>b</i> &divide; 100</span> &mdash; <i>a</i> squares worth <span class="math t"><i>b</i> &divide; 100</span> each, or <i>b</i> squares worth <span class="math t"><i>a</i> &divide; 100</span> each. <span class="name">Every percent-of on this unit&rsquo;s Pages had a twin like this. You only ever needed to find the easier one.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THEN — THE CARD, left open ════════ -->
+<section class="act" id="card">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Card</div>
+    <h2 class="ask">One small word the page won&rsquo;t test for you.</h2>
+    <div class="ticket">
+      <span class="from">One word changed</span>
+      <p class="big">Ten percent more than forty.</p>
+      <p class="never">10% of 40 is 40% of 10 &mdash; you&rsquo;ve seen why. Now change <i>of</i> to <i>more than</i>. Ten percent more than forty, and forty percent more than ten. <b>Does the swap still work? If it doesn&rsquo;t, what broke it?</b></p>
+    </div>
+    <p class="setup">Work both out. Then say what <i>more than</i> is doing that <i>of</i> wasn&rsquo;t.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Eight percent of fifty is <em>fifty percent of eight</em> &mdash; so find whichever one is easy.</p>
+    <div class="colophon">M7 &middot; Unit 2 &middot; Module 1 &middot; <span>Percentages of a Number</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", CREAM = "#F2EBDD", NIGHT = "#0B1526";
+
+  /* 4 → "4", 2.8 → "2.8", 0.625 → "0.63", 1234 → "1,234" */
+  function fmt(v){
+    var r = Math.round(v*100)/100;
+    if(Object.is(r, -0)) r = 0;
+    return r.toLocaleString("en-US", {maximumFractionDigits:2});
+  }
+  /* A `fill` passed alongside a class goes on as a STYLE, not an attribute:
+     an SVG presentation attribute loses to any CSS rule, so `.lb{fill:dim}`
+     would silently repaint every coloured label. */
+  function el(svg, tag, attrs, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for(var k in attrs){
+      if(attrs[k] == null) continue;
+      if(k === "fill" && attrs["class"]) e.style.fill = attrs[k];
+      else if(k === "style") e.style.cssText += ";" + attrs[k];   /* merge, never replace the fill */
+      else e.setAttribute(k, attrs[k]);
+    }
+    if(text != null) e.textContent = text;
+    svg.appendChild(e); return e;
+  }
+
+  /* ── the instrument ──────────────────────────────────────────────
+     A double number line -- the whole's amounts on top, percents below,
+     every tick labelled -- with a hundred grid hanging under it, one column
+     per tick. `cells` is in fill order: square i sits in column i / 10,
+     row i % 10, so a column fills top to bottom before the next begins.
+
+     The student sets how much is covered by dragging along the line (the
+     amount jumps to where the finger is) or by coloring squares (a tap
+     flips one; a mouse drag paints). A mouse acts on press. A finger acts
+     on lift, or once it has moved sideways -- until then it may still be
+     a scroll, and the page lets the browser have it. */
+  function instrument(svg, o){
+    var S = {whole:o.whole, cW:o.cW, cP:o.cP, p:0, cells:[]};
+    var MIN = o.min || 0, G = null, g = null, queued = false, kt, i;
+    for(i = 0; i < 100; i++) S.cells.push(false);
+    svg.setAttribute("role", "slider");
+    svg.setAttribute("tabindex", "0");
+    svg.setAttribute("aria-valuemin", MIN);
+    svg.setAttribute("aria-valuemax", 100);
+
+    function count(){ for(var n = 0, i = 0; i < 100; i++) if(S.cells[i]) n++; return n; }
+    /* to a new amount covered: add at the first empty squares, take away from
+       the last colored ones -- so squares colored by hand stay where they are */
+    function fillTo(p){
+      p = Math.max(MIN, Math.min(100, Math.round(p)));
+      var n = count(), i;
+      for(i = 99; i >= 0 && n > p; i--) if(S.cells[i]){ S.cells[i] = false; n--; }
+      for(i = 0; i < 100 && n < p; i++) if(!S.cells[i]){ S.cells[i] = true; n++; }
+      S.p = p;
+    }
+
+    function draw(){
+      var w = Math.round(svg.getBoundingClientRect().width) || 360;
+      var fs = w < 520 ? 11 : 12, L = 18, R = w - 18, len = R - L, cw = len/10, k;
+      var X = function(p){ return L + len*p/100; };
+      var amt = [], pct = [];
+      for(k = 0; k <= 10; k++){ amt.push(fmt(S.whole*k/10)); pct.push(k*10 + "%"); }
+      /* crowded if any two neighbours would come within 6px of each other */
+      function crowded(a){
+        for(var k = 0; k < 10; k++) if((a[k].length + a[k+1].length)/2*fs*0.62 + 6 > cw) return true;
+        return false;
+      }
+      var sA = crowded(amt), sP = crowded(pct);
+      /* rows, top to bottom */
+      var yCap = 13, yAfar = 30, yAnear = sA ? 44 : 32, top = yAnear + 10, bot = top + 72;
+      var yPnear = bot + 21, yPfar = bot + 35, gt = (sP ? yPfar : yPnear) + 14, h = Math.ceil(gt + len + 2);
+      G = {w:w, h:h, L:L, len:len, cw:cw, gt:gt};
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+      svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+      svg.setAttribute("height", h);
+
+      var mx = X(S.p), v = S.whole*S.p/100, st = "font-size:" + fs + "px";
+      /* how much is covered, on the line */
+      el(svg, "rect", {x:L, y:top, width:Math.max(0, mx - L), height:bot - top, fill:S.cP, opacity:.24});
+      el(svg, "line", {x1:L, y1:top, x2:R, y2:top, "class":"ln"});
+      el(svg, "line", {x1:L, y1:bot, x2:R, y2:bot, "class":"ln"});
+      for(k = 0; k <= 10; k++){
+        var x = X(k*10), farA = sA && k % 2 === 1, farP = sP && k % 2 === 1;
+        el(svg, "line", {x1:x, y1:farA ? yAfar + 5 : top - 6, x2:x, y2:top + 6, "class":"tk"});
+        el(svg, "line", {x1:x, y1:bot - 6, x2:x, y2:farP ? yPfar - 12 : bot + 6, "class":"tk"});
+        el(svg, "text", {x:x, y:farA ? yAfar : yAnear, "text-anchor":"middle", "class":"lb", fill:k === 10 ? S.cW : null, style:st}, amt[k]);
+        el(svg, "text", {x:x, y:farP ? yPfar : yPnear, "text-anchor":"middle", "class":"lb", style:st}, pct[k]);
+      }
+      el(svg, "text", {x:R, y:yCap, "text-anchor":"end", "class":"cap", fill:S.cW}, "THE WHOLE");
+
+      /* the marker, with what it is worth on top and its percent below */
+      el(svg, "line", {x1:mx, y1:top, x2:mx, y2:bot, stroke:S.cP, "stroke-width":2.4});
+      function pill(cx, y, text, ink){
+        var pw = 16 + text.length*7.8, x = Math.min(Math.max(cx, 6 + pw/2), w - 6 - pw/2);
+        el(svg, "rect", {x:x - pw/2, y:y, width:pw, height:21, rx:5, fill:NIGHT, stroke:ink, "stroke-opacity":.6});
+        el(svg, "text", {x:x, y:y + 15, "text-anchor":"middle", "class":"lb", fill:ink, style:"font-size:13px"}, text);
+      }
+      pill(mx, top + 8, fmt(v), CREAM);
+      pill(mx, bot - 31, S.p + "%", S.cP);
+      el(svg, "circle", {cx:mx, cy:top, r:5, fill:CREAM});
+      el(svg, "circle", {cx:mx, cy:bot, r:8, fill:NIGHT, stroke:S.cP, "stroke-width":2.5});
+
+      /* the hundred grid, a column under every tick */
+      for(i = 0; i < 100; i++){
+        var c = (i/10)|0, r = i % 10;
+        el(svg, "rect", {x:L + c*cw, y:gt + r*cw, width:cw, height:cw, "class":S.cells[i] ? "sq on" : "sq", fill:S.cells[i] ? S.cP : null});
+      }
+      el(svg, "rect", {x:L, y:gt, width:len, height:len, "class":"frame"});
+
+      svg.setAttribute("aria-valuenow", S.p);
+      svg.setAttribute("aria-valuetext", S.p + "% of " + fmt(S.whole) + " is " + fmt(v));
+    }
+    /* one redraw per frame; the timer is a backstop for a view that never
+       paints frames (a hidden or throttled tab), which would otherwise leave
+       the drawing behind the numbers */
+    function soon(){
+      if(queued) return; queued = true;
+      var run = function(){ if(queued){ queued = false; draw(); } };
+      requestAnimationFrame(run); setTimeout(run, 100);
+    }
+    function changed(){ soon(); if(o.onInput) o.onInput(S.p); }
+    function commit(){ if(o.onCommit) o.onCommit(S.p); }
+
+    function local(e){
+      var b = svg.getBoundingClientRect();
+      return {x:(e.clientX - b.left)*G.w/b.width, y:(e.clientY - b.top)*G.h/b.height};
+    }
+    function cellAt(pt){
+      var c = Math.floor((pt.x - G.L)/G.cw), r = Math.floor((pt.y - G.gt)/G.cw);
+      return c >= 0 && c < 10 && r >= 0 && r < 10 ? c*10 + r : -1;
+    }
+    function zoneAt(pt){ return pt.y < G.gt - 4 ? "line" : cellAt(pt) >= 0 ? "grid" : null; }
+    function toLine(pt){
+      var p = Math.max(MIN, Math.min(100, Math.round((pt.x - G.L)/G.len*100)));
+      if(p !== S.p){ fillTo(p); changed(); }
+    }
+    function paint(pt){
+      var i = cellAt(pt); if(i < 0) return;
+      if(g.mode == null) g.mode = !S.cells[i];          /* the first square decides: color, or clear */
+      if(S.cells[i] === g.mode || (!g.mode && S.p <= MIN)) return;
+      S.cells[i] = g.mode; S.p = count(); changed();
+    }
+    function act(pt){ if(g.zone === "line") toLine(pt); else paint(pt); }
+
+    svg.addEventListener("pointerdown", function(e){
+      g = null;
+      if(e.button > 0 || !G) return;
+      var pt = local(e), zone = zoneAt(pt);
+      if(!zone) return;
+      g = {id:e.pointerId, touch:e.pointerType === "touch", x0:e.clientX, y0:e.clientY, zone:zone, pt:pt, live:false, mode:null};
+      try{ svg.setPointerCapture(e.pointerId); }catch(_){}
+      if(!g.touch){ e.preventDefault(); g.live = true; act(pt); }
+    });
+    svg.addEventListener("pointermove", function(e){
+      if(!g){
+        if(G && e.pointerType === "mouse"){ var z = zoneAt(local(e)); svg.style.cursor = z === "line" ? "ew-resize" : z === "grid" ? "pointer" : ""; }
+        return;
+      }
+      if(e.pointerId !== g.id) return;
+      if(!g.live){
+        var dx = Math.abs(e.clientX - g.x0), dy = Math.abs(e.clientY - g.y0);
+        if(dx < 6 || dx <= dy) return;        /* not a sideways drag yet -- it may still be a scroll */
+        g.live = true; act(g.pt);
+      }
+      act(local(e));
+    });
+    function finish(e, cancelled){
+      if(!g || e.pointerId !== g.id) return;
+      if(!g.live && !cancelled){ g.live = true; act(g.pt); }   /* a tap */
+      var live = g.live; g = null;
+      if(live) commit();
+    }
+    svg.addEventListener("pointerup", function(e){ finish(e, false); });
+    svg.addEventListener("pointercancel", function(e){ finish(e, true); });
+    svg.addEventListener("keydown", function(e){
+      var step = {ArrowRight:1, ArrowUp:1, ArrowLeft:-1, ArrowDown:-1, PageUp:10, PageDown:-10}[e.key];
+      var p = e.key === "Home" ? MIN : e.key === "End" ? 100 : step ? S.p + step : null;
+      if(p == null) return;
+      e.preventDefault();
+      p = Math.max(MIN, Math.min(100, p));
+      if(p !== S.p){ fillTo(p); changed(); }
+      clearTimeout(kt); kt = setTimeout(commit, 600);
+    });
+
+    fillTo(o.p != null ? o.p : MIN);
+    draw();
+    return {
+      draw: draw,
+      p: function(){ return S.p; },
+      set: function(n){
+        if(n.whole != null) S.whole = n.whole;
+        if(n.cW) S.cW = n.cW;
+        if(n.cP) S.cP = n.cP;
+        if(n.clear){ for(var i = 0; i < 100; i++) S.cells[i] = false; fillTo(MIN); }
+        if(n.p != null) fillTo(n.p);
+        soon();
+      }
+    };
+  }
+  var all = [];
+
+  /* ── ACT I · the swap ───────────────────────────────────────── */
+  (function(){
+    var act = document.getElementById("swap"), says = document.getElementById("says1"), note = document.getElementById("note1");
+    var nudge = document.getElementById("nudge1"), btn = document.getElementById("swapBtn");
+    var tg1 = document.getElementById("tg1"), tg2 = document.getElementById("tg2");
+    var swapped = false, done = [false, false];
+    var N8 = '<span class="l">8</span>', N50 = '<span class="g">50</span>';
+    var inst = instrument(document.getElementById("inst1"), {whole:50, cW:GOLD, cP:LEAD, onInput:show, onCommit:check});
+    all.push(inst);
+
+    /* unswapped: 8 is the percent (lead), 50 is the whole (gold); the
+       percent's colour goes to whatever amount the student has covered */
+    function show(){
+      var p = inst.p(), whole = swapped ? 8 : 50;
+      says.innerHTML = '<span class="' + (swapped ? "g" : "l") + '">' + p + '</span>% of ' + (swapped ? N8 : N50) +
+        ' = <span class="ans" id="ans1">' + fmt(whole*p/100) + '</span>';
+      note.innerHTML = p === 0
+        ? "Drag the dot, or tap squares. Tap a colored one to take it back."
+        : "<b>" + p + "</b> square" + (p === 1 ? "" : "s") + ", each worth <b>" + fmt(whole/100) + "</b>";
+    }
+    function targets(){
+      tg1.className = "tg" + (done[0] ? " done" : "");
+      tg2.className = "tg" + (done[1] ? " done" : "");
+      tg1.innerHTML = N8 + "% of " + N50 + (done[0] ? " = 4" : "");
+      tg2.innerHTML = N50 + "% of " + N8 + (done[1] ? " = 4" : "");
+    }
+    function guide(){
+      nudge.textContent = !swapped
+        ? (done[0] ? "Now swap the two numbers." : "Color in 8% of 50.")
+        : (done[1] ? "Swap back, and color in 8% of 50." : "Now color in 50% of 8.");
+    }
+    function check(){
+      var k = swapped ? 1 : 0, hit = inst.p() === (swapped ? 50 : 8);
+      if(hit && !done[k]){
+        done[k] = true; targets();
+        var a = document.getElementById("ans1"); a.classList.remove("pop"); void a.offsetWidth; a.classList.add("pop");
+      }
+      if(done[0] && done[1]) act.classList.add("touched");
+      guide();
+    }
+    btn.addEventListener("click", function(){
+      swapped = !swapped;
+      inst.set({whole:swapped ? 8 : 50, cW:swapped ? LEAD : GOLD, cP:swapped ? GOLD : LEAD, clear:true});
+      btn.textContent = swapped ? "Swap them back" : "Swap the two numbers";
+      show(); guide();
+    });
+    show(); targets(); guide();
+  })();
+
+  /* ── ACT II · any two numbers ───────────────────────────────── */
+  (function(){
+    var act = document.getElementById("any");
+    var A = document.getElementById("a"), B = document.getElementById("b");
+    var av = document.getElementById("av"), bv = document.getElementById("bv");
+    var w1 = document.getElementById("w1"), w2 = document.getElementById("w2");
+    var e1 = document.getElementById("e1"), e2 = document.getElementById("e2");
+    var tbody = document.getElementById("log"), nudge = document.getElementById("nudge2");
+    var logged = [];
+    /* one side is the first number as a percent of the second -- lead squares,
+       a gold whole -- and the other is the same pair traded */
+    var one = instrument(document.getElementById("inst2a"), {whole:+B.value, cW:GOLD, cP:LEAD, p:+A.value, min:1,
+      onInput:function(p){ A.value = p; sync(); }, onCommit:record});
+    var two = instrument(document.getElementById("inst2b"), {whole:+A.value, cW:LEAD, cP:GOLD, p:+B.value, min:1,
+      onInput:function(p){ B.value = p; sync(); }, onCommit:record});
+    all.push(one, two);
+
+    function sq(n){ return n + (n === 1 ? " square" : " squares"); }
+    function sync(){
+      var a = +A.value, b = +B.value, x = fmt(a*b/100);
+      one.set({whole:b, p:a}); two.set({whole:a, p:b});
+      av.textContent = a; bv.textContent = b;
+      w1.innerHTML = '<span class="l">' + a + '</span>% of <span class="g">' + b + '</span> = ' + x;
+      w2.innerHTML = '<span class="g">' + b + '</span>% of <span class="l">' + a + '</span> = ' + x;
+      e1.textContent = sq(a) + ", each worth " + fmt(b/100);
+      e2.textContent = sq(b) + ", each worth " + fmt(a/100);
+    }
+    function record(){
+      var a = +A.value, b = +B.value, key = a + "," + b;
+      /* a pair already in the log moves back to the top instead of counting twice */
+      logged = logged.filter(function(r){ return r.key !== key; });
+      logged.unshift({key:key, a:a, b:b});
+      if(logged.length > 8) logged.pop();
+      tbody.innerHTML = logged.map(function(r){
+        var x = fmt(r.a*r.b/100);
+        return "<tr><td class='l'>" + r.a + "</td><td class='g'>" + r.b + "</td>" +
+               "<td class='same'>" + x + "</td><td class='same'>" + x + "</td></tr>";
+      }).join("");
+      if(logged.length >= 4) act.classList.add("touched");
+      else nudge.textContent = "Logged " + logged.length + ". A few more pairs, then look down the last two columns.";
+    }
+    [A, B].forEach(function(r){
+      r.addEventListener("input", sync);
+      r.addEventListener("change", function(){ sync(); record(); });
+    });
+    sync();
+  })();
+
+  var rt;
+  window.addEventListener("resize", function(){
+    clearTimeout(rt); rt = setTimeout(function(){ all.forEach(function(i){ i.draw(); }); }, 120);
+  });
+
+  /* ── the reveals ───────────────────────────────────────────── */
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(b){
+    b.addEventListener("click", function(){ document.getElementById(b.dataset.act).classList.add("revealed"); });
+  });
+
+  /* ── the sky: two double number lines, the same two numbers traded.
+     Kept to the right of the headline on a laptop (x >= 760, as the other
+     explores keep theirs), and cropped clean off a phone. ── */
+  (function(){
+    var svg = document.getElementById("sky"), w = 1200, h = 380, i;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    function mk(tag, a){ return el(svg, tag, a); }
+    for(i = 1; i < 7; i++) mk("line", {x1:0, y1:h - i*54, x2:w, y2:h - i*54, stroke:"#223650", "stroke-width":1, opacity:.5});
+    [[110, 0.08, LEAD], [236, 0.5, GOLD]].forEach(function(r){
+      var y = r[0], L = 770, R = 1130;
+      mk("line", {x1:L, y1:y, x2:R, y2:y, stroke:CREAM, "stroke-width":1.2, opacity:.3});
+      mk("line", {x1:L, y1:y+36, x2:R, y2:y+36, stroke:CREAM, "stroke-width":1.2, opacity:.3});
+      for(i = 0; i <= 10; i++){
+        var x = L + i*(R-L)/10;
+        mk("line", {x1:x, y1:y-6, x2:x, y2:y+6, stroke:CREAM, "stroke-width":1, opacity:.22});
+        mk("line", {x1:x, y1:y+30, x2:x, y2:y+42, stroke:CREAM, "stroke-width":1, opacity:.22});
+      }
+      var mx = L + (R-L)*r[1];
+      mk("line", {x1:mx, y1:y, x2:mx, y2:y+36, stroke:r[2], "stroke-width":2, opacity:.6});
+      mk("circle", {cx:mx, cy:y, r:4, fill:CREAM, opacity:.45});
+    });
+    mk("path", {d:"M 1152 128 C 1182 170, 1182 214, 1152 256 m -6 -10 l 6 10 l 10 -5", fill:"none", stroke:CREAM, "stroke-width":1.4, opacity:.3});
+  })();
+})();
+</script>
