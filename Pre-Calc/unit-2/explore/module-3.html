@@ -1,0 +1,933 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Divide by almost nothing. Step toward a rational function's wall and watch it run off forever, go far out and see where it settles, then step toward a zero of the bottom that turns out to be a hole.">
+<title>Almost Nothing · Rational Functions</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" notes below never flash. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the notes stay, instead of the
+     charts sitting there as silent empty boxes. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     ALMOST NOTHING — Pre-Calc Unit 2, Module 3, Rational Functions
+     Built in the explore grammar (IM3/unit-2/explore, Pre-Calc/unit-1
+     and unit-2/explore): one move per act, and the name only after the
+     student has seen the thing -- and asked.
+
+     Three acts, because the week has three ideas, and ONE BOTTOM, x - 4,
+     all the way down the page. Only the top changes:
+       I    (3x + 2)/(x - 4)       step toward 4: the top stays near 14,
+                                   the bottom shrinks, the quotient runs
+                                   off -- up on one side, down the other
+       II   2, 3x + 2, 3x^2 + 2    go far out: the highest powers decide,
+            over x - 4             and the three tops are the three cases
+       III  (3x^2 - 10x - 8)/(x-4) step toward 4 again: the top shrinks
+                                   too, the quotient closes in on 14, and
+                                   the wall turns out to be a hole -- at
+                                   the same 14 Act I's top was heading for
+     Then a fourth function left open, like the ticket in Two Photos: can
+     a graph cross the line it settles on? (It can. The page doesn't say.)
+
+     Every number on the page was worked out exactly in Python first, and
+     none of the functions is on the module's Pages. The Mastery builds a
+     wall at 3, a hole at -1 and a settle line at 2; nothing here uses
+     those. Act III shows a hole because telling a wall from a hole is
+     the week's objective -- the Practice does it too (Ex 69) -- but the
+     page never answers the Mastery's classmate.
+
+     Two colours, each meaning one thing:
+       gold  — the function, its graph, and what you move
+       lead  — walls, settle lines, highest powers, and every conclusion
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the function, and what you move */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* asymptotes, highest powers, conclusions */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lead);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sup{font-size:.62em;line-height:0;position:relative;top:-.08em;margin-left:.04em}
+  .t{white-space:nowrap}
+  .lead{color:var(--lead)}
+  /* a fraction, stacked the way it's written by hand */
+  .frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.2;margin:0 .12em}
+  .frac > span{padding:0 .25em;white-space:nowrap}
+  .frac > span:first-child{border-bottom:1.5px solid currentColor;padding-bottom:.06em}
+  .frac > span:last-child{padding-top:.08em}
+  /* limits, stacked the same way */
+  .lim{display:inline-flex;flex-direction:column;align-items:center;line-height:1.05;margin-right:.2em}
+  .lim .under{font-size:.68em;white-space:nowrap}
+  .lim .under sup{font-size:.8em}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px}
+  .panel svg.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+
+  /* the function itself, at the top of each panel */
+  .formula{font-family:var(--serif);font-size:clamp(20px,3.2vw,28px);line-height:1.3;color:var(--cream);margin:0 2px 12px;display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px}
+  .formula .fx{color:var(--dim)}
+  .formula .d{color:var(--lead)}
+
+  /* readout chips.
+     No fixed min-width: a flex item's default minimum is its own content,
+     and these values never wrap -- so a row that can't fit wraps onto a
+     second line instead of pushing numbers out past their borders. */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+  .chip{
+    flex:1 1 170px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.lead{border-color:rgba(157,178,255,.38)}
+  .chip.lead .v{color:var(--lead)}
+  .chip .v .op{color:var(--faint)}
+
+  /* chart key, inside the panel */
+  .key{display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 2px 8px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--dim)}
+  .key span{display:inline-flex;align-items:center;gap:9px}
+  .key svg{width:30px;height:12px;display:block;flex-shrink:0}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:12px 18px;margin-top:12px;flex-wrap:wrap}
+  .controls > label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .slider{position:relative;flex:1 1 240px;min-width:200px;padding-bottom:18px}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 4px rgba(227,179,76,.16)}
+    50%{box-shadow:0 0 0 11px rgba(227,179,76,.04)}
+  }
+  input[type=range]:not(.used)::-webkit-slider-thumb{animation:breathe 2.4s ease-in-out infinite}
+  .ticks{position:absolute;left:0;right:0;bottom:0;height:16px;pointer-events:none}
+  .ticks span{
+    position:absolute;left:calc(11px + (100% - 22px) * var(--p));transform:translateX(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;white-space:nowrap;
+  }
+  .ticks span:first-child{transform:translateX(-11px)}
+  .ticks span:last-child{transform:translateX(calc(-100% + 11px))}
+  /* The buttons may wrap their labels, and a switch must never outgrow
+     its panel */
+  .seg{display:flex;max-width:100%;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 14px;flex:1 1 auto;min-width:0;white-space:normal;line-height:1.35}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+  .seg.tops button{font-family:var(--serif);font-size:17px;letter-spacing:0;text-transform:none}
+  .seg.tops button i{font-style:italic}
+  .controls.split{justify-content:space-between;margin-top:6px}
+  .ctl-k{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+  .land{color:var(--gold);border-color:rgba(227,179,76,.55)}
+  .land:hover{background:var(--gold-soft);border-color:var(--gold)}
+  .land[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+
+  /* ── the table the student fills in ─────────────────────────── */
+  .tbl{margin-top:16px;border-top:1px solid var(--line-soft);padding-top:14px}
+  .tbl-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:0 2px 10px}
+  .grid{display:grid;grid-template-columns:minmax(74px,.7fr) minmax(0,1fr) minmax(0,1fr);gap:6px}
+  .grid .h{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding:2px 4px 4px}
+  .grid .h .lims{display:none;margin-top:4px;font-family:var(--serif);font-size:16px;letter-spacing:0;text-transform:none;color:var(--lead)}
+  .act.revealed .grid .h .lims{display:block;animation:rise .7s ease both}
+  .grid .rk{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--faint);align-self:center;padding:0 4px}
+  .cell{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:5px 9px 4px;min-width:0}
+  .cell .x{display:block;font-family:var(--mono);font-size:10.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cell .n{display:block;font-family:var(--mono);font-size:15.5px;color:var(--lead);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cell.empty .n{color:var(--faint)}
+  .cell.here{border-color:var(--gold)}
+  .cell.fresh{animation:filled 1.2s ease both}
+  @keyframes filled{0%{border-color:var(--lead);background:var(--lead-soft)}100%{}}
+  .cell.wide{grid-column:2 / span 2}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  /* the button takes the nudge's place rather than rising under an empty line */
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. This page doubles as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .reveal{
+    display:none;margin-top:22px;color:var(--lead);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  /* focused only to move a screen reader along, never to be clicked */
+  .insight:focus{outline:none}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.85}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--lead);font-size:1.06em}
+
+  /* the last one, which the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:32em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:22px 26px;font-size:clamp(26px,4.2vw,36px);line-height:1.35;color:var(--cream);
+  }
+  .ticket .fx{color:var(--dim)}
+  .ticket .from{display:block;margin-bottom:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared -- real pixels, because the charts are built at their shown width */
+  .axis{stroke:#3A5272;stroke-width:1.3}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  .axisname{fill:var(--dim);font-family:var(--serif);font-style:italic;font-size:16px}
+  /* a halo the colour of the panel, so a number stays readable wherever a
+     line happens to run behind it */
+  .measure{fill:var(--gold);font-family:var(--mono);font-size:14px;font-weight:bold;
+           paint-order:stroke fill;stroke:#101E33;stroke-width:4px;stroke-linejoin:round}
+  .measure.lead{fill:var(--lead)}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px}
+    .ticktext{font-size:11px}
+    .measure{font-size:12.5px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px}
+    .seg{width:100%}
+    .seg button{flex:1 1 0;padding:9px 8px}
+    .seg.tops button{font-size:15px}
+    .land{width:100%}
+    .grid{grid-template-columns:minmax(52px,.55fr) minmax(0,1fr) minmax(0,1fr);gap:5px}
+    .cell{padding:4px 6px 3px}
+    .cell .n{font-size:13.5px}
+    .grid .rk{font-size:10px;padding:0 2px}
+    .grid .h{font-size:9.5px;letter-spacing:.1em;padding:2px 2px 4px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; Pre-Calc &middot; Unit 2</a>
+    <div class="eyebrow">Pre-Calc &middot; Unit 2 &middot; Module 3 &middot; Rational Functions</div>
+    <h1>Almost <em>Nothing</em></h1>
+    <p class="dek">A rational function is one polynomial divided by another. Every function on this page divides by the same thing, <span class="math t"><i>x</i> &minus; 4</span> &mdash; and <strong>every one of the three experiments is about something getting close to nothing.</strong></p>
+    <div class="hint">Step closer. Go far out. Step closer again.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — THE WALL ════════ -->
+<section class="act" id="wall">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> The Wall</div>
+    <h2 class="ask">Step toward <span class="math t"><i>x</i> = 4</span>, where the bottom is zero. Watch the top, the bottom, and what one divided by the other comes to.</h2>
+    <p class="setup">The gold curve is <span class="math t"><i>f</i>(<i>x</i>) = (3<i>x</i> + 2) &divide; (<i>x</i> &minus; 4)</span>, and the dashed line is <span class="math t"><i>x</i> = 4</span>, where its bottom is zero. Pick a side and slide toward it &mdash; 1 away, then 0.1, 0.01, 0.001, 0.0001 &mdash; and the table keeps every value you land on. <b>Come at it from both sides. Then land right on <span class="math t"><i>x</i> = 4</span>.</b></p>
+
+    <div class="chips">
+      <div class="chip gold"><div class="k">Standing at</div><div class="v" id="w-x">x = 5</div></div>
+      <div class="chip"><div class="k">Top &divide; bottom</div><div class="v" id="w-div">17 ÷ 1</div></div>
+      <div class="chip lead"><div class="k">f(x)</div><div class="v" id="w-f" aria-live="polite">17</div></div>
+    </div>
+
+    <div class="panel" id="w-panel">
+      <div class="formula math"><span class="fx"><i>f</i>(<i>x</i>) =</span><span class="frac"><span>3<i>x</i> + 2</span><span><i>x</i> &minus; 4</span></span></div>
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#E3B34C" stroke-width="3" stroke-linecap="round"/></svg>the graph of f</span>
+        <span><svg viewBox="0 0 30 12"><circle cx="15" cy="6" r="4" fill="#E3B34C"/></svg>where you&rsquo;re standing</span>
+        <span><svg viewBox="0 0 30 12"><line x1="15" y1="0" x2="15" y2="12" stroke="#9DB2FF" stroke-width="2" stroke-dasharray="3 2.5"/></svg>x = 4, where the bottom is zero</span>
+      </div>
+      <p class="needs-js">This chart draws itself &mdash; <b>open the page in Chrome or Safari</b> to use it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="w-svg" role="img" aria-label="The graph of f near x = 4, with a marker that steps toward the dashed line."></svg>
+      <div class="controls">
+        <label for="w-range">How close</label>
+        <div class="slider">
+          <input type="range" id="w-range" min="0" max="4" step="0.01" value="0" aria-valuetext="1 away from 4">
+          <div class="ticks" aria-hidden="true"><span style="--p:0">1</span><span style="--p:.25">0.1</span><span style="--p:.5">0.01</span><span style="--p:.75">0.001</span><span style="--p:1">0.0001</span></div>
+        </div>
+      </div>
+      <div class="controls split">
+        <div class="seg" role="group" aria-label="Which side to come from">
+          <button type="button" data-side="-1" aria-pressed="false">From the left</button>
+          <button type="button" data-side="1" aria-pressed="true">From the right</button>
+        </div>
+        <button type="button" class="land" id="w-land" aria-pressed="false">Land on x = 4</button>
+      </div>
+      <div class="tbl">
+        <div class="tbl-k">Every value you&rsquo;ve landed on</div>
+        <div class="grid" id="w-grid"></div>
+      </div>
+    </div>
+
+    <p class="nudge" id="w-nudge" aria-live="polite"></p>
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Near <span class="math t"><i>x</i> = 4</span> the top hardly moves &mdash; it&rsquo;s always about 14 &mdash; but the bottom keeps shrinking toward zero, and dividing by something tiny makes something huge. Ten times closer, ten times bigger: 143, then 1,403, then 14,003. From the right the bottom is a tiny positive number, so the graph shoots up; from the left it&rsquo;s a tiny negative number, so the graph plunges. And at <span class="math t"><i>x</i> = 4</span> itself there&rsquo;s nothing to work out, because 14 can&rsquo;t be divided by zero. The graph runs up one side of the line and down the other, and never touches it.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: the line <span class="math t"><i>x</i> = 4</span> is a <b>vertical asymptote</b>. Each side of it is a <b>one-sided limit</b>. <span class="math t"><span class="lim">lim<span class="under"><i>x</i>&thinsp;&rarr;&thinsp;4<sup>+</sup></span></span><i>f</i>(<i>x</i>) = &infin;</span> says that coming from the right, <span class="math"><i>f</i>(<i>x</i>)</span> climbs without end, and <span class="math t"><span class="lim">lim<span class="under"><i>x</i>&thinsp;&rarr;&thinsp;4<sup>&minus;</sup></span></span><i>f</i>(<i>x</i>) = &minus;&infin;</span> says that coming from the left, it falls without end. The little + and &minus; on the 4 say which side you came from &mdash; and the table has them now. <span class="name">&infin; isn&rsquo;t a value <i>f</i> ever reaches. It&rsquo;s a direction: this way, forever.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — FAR OUT ════════ -->
+<section class="act" id="far">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> Far Out</div>
+    <h2 class="ask">Keep the bottom. Change the top. Then go far out &mdash; both ways at once.</h2>
+    <p class="setup">Three tops, all over the same <span class="math t"><i>x</i> &minus; 4</span>. Slide out to 10, 100, 1,000 and on to 100,000: the chart zooms out to follow you, with one marker that far to the right and one that far to the left. The terms in blue are the ones with the highest power, on the top and on the bottom. <b>Take every top a long way out.</b></p>
+
+    <div class="chips">
+      <div class="chip gold"><div class="k">Far out</div><div class="v" id="f-x">x = ±10</div></div>
+      <div class="chip lead"><div class="k" id="f-lk">f(−10)</div><div class="v" id="f-l">2</div></div>
+      <div class="chip lead"><div class="k" id="f-rk">f(10)</div><div class="v" id="f-r" aria-live="polite">5.33333</div></div>
+    </div>
+
+    <div class="panel" id="f-panel">
+      <div class="formula math" id="f-formula"></div>
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#E3B34C" stroke-width="3" stroke-linecap="round"/></svg>the graph of f</span>
+        <span><svg viewBox="0 0 30 12"><circle cx="8" cy="6" r="4" fill="#E3B34C"/><circle cx="22" cy="6" r="4" fill="#E3B34C"/></svg>the same distance out, each way</span>
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#9DB2FF" stroke-width="2.5" stroke-dasharray="6 4"/></svg>the line it settles on, once you&rsquo;ve gone far enough to see it</span>
+      </div>
+      <p class="needs-js">This chart draws itself &mdash; <b>open the page in Chrome or Safari</b> to use it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="f-svg" role="img" aria-label="The graph of f, zoomed out to follow two markers the same distance from zero on each side."></svg>
+      <div class="controls">
+        <label for="f-range">How far out</label>
+        <div class="slider">
+          <input type="range" id="f-range" min="1" max="5" step="0.01" value="1" aria-valuetext="x = plus or minus 10">
+          <div class="ticks" aria-hidden="true"><span style="--p:0">10</span><span style="--p:.25">100</span><span style="--p:.5">1,000</span><span style="--p:.75">10,000</span><span style="--p:1">100,000</span></div>
+        </div>
+      </div>
+      <div class="controls split">
+        <span class="ctl-k">The top</span>
+        <div class="seg tops" role="group" aria-label="The top">
+          <button type="button" data-top="0" aria-pressed="false">2</button>
+          <button type="button" data-top="1" aria-pressed="true">3<i>x</i> + 2</button>
+          <button type="button" data-top="2" aria-pressed="false">3<i>x</i><sup>2</sup> + 2</button>
+        </div>
+      </div>
+      <div class="tbl">
+        <div class="tbl-k" id="f-tk">Every power of ten you&rsquo;ve reached</div>
+        <div class="grid" id="f-grid"></div>
+      </div>
+    </div>
+
+    <p class="nudge" id="f-nudge" aria-live="polite"></p>
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Far out, the small terms on the top and the bottom stop mattering &mdash; the same thing that happened two weeks ago &mdash; so the fraction behaves like its two highest-power terms, one over the other. With <span class="math t">3<i>x</i> + 2</span> on top, that&rsquo;s <span class="math t">3<i>x</i></span> over <span class="math"><i>x</i></span>, which is just 3: the graph settles on 3, both ways. With only a 2 on top, the bottom has the higher power: it keeps growing while the top stays put, so the fraction shrinks toward 0. With <span class="math t">3<i>x</i><sup>2</sup> + 2</span> on top, the top has the higher power: <span class="math t">3<i>x</i><sup>2</sup></span> over <span class="math"><i>x</i></span> is <span class="math t">3<i>x</i></span>, which never stops growing, so the graph never settles at all.</p>
+    </div>
+    <p class="notation">The names for this: the line a graph settles on is a <b>horizontal asymptote</b> &mdash; <span class="math t"><i>y</i> = 3</span> for the middle top, <span class="math t"><i>y</i> = 0</span> for the first. Settling is a limit too: <span class="math t"><span class="lim">lim<span class="under"><i>x</i>&thinsp;&rarr;&thinsp;&infin;</span></span><i>f</i>(<i>x</i>) = 3</span> and <span class="math t"><span class="lim">lim<span class="under"><i>x</i>&thinsp;&rarr;&thinsp;&minus;&infin;</span></span><i>f</i>(<i>x</i>) = 3</span>, and the table has them for whichever top you pick. <span class="name">The same power on top and bottom: it settles on the ratio of the numbers in front. A higher power on the bottom: it settles on 0. A higher power on top: it doesn&rsquo;t settle.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT III — THE HOLE ════════ -->
+<section class="act" id="hole">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act III</b> The Hole</div>
+    <h2 class="ask">Same bottom, so <span class="math t"><i>x</i> = 4</span> is still where it&rsquo;s zero. New top. Step toward 4 again.</h2>
+    <p class="setup">You might expect another wall. But the top is new: <span class="math t">3<i>x</i><sup>2</sup> &minus; 10<i>x</i> &minus; 8</span>. Step toward <span class="math t"><i>x</i> = 4</span> the way you did in Act I &mdash; both sides, then land right on it &mdash; and <b>keep an eye on the top this time.</b></p>
+
+    <div class="chips">
+      <div class="chip gold"><div class="k">Standing at</div><div class="v" id="h-x">x = 5</div></div>
+      <div class="chip"><div class="k">Top &divide; bottom</div><div class="v" id="h-div">17 ÷ 1</div></div>
+      <div class="chip lead"><div class="k">f(x)</div><div class="v" id="h-f" aria-live="polite">17</div></div>
+    </div>
+
+    <div class="panel" id="h-panel">
+      <div class="formula math"><span class="fx"><i>f</i>(<i>x</i>) =</span><span class="frac"><span>3<i>x</i><sup>2</sup> &minus; 10<i>x</i> &minus; 8</span><span><i>x</i> &minus; 4</span></span></div>
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#E3B34C" stroke-width="3" stroke-linecap="round"/></svg>the graph of f</span>
+        <span><svg viewBox="0 0 30 12"><circle cx="15" cy="6" r="4" fill="#E3B34C"/></svg>where you&rsquo;re standing</span>
+        <span><svg viewBox="0 0 30 12"><circle cx="15" cy="6" r="4.2" fill="#0B1526" stroke="#E3B34C" stroke-width="1.8"/></svg>a point the graph doesn&rsquo;t have</span>
+      </div>
+      <p class="needs-js">This chart draws itself &mdash; <b>open the page in Chrome or Safari</b> to use it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="h-svg" role="img" aria-label="The graph of f near x = 4, with a marker that steps toward x = 4."></svg>
+      <div class="controls">
+        <label for="h-range">How close</label>
+        <div class="slider">
+          <input type="range" id="h-range" min="0" max="4" step="0.01" value="0" aria-valuetext="1 away from 4">
+          <div class="ticks" aria-hidden="true"><span style="--p:0">1</span><span style="--p:.25">0.1</span><span style="--p:.5">0.01</span><span style="--p:.75">0.001</span><span style="--p:1">0.0001</span></div>
+        </div>
+      </div>
+      <div class="controls split">
+        <div class="seg" role="group" aria-label="Which side to come from">
+          <button type="button" data-side="-1" aria-pressed="false">From the left</button>
+          <button type="button" data-side="1" aria-pressed="true">From the right</button>
+        </div>
+        <button type="button" class="land" id="h-land" aria-pressed="false">Land on x = 4</button>
+      </div>
+      <div class="tbl">
+        <div class="tbl-k">Every value you&rsquo;ve landed on</div>
+        <div class="grid" id="h-grid"></div>
+      </div>
+    </div>
+
+    <p class="nudge" id="h-nudge" aria-live="polite"></p>
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>This time the top shrinks too. At <span class="math t"><i>x</i> = 4</span> the top is zero as well as the bottom &mdash; and a top that&rsquo;s zero at 4 has a factor of <span class="math t"><i>x</i> &minus; 4</span>, which was last week. So the top is <span class="math t">(3<i>x</i> + 2)(<i>x</i> &minus; 4)</span>. The two tiny numbers shrink together, so their ratio never blows up: it closes in on 14, which is <span class="math t">3(4) + 2</span> &mdash; the same 14 the top was heading for in Act I. The <span class="math t"><i>x</i> &minus; 4</span> on top cancels the one on the bottom, and what&rsquo;s left is the straight line <span class="math t">3<i>x</i> + 2</span>, with one point missing. At <span class="math t"><i>x</i> = 4</span> itself, 0 &divide; 0 still isn&rsquo;t a number.</p>
+    </div>
+    <p class="notation">The names for this: the missing point is a <b>hole</b>, at <span class="math t">(4, 14)</span>. The limit is there even though the value isn&rsquo;t: <span class="math t"><span class="lim">lim<span class="under"><i>x</i>&thinsp;&rarr;&thinsp;4</span></span><i>f</i>(<i>x</i>) = 14</span> from both sides, while <span class="math t"><i>f</i>(4)</span> doesn&rsquo;t exist at all. <span class="name">Which is why the bottom being zero only tells you where to look. Factor the top and the bottom before you decide what happens there.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THE LINE IT SETTLES ON — left open ════════ -->
+<section class="act" id="cross">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Line It Settles On</div>
+    <h2 class="ask">One more, and the page won&rsquo;t answer this one for you.</h2>
+    <div class="ticket math"><span class="from">Settles on y = 1, both ways</span><span class="fx"><i>f</i>(<i>x</i>) =</span> <span class="frac"><span><i>x</i><sup>2</sup> + 3<i>x</i></span><span><i>x</i><sup>2</sup> + 1</span></span></div>
+    <p class="setup">Its bottom is never zero, so it has no walls at all, and far out in both directions it settles on <span class="math t"><i>y</i> = 1</span>. A graph can never cross a wall &mdash; at the wall there&rsquo;s no value to cross through. <b>Can it cross the line it settles on? Say what you think, and why.</b></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Near a zero of the bottom, the graph runs off forever &mdash; unless the top is almost nothing too. Far out, the small terms are almost nothing, and the <em>biggest powers</em> decide.</p>
+    <div class="colophon">Pre-Calc &middot; Unit 2 &middot; Module 3 &middot; <span>Rational Functions</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", NIGHT = "#0B1526", CREAM = "#F2EBDD";
+  var MINUS = String.fromCharCode(8722);
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+
+  /* Six significant figures, commas in the whole part, a real minus sign.
+     Enough to show 0.00140003 and 14.0003 and 140,003 exactly as Python
+     printed them, and to hide the last-digit noise of floating point. */
+  function fmt(v){
+    if (!isFinite(v)) return "—";
+    if (Math.abs(v) < 1e-12) return "0";
+    var a = Math.abs(v), s = a >= 1e6 ? String(Math.round(a)) : a.toPrecision(6);
+    if (s.indexOf("e") >= 0) s = String(+s);
+    if (s.indexOf(".") >= 0) s = s.replace(/0+$/, "").replace(/\.$/, "");
+    var parts = s.split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (v < 0 ? MINUS : "") + parts.join(".");
+  }
+  /* tick labels have to fit a margin: 200k, not 200,000 */
+  function tick(v){
+    var a = Math.abs(v);
+    if (a >= 1e6) return (v < 0 ? MINUS : "") + +(a / 1e6).toPrecision(3) + "M";
+    if (a >= 1e4) return (v < 0 ? MINUS : "") + +(a / 1e3).toPrecision(3) + "k";
+    return fmt(v);
+  }
+  function limHTML(under, value){
+    return '<span class="t"><span class="lim">lim<span class="under"><i>x</i>&thinsp;&rarr;&thinsp;' + under +
+           '</span></span><i>f</i>(<i>x</i>) = ' + value + "</span>";
+  }
+
+  /* reveal buttons, and what each act adds when its reveal is pressed */
+  var onReveal = {}, onResize = [];
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      if (onReveal[act.id]) onReveal[act.id]();
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+
+  /* ── a chart, measured at the width it's shown ─────────────────
+     win: {x0, x1, y0, y1}. Returns the mapping and a set of layers.
+     Grid every `step` units; labels in the margins. */
+  function niceStep(span, n){
+    var raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), q = raw / mag;
+    return (q <= 1 ? 1 : q <= 2 ? 2 : q <= 2.5 ? 2.5 : q <= 5 ? 5 : 10) * mag;
+  }
+  function frame(svg, win){
+    clear(svg);
+    var W = Math.max(260, Math.round(svg.getBoundingClientRect().width)), narrow = W < 560;
+    var m = narrow ? {l: 50, r: 12, t: 14, b: 30} : {l: 66, r: 18, t: 16, b: 34};
+    var plot = narrow ? 230 : 300, H = m.t + plot + m.b;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var C = {W: W, H: H, m: m, narrow: narrow, x0: m.l, x1: W - m.r, y0: m.t, y1: m.t + plot, win: win};
+    C.X = function(v){ return C.x0 + (v - win.x0) * (C.x1 - C.x0) / (win.x1 - win.x0); };
+    C.Y = function(v){ return C.y1 - (v - win.y0) * (C.y1 - C.y0) / (win.y1 - win.y0); };
+    C.xAt = function(px){ return win.x0 + (px - C.x0) * (win.x1 - win.x0) / (C.x1 - C.x0); };
+    var defs = el("defs", {}, svg), clip = el("clipPath", {id: svg.id + "-clip"}, defs);
+    el("rect", {x: C.x0, y: C.y0, width: C.x1 - C.x0, height: plot}, clip);
+    C.clip = "url(#" + svg.id + "-clip)";
+    C.grid = el("g", {}, svg);
+    C.guides = el("g", {}, svg);
+    C.curve = el("g", {"clip-path": C.clip}, svg);
+    C.top = el("g", {}, svg);
+    return C;
+  }
+  function gridFor(C, xn, yn){
+    var w = C.win, i, v, xs = niceStep(w.x1 - w.x0, xn), ys = niceStep(w.y1 - w.y0, yn);
+    clear(C.grid);
+    for (v = Math.ceil(w.x0 / xs) * xs; v <= w.x1 + 1e-9; v += xs){
+      var xv = +v.toPrecision(12);
+      el("line", {x1: C.X(xv), x2: C.X(xv), y1: C.y0, y2: C.y1, "class": "gridline"}, C.grid);
+      el("text", {x: C.X(xv), y: C.y1 + (C.narrow ? 18 : 22), "text-anchor": "middle", "class": "ticktext"}, C.grid, tick(xv));
+    }
+    for (v = Math.ceil(w.y0 / ys) * ys; v <= w.y1 + 1e-9; v += ys){
+      var yv = +v.toPrecision(12);
+      el("line", {x1: C.x0, x2: C.x1, y1: C.Y(yv), y2: C.Y(yv), "class": "gridline"}, C.grid);
+      el("text", {x: C.x0 - 8, y: C.Y(yv) + 4, "text-anchor": "end", "class": "ticktext"}, C.grid, tick(yv));
+    }
+    if (w.y0 < 0 && w.y1 > 0) el("line", {x1: C.x0, x2: C.x1, y1: C.Y(0), y2: C.Y(0), "class": "axis"}, C.grid);
+    if (w.x0 < 0 && w.x1 > 0) el("line", {x1: C.X(0), x2: C.X(0), y1: C.y0, y2: C.y1, "class": "axis"}, C.grid);
+  }
+  /* a curve with a break wherever the bottom changes sign */
+  function curve(C, f, breakAt, parent){
+    var segs = [[]], lim = C.H * 3, prevSide = null;
+    for (var px = C.x0; px <= C.x1 + 0.5; px += 1){
+      var x = C.xAt(px), side = breakAt == null ? 0 : (x < breakAt ? -1 : 1);
+      if (prevSide !== null && side !== prevSide) segs.push([]);
+      prevSide = side;
+      var y = C.Y(f(x));
+      if (!isFinite(y)) continue;
+      segs[segs.length - 1].push(px.toFixed(1) + "," + Math.max(-lim, Math.min(lim, y)).toFixed(1));
+    }
+    segs.forEach(function(s){
+      if (s.length > 1) el("polyline", {points: s.join(" "), fill: "none", stroke: GOLD, "stroke-width": 3.2, "stroke-linejoin": "round"}, parent || C.curve);
+    });
+  }
+  /* a marker, pinned to the frame's edge with an arrow when the value is off it */
+  function marker(C, x, y, text, anchorRight){
+    var px = C.X(x), py = C.Y(y), off = py < C.y0 ? -1 : py > C.y1 ? 1 : 0;
+    var cy = off < 0 ? C.y0 + 9 : off > 0 ? C.y1 - 9 : py;
+    if (off){
+      var tip = off < 0 ? C.y0 - 2 : C.y1 + 2, base = off < 0 ? C.y0 + 8 : C.y1 - 8;
+      el("path", {d: "M" + px + " " + tip + "L" + (px - 6) + " " + base + "L" + (px + 6) + " " + base + "Z", fill: GOLD}, C.top);
+    } else {
+      el("circle", {cx: px, cy: cy, r: 6.5, fill: GOLD}, C.top);
+    }
+    var ty = off < 0 ? C.y0 + 22 : off > 0 ? C.y1 - 14 : cy - 12;
+    if (!off && ty < C.y0 + 14) ty = cy + 22;
+    /* the words only where there's room for them; the arrow says it anyway */
+    var label = text + (off && !C.narrow ? (off < 0 ? "  \u2191 off the top" : "  \u2193 off the bottom") : "");
+    /* and never past the frame: flip to the other side if it would run over */
+    var wEst = label.length * (C.narrow ? 7.6 : 8.6), tx;
+    if (anchorRight && px - 12 - wEst < C.x0 + 2) anchorRight = false;
+    else if (!anchorRight && px + 12 + wEst > C.x1 - 2) anchorRight = true;
+    tx = px + (anchorRight ? -12 : 12);
+    el("text", {x: tx, y: ty, "text-anchor": anchorRight ? "end" : "start", "class": "measure"}, C.top, label);
+  }
+
+
+  /* ── header sky: a wall, a settle line, and the curve between ── */
+  function drawSky(){
+    var sky = $("sky"), r = sky.getBoundingClientRect();
+    var W = Math.max(300, Math.round(r.width)), H = Math.max(200, Math.round(r.height));
+    sky.setAttribute("viewBox", "0 0 " + W + " " + H);
+    clear(sky);
+    var cx = W * 0.62, cy = H * 0.5, k = Math.min(W, H) * 0.05;
+    el("line", {x1: cx, x2: cx, y1: 0, y2: H, stroke: LEAD, "stroke-width": 1.4, "stroke-dasharray": "6 6", opacity: .6}, sky);
+    el("line", {x1: 0, x2: W, y1: cy, y2: cy, stroke: LEAD, "stroke-width": 1.4, "stroke-dasharray": "6 6", opacity: .6}, sky);
+    [-1, 1].forEach(function(side){
+      var pts = [];
+      for (var i = 0; i <= 200; i++){
+        var u = side > 0 ? cx + 2 + (W - cx) * Math.pow(i / 200, 1.6) : cx - 2 - cx * Math.pow(i / 200, 1.6);
+        var y = cy - side * (k * k * 6) / Math.abs(u - cx) * 1;
+        pts.push(u.toFixed(1) + "," + Math.max(-H, Math.min(2 * H, y)).toFixed(1));
+      }
+      el("polyline", {points: pts.join(" "), fill: "none", stroke: GOLD, "stroke-width": 1.6, opacity: .55}, sky);
+    });
+  }
+
+  /* ════ stepping toward x = 4: Acts I and III ═══════════════
+     One instrument, two tops. The step is a slider in powers of ten --
+     1, 0.1, 0.01, 0.001, 0.0001 away -- that snaps onto each power, and
+     every power you land on is written into the table. The values are
+     built from the distance itself (the bottom IS side times distance),
+     so the table shows exactly what Python printed, not floating-point
+     crumbs. Landing on 4 itself is its own button: it isn't on the scale. */
+  function approach(p, o){
+    var svg = $(p + "-svg"), range = $(p + "-range"), act = $(o.act), land = $(p + "-land");
+    var sideBtns = Array.prototype.slice.call(act.querySelectorAll(".seg button[data-side]"));
+    var side = 1, s = 0, landed = false, everLanded = false, moved = false, C = null;
+    var rows = {"-1": {}, "1": {}}, fresh = null;
+
+    function at(sd, d){ var bot = sd * d; return {x: 4 + bot, top: o.top(bot), bot: bot, f: o.top(bot) / bot}; }
+    function dist(){ return Math.pow(10, -s); }
+
+    function build(){ C = frame(svg, o.win); draw(); }
+    function draw(){
+      var cur = at(side, dist());
+      gridFor(C, C.narrow ? 4 : 6, 5);
+      clear(C.guides); clear(C.curve); clear(C.top);
+      o.drawShape(C);
+      /* a gold tick on the axis at x, so you can see where you are when the
+         value has run off the frame */
+      var ax = C.Y(Math.max(C.win.y0, Math.min(C.win.y1, 0)));
+      if (landed){
+        o.drawLanding(C);
+      } else {
+        el("line", {x1: C.X(cur.x), x2: C.X(cur.x), y1: ax - 7, y2: ax + 7, stroke: GOLD, "stroke-width": 2.4}, C.top);
+        marker(C, cur.x, cur.f, fmt(cur.f), side < 0);   /* the number sits on the far side from the wall */
+      }
+      var xs = landed ? "x = 4" : "x = " + fmt(cur.x);
+      $(p + "-x").textContent = xs;
+      $(p + "-div").innerHTML = landed ? fmt(o.top(0)) + ' <span class="op">÷</span> 0' :
+        fmt(cur.top) + ' <span class="op">÷</span> ' + fmt(cur.bot);
+      $(p + "-f").textContent = landed ? "no value" : fmt(cur.f);
+      range.setAttribute("aria-valuetext", landed ? "on x = 4" : fmt(dist()) + " away from 4, " + (side < 0 ? "on the left" : "on the right") + "; f is " + fmt(cur.f));
+      svg.setAttribute("aria-label", "The graph of f near x = 4. " + (landed ? "On x = 4 itself: " + o.landSay : "At x = " + fmt(cur.x) + ", f of x is " + fmt(cur.f) + "."));
+      drawTable();
+      progress();
+    }
+
+    function drawTable(){
+      var out = ['<div></div><div class="h">From the left<span class="lims">' + o.limL + '</span></div>' +
+                 '<div class="h">From the right<span class="lims">' + o.limR + "</span></div>"];
+      for (var k = 0; k <= 4; k++){
+        out.push('<div class="rk">' + fmt(Math.pow(10, -k)) + " away</div>");
+        [-1, 1].forEach(function(sd){
+          var r = rows[sd][k], here = !landed && side === sd && s === k;
+          var cls = "cell" + (r ? "" : " empty") + (here ? " here" : "") + (fresh === sd + ":" + k ? " fresh" : "");
+          out.push('<div class="' + cls + '"><span class="x">' + (r ? "x = " + fmt(r.x) : "&nbsp;") +
+                   '</span><span class="n">' + (r ? fmt(r.f) : "—") + "</span></div>");
+        });
+      }
+      out.push('<div class="rk">right on it</div><div class="cell wide' + (everLanded ? "" : " empty") + (landed ? " here" : "") + '">' +
+               '<span class="x">x = 4</span><span class="n">' + (everLanded ? o.landSay : "—") + "</span></div>");
+      $(p + "-grid").innerHTML = out.join("");
+      fresh = null;
+    }
+
+    /* The button needs both sides at three powers of ten at least, and
+       the landing: the table is the thing to notice, so it has to exist. */
+    function progress(){
+      var nl = Object.keys(rows["-1"]).length, nr = Object.keys(rows["1"]).length, here = side < 0 ? nl : nr;
+      $(p + "-nudge").textContent =
+        !moved ? "Slide closer to x = 4." :
+        here < 3 ? "Keep going — get within 0.001 of x = 4." :
+        Math.min(nl, nr) < 3 ? "Now come at it from the other side." :
+        !everLanded ? "Last one: land right on x = 4." :
+        "";
+      if (nl >= 3 && nr >= 3 && everLanded) act.classList.add("touched");
+    }
+
+    function setS(v){
+      var r = Math.round(v);
+      s = Math.abs(v - r) < 0.06 ? r : v;               /* snap onto each power of ten */
+      range.value = String(s);
+      if (s === r){
+        if (!rows[side][r]) fresh = side + ":" + r;
+        rows[side][r] = at(side, Math.pow(10, -r));
+      }
+    }
+    range.addEventListener("input", function(){
+      moved = true; landed = false; land.setAttribute("aria-pressed", "false");
+      range.classList.add("used");
+      setS(parseFloat(range.value));
+      draw();
+    });
+    sideBtns.forEach(function(b){
+      b.addEventListener("click", function(){
+        side = +b.dataset.side; landed = false; land.setAttribute("aria-pressed", "false");
+        sideBtns.forEach(function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+        moved = true;
+        setS(s);
+        draw();
+      });
+    });
+    land.addEventListener("click", function(){
+      landed = true; everLanded = true; moved = true;
+      land.setAttribute("aria-pressed", "true");
+      draw();
+    });
+    onReveal[o.act] = drawTable;
+    setS(0); fresh = null;
+    build();
+    onResize.push(build);
+  }
+
+  /* Act I: (3x + 2)/(x - 4). Built from the distance: top = 14 + 3·bottom. */
+  approach("w", {
+    act: "wall",
+    win: {x0: -2, x1: 10, y0: -24, y1: 24},
+    top: function(bot){ return 14 + 3 * bot; },
+    landSay: "14 ÷ 0 — no value",
+    limL: limHTML("4<sup>" + MINUS + "</sup>", MINUS + "&infin;"),
+    limR: limHTML("4<sup>+</sup>", "&infin;"),
+    drawShape: function(C){
+      el("line", {x1: C.X(4), x2: C.X(4), y1: C.y0, y2: C.y1, stroke: LEAD, "stroke-width": 2, "stroke-dasharray": "6 5"}, C.guides);
+      curve(C, function(x){ return (3 * x + 2) / (x - 4); }, 4);
+    },
+    drawLanding: function(C){
+      /* left of the wall, up high: the one corner the curve never visits */
+      el("text", {x: C.X(4) - 12, y: C.Y(14), "text-anchor": "end", "class": "measure lead"}, C.top, "x = 4: 14 ÷ 0 —");
+      el("text", {x: C.X(4) - 12, y: C.Y(14) + 18, "text-anchor": "end", "class": "measure lead"}, C.top, "there is no f(4)");
+    }
+  });
+
+  /* Act III: (3x^2 - 10x - 8)/(x - 4) = (3x + 2)(x - 4)/(x - 4).
+     Built from the distance: top = (14 + 3·bottom)·bottom. */
+  approach("h", {
+    act: "hole",
+    win: {x0: -2, x1: 10, y0: -8, y1: 34},
+    top: function(bot){ return (14 + 3 * bot) * bot; },
+    landSay: "0 ÷ 0 — no value",
+    limL: limHTML("4<sup>" + MINUS + "</sup>", "14"),
+    limR: limHTML("4<sup>+</sup>", "14"),
+    drawShape: function(C){
+      curve(C, function(x){ return 3 * x + 2; }, null);
+      el("circle", {cx: C.X(4), cy: C.Y(14), r: 6, fill: NIGHT, stroke: GOLD, "stroke-width": 2.2}, C.guides);
+    },
+    drawLanding: function(C){
+      el("circle", {cx: C.X(4), cy: C.Y(14), r: 12, fill: "none", stroke: LEAD, "stroke-width": 2}, C.top);
+      el("text", {x: C.X(4) + 18, y: C.Y(14) + 30, "class": "measure lead"}, C.top, "x = 4: 0 ÷ 0 —");
+      el("text", {x: C.X(4) + 18, y: C.Y(14) + 48, "class": "measure lead"}, C.top, "there is no f(4)");
+    }
+  });
+
+  /* ════ Act II: far out ═════════════════════════════════════
+     Three tops over the same x - 4. The slider runs in powers of ten from
+     10 to 100,000 and snaps onto each one; the chart's window is 1.25
+     times the distance out, so the two markers sit near its edges at
+     every zoom. The two tops that settle keep a fixed height window;
+     the one that doesn't gets a window that grows with it, or it would
+     simply leave the screen. */
+  (function(){
+    var TOPS = [
+      {html: '<span class="d">2</span>',
+       f: function(x){ return 2 / (x - 4); }, settle: 0, lims: ["0", "0"]},
+      {html: '<span class="d">3<i>x</i></span> + 2',
+       f: function(x){ return (3 * x + 2) / (x - 4); }, settle: 3, lims: ["3", "3"]},
+      {html: '<span class="d">3<i>x</i><sup>2</sup></span> + 2',
+       f: function(x){ return (3 * x * x + 2) / (x - 4); }, settle: null, lims: [MINUS + "&infin;", "&infin;"]}
+    ];
+    var svg = $("f-svg"), range = $("f-range"), act = $("far");
+    var topBtns = Array.prototype.slice.call(act.querySelectorAll(".seg button[data-top]"));
+    var t = 1, s = 1, moved = false, C = null;
+    var rec = [{}, {}, {}], reach = [0, 0, 0], fresh = null;
+
+    function X(){ return Math.pow(10, s); }
+    function formula(){
+      $("f-formula").innerHTML = '<span class="fx"><i>f</i>(<i>x</i>) =</span><span class="frac"><span>' + TOPS[t].html +
+        '</span><span><span class="d"><i>x</i></span> &minus; 4</span></span>';
+    }
+    function build(){ draw(); }
+    function draw(){
+      var top = TOPS[t], x = X(), xh = 1.25 * x, fl = top.f(-x), fr = top.f(x);
+      var yh = top.settle === null ? 1.25 * Math.max(Math.abs(fl), Math.abs(fr)) : 10;
+      C = frame(svg, {x0: -xh, x1: xh, y0: -yh, y1: yh});
+      gridFor(C, C.narrow ? 4 : 6, 4);
+      el("line", {x1: C.X(4), x2: C.X(4), y1: C.y0, y2: C.y1, stroke: LEAD, "stroke-width": 1.2, "stroke-dasharray": "4 5", opacity: .45}, C.guides);
+      if (top.settle !== null && reach[t] >= 2){
+        el("line", {x1: C.x0, x2: C.x1, y1: C.Y(top.settle), y2: C.Y(top.settle), stroke: LEAD, "stroke-width": 2.4, "stroke-dasharray": "8 6"}, C.guides);
+        el("text", {x: C.x1 - 6, y: C.Y(top.settle) - 9, "text-anchor": "end", "class": "measure lead"}, C.guides, "y = " + top.settle);
+      }
+      curve(C, top.f, 4);
+      marker(C, -x, fl, fmt(fl), false);
+      marker(C, x, fr, fmt(fr), true);
+
+      var xs = fmt(Math.round(x * (x < 100 ? 10 : 1)) / (x < 100 ? 10 : 1));
+      $("f-x").textContent = "x = ±" + xs;
+      $("f-lk").textContent = "f(" + MINUS + xs + ")";
+      $("f-rk").textContent = "f(" + xs + ")";
+      $("f-l").textContent = fmt(fl);
+      $("f-r").textContent = fmt(fr);
+      range.setAttribute("aria-valuetext", "x = plus or minus " + xs + "; f is " + fmt(fl) + " on the left and " + fmt(fr) + " on the right");
+      drawTable();
+      progress();
+    }
+    function drawTable(){
+      var top = TOPS[t], revealed = act.classList.contains("revealed");
+      var out = ['<div></div><div class="h">Far to the left<span class="lims">' + limHTML(MINUS + "&infin;", top.lims[0]) + "</span></div>" +
+                 '<div class="h">Far to the right<span class="lims">' + limHTML("&infin;", top.lims[1]) + "</span></div>"];
+      for (var k = 1; k <= 5; k++){
+        var r = rec[t][k], here = s === k, xk = Math.pow(10, k);
+        out.push('<div class="rk">x = ±' + fmt(xk) + "</div>");
+        [0, 1].forEach(function(j){
+          var cls = "cell" + (r ? "" : " empty") + (here ? " here" : "") + (fresh === t + ":" + k ? " fresh" : "");
+          out.push('<div class="' + cls + '"><span class="x">' + (r ? "f(" + (j ? "" : MINUS) + fmt(xk) + ")" : "&nbsp;") +
+                   '</span><span class="n">' + (r ? fmt(j ? r.fr : r.fl) : "—") + "</span></div>");
+        });
+      }
+      $("f-grid").innerHTML = out.join("");
+      fresh = null;
+    }
+
+    /* The button needs every top taken to 1,000 or further: three cases,
+       each seen settling -- or refusing to. */
+    function progress(){
+      var done = reach.filter(function(r){ return r >= 3; }).length;
+      $("f-nudge").textContent =
+        !moved ? "Slide out — past 1,000." :
+        reach[t] < 3 ? "Keep going — past 1,000." :
+        done < 3 ? "Now try a different top." :
+        "";
+      if (done === 3) act.classList.add("touched");
+    }
+
+    function setS(v){
+      var r = Math.round(v);
+      s = Math.abs(v - r) < 0.06 ? r : v;
+      range.value = String(s);
+      reach[t] = Math.max(reach[t], Math.floor(s + 1e-9));
+      if (s === r){
+        if (!rec[t][r]) fresh = t + ":" + r;
+        var xk = Math.pow(10, r);
+        rec[t][r] = {fl: TOPS[t].f(-xk), fr: TOPS[t].f(xk)};
+      }
+    }
+    range.addEventListener("input", function(){
+      moved = true; range.classList.add("used");
+      setS(parseFloat(range.value));
+      draw();
+    });
+    topBtns.forEach(function(b){
+      b.addEventListener("click", function(){
+        t = +b.dataset.top;
+        topBtns.forEach(function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+        formula();
+        setS(s);
+        draw();
+      });
+    });
+    onReveal.far = drawTable;
+    formula(); setS(1); draw();
+    onResize.push(build);
+  })();
+
+  drawSky();
+  onResize.push(drawSky);
+
+  /* Rebuild the charts when the width they're SHOWN at really changes -- a
+     phone rotating, a window resized, a scrollbar arriving. State lives
+     outside the drawings, so a rebuild never loses a table or a reveal.
+     Watch a PANEL, not an <svg>: an observer on an outer <svg> never fired
+     in testing, so the thing observed has to be an ordinary HTML box. A
+     rebuild changes only the charts' HEIGHT, which fires the observer again
+     with the same width, which returns -- no loop. */
+  var lastW = Math.round($("w-svg").getBoundingClientRect().width), timer = null;
+  function remeasure(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      var w = Math.round($("w-svg").getBoundingClientRect().width);
+      if (Math.abs(w - lastW) < 2) return;
+      lastW = w;
+      onResize.forEach(function(fn){ fn(); });
+    }, 120);
+  }
+  if (window.ResizeObserver) new ResizeObserver(remeasure).observe($("w-panel"));
+  window.addEventListener("resize", remeasure);
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Everything that must arrive is set synchronously. */
+})();
+</script>
