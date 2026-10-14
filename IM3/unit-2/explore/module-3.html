@@ -14,6 +14,12 @@
      sheet and the mastery fences a playground, so this is letter paper,
      8½ by 11, and there is no fence. There is also no biggest-box readout:
      the peak is on the graph for anyone who wonders about it.
+
+     The middle chip does the plugging in. Each edge's expression, as the
+     drawing labels it, then the same expression with the cut written in
+     for x, then the length that comes out -- so the numbers are visibly the
+     algebra's, and past 4¼ the chip hands back a negative width with a
+     straight face, which is the act's whole point.
      ════════════════════════════════════════════════════════════════ */
   :root{
     --night:#0B1526;        /* the room */
@@ -218,6 +224,19 @@
   .domain-label{fill:var(--lead);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;opacity:0;transition:opacity .8s ease}
   .act.revealed .domain,.act.revealed .domain-edge,.act.revealed .domain-label{opacity:1}
   .chip .v sup{font-size:.6em}
+
+  /* the plugging-in chip: x is gold wherever it is the cut, the box's
+     lengths are lead, as on the drawing */
+  .chips .chip{display:flex;flex-direction:column;justify-content:center}
+  .chip.work{flex:3 1 300px;min-width:0}
+  .plug{margin-top:4px;font-size:clamp(16px,2.1vw,19px);line-height:1.55;color:var(--cream)}
+  .plug > div{display:flex;flex-wrap:wrap;column-gap:.42em}
+  .plug > div > span{white-space:nowrap}
+  .plug .w{color:var(--dim)}
+  .plug .e{color:var(--lead)}
+  .plug i,.plug b{color:var(--gold);font-weight:normal}
+  .plug .r{color:var(--lead)}
+  @media (max-width:600px){ .chip.work{order:3;flex-basis:100%} }
 </style>
 
 <header>
@@ -240,7 +259,11 @@
 
     <div class="chips">
       <div class="chip"><div class="k">Cut</div><div class="v" id="a1-cut">1 in</div></div>
-      <div class="chip lead"><div class="k">Length × width × height</div><div class="v" id="a1-dims">9 × 6.5 × 1</div></div>
+      <div class="chip work"><div class="k">Length × width × height</div><div class="plug math" id="a1-plug">
+        <div><span class="w">length =</span><span class="e">11 &minus; 2<i>x</i></span><span>= 11 &minus; 2(<b>1</b>)</span><span>= <span class="r">9 in</span></span></div>
+        <div><span class="w">width =</span><span class="e">8&frac12; &minus; 2<i>x</i></span><span>= 8&frac12; &minus; 2(<b>1</b>)</span><span>= <span class="r">6.5 in</span></span></div>
+        <div><span class="w">height =</span><span class="e"><i>x</i></span><span>= <b>1</b> in</span></div>
+      </div></div>
       <div class="chip gold"><div class="k">Volume</div><div class="v" id="a1-vol">58.5 in<sup>3</sup></div></div>
     </div>
 
@@ -461,12 +484,23 @@
       el("circle", {cx: sx(x), cy: sy(V(x)), r: 6.5, fill: GOLD, stroke: NIGHT, "stroke-width": 2}, graph);
     }
 
+    /* one line of the plugging-in chip: the edge's expression, the cut
+       written in for x, then the length it gives */
+    function plugRow(word, expr, plugged, result){
+      return '<div><span class="w">' + word + ' =</span><span class="e">' + expr + '</span>' +
+             (plugged ? '<span>= ' + plugged + '</span>' : '') + '<span>= ' + result + '</span></div>';
+    }
+
     function update(){
-      var x = +range.value / 100, L = LONG - 2 * x, Wd = SHORT - 2 * x;
+      var x = +range.value / 100, L = LONG - 2 * x, Wd = SHORT - 2 * x, c = "<b>" + num(x, 2) + "</b>";
       $("a1-cut").textContent = num(x, 2) + " in";
-      $("a1-dims").textContent = num(L, 2) + " × " + num(Wd, 2) + " × " + num(x, 2);
+      $("a1-plug").innerHTML =
+        plugRow("length", "11 " + MINUS + " 2<i>x</i>", "11 " + MINUS + " 2(" + c + ")", '<span class="r">' + num(L, 2) + " in</span>") +
+        plugRow("width", "8½ " + MINUS + " 2<i>x</i>", "8½ " + MINUS + " 2(" + c + ")", '<span class="r">' + num(Wd, 2) + " in</span>") +
+        plugRow("height", "<i>x</i>", null, c + " in");
       $("a1-vol").innerHTML = num(V(x), 1) + " in<sup>3</sup>";
-      range.setAttribute("aria-valuetext", num(x, 2) + " inch cut, volume " + num(V(x), 1) + " cubic inches");
+      range.setAttribute("aria-valuetext", num(x, 2) + " inch cut: " + num(L, 2) + " by " + num(Wd, 2) + " by " +
+                         num(x, 2) + " inches, volume " + num(V(x), 1) + " cubic inches");
       drawScene(x);
       drawGraph(x);
       if (x >= EDGE - 1e-9) touched("act1");

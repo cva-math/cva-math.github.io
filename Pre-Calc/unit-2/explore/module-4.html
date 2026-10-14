@@ -1,0 +1,1003 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A graph can only switch sides of the x-axis at a zero or a break. Test numbers on a graph you can't see, square a factor and watch a point fall out of the answer, then catch an equation handing you an answer that isn't one.">
+<title>Two Doors · Solving Equations and Inequalities</title>
+<!-- Marks the page as running before anything paints, so the "needs a
+     browser" notes below never flash. Where scripts don't run -- a Finder
+     Quick Look, a static file preview -- the notes stay, instead of the
+     charts sitting there as silent empty boxes. -->
+<script>document.documentElement.className += " js";</script>
+<style>
+  /* ════════════════════════════════════════════════════════════════
+     TWO DOORS — Pre-Calc Unit 2, Module 4, Solving Equations and
+     Inequalities. Built in the explore grammar (IM3/unit-2/explore,
+     Pre-Calc/unit-1 and unit-2/explore): one move per act, and the name
+     only after the student has seen the thing -- and asked.
+
+     The week is one idea: a graph can only get from above the x-axis to
+     below it through a zero or across a break. The two doors.
+       I    In the Dark. f(x) = (x + 3)(x - 1)/((x + 1)(x - 4)), hidden
+            under fog; only the doors are marked. Tap to test numbers.
+            Every test between the same two doors lands on the same side,
+            which is the sign chart, discovered. Then lift the fog.
+       II   The Door That Stays Shut. The same f with (x + 3) written
+            twice -- the ONE factor whose squaring changes a single piece
+            (squaring x - 1 would flip every piece left of 1 and bury the
+            point). Switch >, >=, <, <= and watch the answer on the axis:
+            {-3} alone for >=, a skipped -3 for <.
+       III  The Answer That Isn't. 2x/(x - 1) = 2/(x - 1) + x, solved by
+            multiplying through: x = 1 or x = 2. Two charts, as written
+            and multiplied, one slider across both. On the right the
+            curves really meet at x = 1; on the left there's nothing
+            there to meet.
+     Then the week's sentence itself, left open like the earlier pages'
+     last cards: could a graph switch sides any other way?
+
+     The Mastery asks what goes wrong when a classmate multiplies an
+     INEQUALITY through by x - 3. The page never does that, never says it,
+     and Act III multiplies an EQUATION only. Every sign pattern and
+     solution set was worked out exactly in Python first; none of the
+     functions is on the module's Pages or the conference.
+
+     Two colours, each meaning one thing:
+       gold  — the function, its graph, and what you do to it
+       lead  — the doors, the signs, the answers, and every conclusion
+     ════════════════════════════════════════════════════════════════ */
+  :root{
+    --night:#0B1526;        /* the room */
+    --panel:#101E33;        /* raised panel */
+    --panel-2:#0E1A2E;      /* inset wells */
+    --line:#2A3F5A;         /* hairlines, grid */
+    --line-soft:#223650;    /* fainter grid */
+    --cream:#F2EBDD;        /* primary text */
+    --dim:#8FA0B5;          /* muted text */
+    --faint:#5C6E85;        /* faintest labels */
+    --gold:#E3B34C;         /* the function, and what you do */
+    --gold-soft:rgba(227,179,76,.14);
+    --lead:#9DB2FF;         /* doors, signs, answers, conclusions */
+    --lead-soft:rgba(157,178,255,.14);
+    --serif:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:dark;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  }
+  body{
+    background:var(--night);color:var(--cream);font-family:var(--body);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lead);color:var(--night)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+
+  /* math */
+  .math{font-family:var(--serif);font-style:normal}
+  .math i{font-style:italic}
+  .math sup{font-size:.62em;line-height:0;position:relative;top:-.08em;margin-left:.04em}
+  .t{white-space:nowrap}
+  .lead{color:var(--lead)}
+  .frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.2;margin:0 .12em}
+  .frac > span{padding:0 .25em;white-space:nowrap}
+  .frac > span:first-child{border-bottom:1.5px solid currentColor;padding-bottom:.06em}
+  .frac > span:last-child{padding-top:.08em}
+
+  /* ── header ─────────────────────────────────────────────────── */
+  header{position:relative;padding:84px 0 60px;overflow:hidden;border-bottom:1px solid var(--line-soft)}
+  header .wrap{position:relative;z-index:1}
+  .sky{position:absolute;inset:0;z-index:0;opacity:.42;width:100%;height:100%}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:clamp(44px,7.5vw,76px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 22px;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--lead)}
+  .dek{max-width:34em;color:var(--dim);font-size:18.5px}
+  .dek strong{color:var(--cream);font-weight:normal;font-style:italic}
+  .hint{
+    display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  }
+  .hint::before{content:"";display:block;width:34px;height:1px;background:var(--gold)}
+  .up{
+    display:inline-block;margin-bottom:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);text-decoration:none;
+  }
+  .up:hover{color:var(--gold)}
+  .up:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
+
+  /* ── acts ───────────────────────────────────────────────────── */
+  .act{padding:76px 0 34px;border-bottom:1px solid var(--line-soft)}
+  .act-eyebrow{
+    display:flex;align-items:baseline;gap:14px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--faint);
+  }
+  .act-eyebrow b{color:var(--lead);font-weight:normal}
+  .ask{
+    font-family:var(--serif);font-size:clamp(24px,3.6vw,33px);font-weight:500;
+    line-height:1.3;margin:14px 0 8px;max-width:24em;text-wrap:balance;letter-spacing:-.005em;
+  }
+  .setup{color:var(--dim);max-width:38em;margin-bottom:26px}
+  .setup b{color:var(--cream);font-weight:normal}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px}
+  .panel svg.chart{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+  #d-svg{cursor:crosshair;touch-action:manipulation}
+
+  .formula{font-family:var(--serif);font-size:clamp(20px,3.2vw,28px);line-height:1.3;color:var(--cream);margin:0 2px 12px;display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px}
+  .formula .fx{color:var(--dim)}
+  .formula .sq{color:var(--gold)}
+
+  /* readout chips.
+     No fixed min-width: a flex item's default minimum is its own content,
+     and these values never wrap -- so a row that can't fit wraps onto a
+     second line instead of pushing numbers out past their borders. */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+  .chip{
+    flex:1 1 170px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px 9px;
+  }
+  .chip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .chip .v{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,22px);margin-top:3px;
+    font-variant-numeric:tabular-nums;color:var(--cream);white-space:nowrap;
+  }
+  .chip.gold .v{color:var(--gold)}
+  .chip.lead{border-color:rgba(157,178,255,.38)}
+  .chip.lead .v{color:var(--lead)}
+
+  /* chart key, inside the panel */
+  .key{display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 2px 8px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--dim)}
+  .key span{display:inline-flex;align-items:center;gap:9px}
+  .key svg{width:30px;height:12px;display:block;flex-shrink:0}
+
+  /* shown only where the page's script can't run */
+  .needs-js{
+    margin:6px 0 4px;padding:28px 18px;border:1px dashed var(--line);border-radius:8px;text-align:center;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;line-height:1.6;color:var(--dim);
+  }
+  .needs-js b{color:var(--gold);font-weight:normal}
+  html.js .needs-js{display:none}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:12px 18px;margin-top:12px;flex-wrap:wrap}
+  .controls.split{justify-content:space-between;margin-top:6px}
+  .controls > label,.ctl-k{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .slider{position:relative;flex:1 1 240px;min-width:200px;padding-bottom:18px}
+  input[type=range]{
+    width:100%;appearance:none;-webkit-appearance:none;height:34px;background:transparent;cursor:pointer;display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--night);border:2px solid var(--gold);margin-top:-10px;
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:1px}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--night);border:2px solid var(--gold);
+    box-shadow:0 0 0 4px rgba(227,179,76,.15);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:8px;border-radius:4px}
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 4px rgba(227,179,76,.16)}
+    50%{box-shadow:0 0 0 11px rgba(227,179,76,.04)}
+  }
+  input[type=range]:not(.used)::-webkit-slider-thumb{animation:breathe 2.4s ease-in-out infinite}
+  .ticks{position:absolute;left:0;right:0;bottom:0;height:16px;pointer-events:none}
+  .ticks span{
+    position:absolute;left:calc(11px + (100% - 22px) * var(--p));transform:translateX(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;white-space:nowrap;
+  }
+  .ticks span:first-child{transform:translateX(-11px)}
+  .ticks span:last-child{transform:translateX(calc(-100% + 11px))}
+  /* The buttons may wrap their labels, and a switch must never outgrow
+     its panel */
+  .seg{display:flex;max-width:100%;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:10px 14px;flex:1 1 auto;min-width:0;white-space:normal;line-height:1.35}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+  .seg.syms button{font-family:var(--serif);font-size:20px;letter-spacing:0;padding:6px 16px}
+  .act-btn{color:var(--gold);border-color:rgba(227,179,76,.55)}
+  .act-btn:hover{background:var(--gold-soft);border-color:var(--gold)}
+  .act-btn[aria-disabled=true]{opacity:.42;cursor:not-allowed}
+  .act-btn[aria-disabled=true]:hover{background:var(--panel-2);border-color:rgba(227,179,76,.55)}
+  .act-btn[aria-pressed=true]{background:var(--gold);color:var(--night);font-weight:bold}
+
+  /* the answer, written out under Act II's chart */
+  .answer{margin:14px 2px 2px;font-family:var(--serif);font-size:clamp(18px,2.6vw,23px);line-height:1.5;color:var(--cream)}
+  .answer .k{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+  .answer b{color:var(--lead);font-weight:normal;white-space:nowrap}
+
+  /* Act III: the equation, the algebra, and two charts side by side */
+  .eqn{font-family:var(--serif);font-size:clamp(21px,3.3vw,29px);display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:0 2px 10px}
+  .algebra{margin:0 2px 14px;padding:10px 14px;border:1px dashed var(--line);border-radius:8px;font-family:var(--serif);font-size:clamp(16px,2.3vw,19px);line-height:1.7;color:var(--dim)}
+  .algebra .k{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .algebra .ar{color:var(--faint);margin:0 .35em}
+  .algebra b{color:var(--cream);font-weight:normal}
+  .pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .half .h{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin:0 2px 6px}
+  .half .read{font-family:var(--mono);font-size:13px;color:var(--dim);margin:6px 2px 0;min-height:2.6em;line-height:1.5}
+  .half .read b{color:var(--lead);font-weight:normal}
+  .half .read .g{color:var(--gold)}
+  .half .read .c{color:var(--cream)}
+  .checks{margin-top:16px;border-top:1px solid var(--line-soft);padding-top:14px}
+  .checks-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:0 2px 10px}
+  .grid{display:grid;grid-template-columns:minmax(64px,.5fr) minmax(0,1fr) minmax(0,1fr);gap:6px}
+  .grid .h{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding:2px 4px 4px}
+  .grid .rk{font-family:var(--serif);font-size:17px;color:var(--cream);align-self:center;padding:0 4px;white-space:nowrap}
+  .cell{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:6px 10px;min-width:0;font-family:var(--mono);font-size:13.5px;color:var(--faint)}
+  .cell.yes{color:var(--lead);border-color:rgba(157,178,255,.45)}
+  .cell.no{color:var(--cream)}
+  .cell.here{border-color:var(--gold)}
+
+  .nudge{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);min-height:1.6em;margin-top:16px}
+  /* the button takes the nudge's place rather than rising under an empty line */
+  .act.touched .nudge{display:none}
+
+  /* discovery + notation.
+     Hidden until the student ASKS for them. This page doubles as a module's
+     notice-and-wonder, and a reveal that arrived on its own would hand the
+     student their noticings before they had written any. So playing earns
+     the button (.touched), and only pressing it shows what we saw (.revealed). */
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:11px 18px;cursor:pointer;
+  }
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .reveal{
+    display:none;margin-top:22px;color:var(--lead);background:transparent;
+    border:1px solid rgba(157,178,255,.45);
+  }
+  .reveal:hover{border-color:var(--lead);background:var(--lead-soft)}
+  .reveal:focus-visible{outline:2px solid var(--lead)}
+  .act.touched:not(.revealed) .reveal{display:inline-block;animation:rise .6s ease both}
+  .insight{display:none;margin:28px 0 0;max-width:37em}
+  /* focused only to move a screen reader along, never to be clicked */
+  .insight:focus{outline:none}
+  .act.revealed .insight{display:block;animation:rise .7s ease both}
+  .insight .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lead)}
+  .insight p{font-family:var(--serif);font-size:21px;line-height:1.45;margin-top:8px;border-left:2px solid var(--lead);padding-left:18px}
+  .notation{display:none;margin:22px 0 0;color:var(--faint);font-size:15.5px;max-width:40em;line-height:1.8}
+  .act.revealed .notation{display:block;animation:rise .7s ease .25s both}
+  .notation b{color:var(--cream);font-weight:normal}
+  .notation .name{color:var(--dim);font-style:italic}
+  .notation .math{color:var(--lead);font-size:1.06em}
+
+  /* the last one, which the page leaves open */
+  .ticket{
+    margin:18px 0 26px;max-width:32em;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:22px 26px;font-family:var(--serif);font-size:clamp(22px,3.2vw,29px);
+    line-height:1.35;color:var(--cream);
+  }
+  .ticket .from{display:block;margin-bottom:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+
+  /* footer */
+  footer{padding:64px 0 84px;text-align:center}
+  .thesis{font-family:var(--serif);font-size:clamp(24px,4vw,34px);line-height:1.35;max-width:22em;margin:0 auto;text-wrap:balance}
+  .thesis em{color:var(--lead)}
+  .colophon{margin-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .colophon span{color:var(--dim)}
+
+  /* svg shared -- real pixels, because the charts are built at their shown width */
+  .axis{stroke:#3A5272;stroke-width:1.3}
+  .gridline{stroke:var(--line-soft);stroke-width:1}
+  .ticktext{fill:var(--dim);font-family:var(--mono);font-size:12.5px}
+  /* a halo the colour of the panel, so a number stays readable wherever a
+     line happens to run behind it */
+  .measure{fill:var(--gold);font-family:var(--mono);font-size:14px;font-weight:bold;
+           paint-order:stroke fill;stroke:#101E33;stroke-width:4px;stroke-linejoin:round}
+  .measure.lead{fill:var(--lead)}
+  .fogtext{fill:var(--dim);font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+           paint-order:stroke fill;stroke:#101E33;stroke-width:5px}
+  .flag{font-family:var(--serif);font-size:17px;fill:var(--lead)}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    header{padding:56px 0 44px}
+    .act{padding:56px 0 26px}
+    .panel{padding:12px 10px 10px;border-radius:8px}
+    .chip{padding:8px 10px 7px}
+    .ticktext{font-size:11px}
+    .measure{font-size:12.5px}
+    .insight p{font-size:19px}
+    .ticket{padding:18px 18px}
+    .seg{width:100%}
+    .seg button{flex:1 1 0;padding:9px 8px}
+    .seg.syms button{padding:5px 8px}
+    .act-btn{width:100%}
+    .pair{grid-template-columns:minmax(0,1fr)}
+    .grid{grid-template-columns:minmax(40px,.35fr) minmax(0,1fr) minmax(0,1fr);gap:5px}
+    .cell{padding:5px 7px;font-size:12px}
+    .grid .h{font-size:9.5px;letter-spacing:.1em;padding:2px 2px 4px}
+  }
+</style>
+
+<header>
+  <svg class="sky" id="sky" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="wrap">
+    <a class="up" href="../">&larr; Pre-Calc &middot; Unit 2</a>
+    <div class="eyebrow">Pre-Calc &middot; Unit 2 &middot; Module 4 &middot; Solving Equations and Inequalities</div>
+    <h1>Two <em>Doors</em></h1>
+    <p class="dek">A graph that&rsquo;s above the x&#8209;axis can only get below it two ways: down through the axis, at a zero &mdash; or across a gap, at a break. <strong>Find the doors, and you can solve the whole thing without ever seeing the graph.</strong></p>
+    <div class="hint">Test in the dark. Shut a door. Catch a fake.</div>
+  </div>
+</header>
+
+<!-- ════════ ACT I — IN THE DARK ════════ -->
+<section class="act" id="dark">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act I</b> In the Dark</div>
+    <h2 class="ask">Where is this graph above the x&#8209;axis? You can&rsquo;t see it. Test numbers to find out.</h2>
+    <p class="setup">The graph is hidden. All you know is where its doors are: the top is zero at <span class="math t">&minus;3</span> and <span class="math">1</span> (the circles), and the bottom is zero at <span class="math t">&minus;1</span> and <span class="math">4</span> (the dashed lines). Tap anywhere on the chart to test a number &mdash; the page works out <span class="math t"><i>f</i>(<i>x</i>)</span> there and shows you which side of the axis it&rsquo;s on, and the strip underneath keeps a <span class="math">+</span> or a <span class="math">&minus;</span> for every test. <b>Test every piece between the doors, try a second number in one of them, and then lift the fog.</b></p>
+
+    <div class="chips">
+      <div class="chip"><div class="k">Numbers tested</div><div class="v" id="d-n">0</div></div>
+      <div class="chip gold"><div class="k">Latest test</div><div class="v" id="d-last" aria-live="polite">—</div></div>
+      <div class="chip lead"><div class="k">Pieces with a test</div><div class="v" id="d-pieces">0 of 5</div></div>
+    </div>
+
+    <div class="panel" id="d-panel">
+      <div class="formula math"><span class="fx"><i>f</i>(<i>x</i>) =</span><span class="frac"><span>(<i>x</i> + 3)(<i>x</i> &minus; 1)</span><span>(<i>x</i> + 1)(<i>x</i> &minus; 4)</span></span></div>
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 12"><circle cx="15" cy="6" r="4.2" fill="#101E33" stroke="#F2EBDD" stroke-width="1.6"/></svg>a door: the top is zero</span>
+        <span><svg viewBox="0 0 30 12"><line x1="15" y1="0" x2="15" y2="12" stroke="#9DB2FF" stroke-width="2" stroke-dasharray="3 2.5"/></svg>a door: the bottom is zero</span>
+        <span><svg viewBox="0 0 30 12"><circle cx="15" cy="6" r="4" fill="#E3B34C"/></svg>a number you tested</span>
+      </div>
+      <p class="needs-js">This chart draws itself &mdash; <b>open the page in Chrome or Safari</b> to use it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="d-svg" role="img" aria-label="A hidden graph. Tap a spot to test the number there."></svg>
+      <div class="controls">
+        <label for="d-range">Pick a number</label>
+        <div class="slider">
+          <input type="range" id="d-range" min="-7" max="7.5" step="0.1" value="0" aria-valuetext="x = 0">
+          <div class="ticks" aria-hidden="true"><span style="--p:0">−7</span><span style="--p:.2759">−3</span><span style="--p:.4138">−1</span><span style="--p:.5517">1</span><span style="--p:.7586">4</span><span style="--p:1">7.5</span></div>
+        </div>
+      </div>
+      <div class="controls split">
+        <button type="button" class="act-btn" id="d-test">Test x = 0</button>
+        <button type="button" class="act-btn" id="d-lift" aria-disabled="true" aria-pressed="false">Lift the fog</button>
+      </div>
+    </div>
+
+    <p class="nudge" id="d-nudge" aria-live="polite"></p>
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Every number you tested between the same two doors landed on the same side. That&rsquo;s not luck. To get from above the axis to below it, the graph has to go down through the axis &mdash; a zero &mdash; or jump a gap where it has no value at all &mdash; a break. Between two doors it can do neither, so its sign can&rsquo;t change there. One test tells you the whole piece, and you never needed to see the graph.</p>
+    </div>
+    <p class="notation">The names for this, when you&rsquo;re ready for them: the doors cut the number line into <b>intervals</b>, one <b>test value</b> in each one gives its sign, and the strip you built is a <b>sign chart</b>. Solving <span class="math t"><i>f</i>(<i>x</i>) &gt; 0</span> is then just reading off the <span class="math">+</span> pieces: <span class="math t">(&minus;&infin;, &minus;3) &cup; (&minus;1, 1) &cup; (4, &infin;)</span>. That&rsquo;s <b>interval notation</b>, with round brackets because the doors themselves never make <span class="math t"><i>f</i>(<i>x</i>)</span> greater than 0. <span class="name">Five pieces, five tests. The graph only confirms what the tests already said.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT II — THE DOOR THAT STAYS SHUT ════════ -->
+<section class="act" id="shut">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act II</b> The Door That Stays Shut</div>
+    <h2 class="ask">Write <span class="math t">(<i>x</i> + 3)</span> twice. Then change the inequality, and watch the answer on the axis.</h2>
+    <p class="setup">The same function as Act I, with the fog gone. The strip keeps the sign of every piece, and the blue on the x&#8209;axis is the answer to the inequality you pick: a filled dot is a point that&rsquo;s in the answer, a hollow one is a point that isn&rsquo;t. <b>Try all four inequalities with <span class="math t">(<i>x</i> + 3)</span> written once, then written twice &mdash; and watch <span class="math t"><i>x</i> = &minus;3</span>.</b></p>
+
+    <div class="panel" id="s-panel">
+      <div class="formula math" id="s-formula"></div>
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#E3B34C" stroke-width="3" stroke-linecap="round"/></svg>the graph of f</span>
+        <span><svg viewBox="0 0 30 12"><line x1="2" y1="6" x2="28" y2="6" stroke="#9DB2FF" stroke-width="5" stroke-linecap="round"/></svg>the answer</span>
+        <span><svg viewBox="0 0 30 12"><circle cx="8" cy="6" r="4.2" fill="#9DB2FF"/><circle cx="22" cy="6" r="4.2" fill="#101E33" stroke="#9DB2FF" stroke-width="1.8"/></svg>in the answer &middot; not in it</span>
+      </div>
+      <p class="needs-js">This chart draws itself &mdash; <b>open the page in Chrome or Safari</b> to use it.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <svg class="chart" id="s-svg" role="img" aria-label="The graph of f with the answer to the chosen inequality marked on the x-axis."></svg>
+      <p class="answer" id="s-answer" aria-live="polite"></p>
+      <div class="controls split">
+        <span class="ctl-k">Write (x + 3)</span>
+        <div class="seg" role="group" aria-label="How many times (x + 3) is written">
+          <button type="button" data-k="1" aria-pressed="true">Once</button>
+          <button type="button" data-k="2" aria-pressed="false">Twice</button>
+        </div>
+      </div>
+      <div class="controls split">
+        <span class="ctl-k">Solve f(x) _ 0</span>
+        <div class="seg syms" role="group" aria-label="The inequality">
+          <button type="button" data-s="&gt;" aria-pressed="true">&gt;</button>
+          <button type="button" data-s="&ge;" aria-pressed="false">&ge;</button>
+          <button type="button" data-s="&lt;" aria-pressed="false">&lt;</button>
+          <button type="button" data-s="&le;" aria-pressed="false">&le;</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="nudge" id="s-nudge" aria-live="polite"></p>
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Written twice, <span class="math t">(<i>x</i> + 3)</span> still makes <span class="math"><i>f</i></span> zero at <span class="math t">&minus;3</span>, but both copies change sign there at the same moment &mdash; and two sign changes cancel. The graph touches the axis and goes back the way it came, so the pieces on both sides of <span class="math t">&minus;3</span> have the same sign. It&rsquo;s a door that stays shut. And that changes the answers in small, sharp ways. A zero is in the answer exactly when the inequality says &ldquo;or equal&rdquo;; a break never is, because there&rsquo;s no value there to compare. So with &ge;, <span class="math t">&minus;3</span> is in the answer all by itself, one lonely point. With &lt;, the answer runs right up to <span class="math t">&minus;3</span> from both sides and skips it.</p>
+    </div>
+    <p class="notation">The names for this: a factor written an even number of times has even <b>multiplicity</b>, and its zero touches without switching &mdash; so on a sign chart you test both sides of every door, and never assume. In interval notation a single point goes in braces, <span class="math">{&minus;3}</span>, and &cup;, the <b>union</b>, joins the pieces: <span class="math t">{&minus;3} &cup; (&minus;1, 1] &cup; (4, &infin;)</span>. A square bracket includes its end and a round one doesn&rsquo;t; &infin; always gets a round one. <span class="name">A break is never in the answer, whatever the inequality says. There&rsquo;s nothing there.</span></p>
+  </div>
+</section>
+
+<!-- ════════ ACT III — THE ANSWER THAT ISN'T ════════ -->
+<section class="act" id="isnt">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Act III</b> The Answer That Isn&rsquo;t</div>
+    <h2 class="ask">Solve it the quick way. Then check what you got.</h2>
+    <p class="setup">Multiply both sides by <span class="math t">(<i>x</i> &minus; 1)</span> and every fraction disappears &mdash; that&rsquo;s the algebra in the box, and it hands you two answers. The left chart is the equation as written, and the right one is the equation after multiplying. In each, the two sides are the two curves, and an answer is anywhere they meet. <b>Slide <span class="math"><i>x</i></span> along and land on both answers.</b></p>
+
+    <div class="panel" id="i-panel">
+      <div class="eqn math"><span class="frac"><span>2<i>x</i></span><span><i>x</i> &minus; 1</span></span><span>=</span><span class="frac"><span>2</span><span><i>x</i> &minus; 1</span></span><span>+ <i>x</i></span></div>
+      <div class="algebra math"><span class="k">The quick way: multiply both sides by (x − 1)</span><span class="t">2<i>x</i> = 2 + <i>x</i>(<i>x</i> &minus; 1)</span> <span class="t"><span class="ar">&rarr;</span><i>x</i><sup>2</sup> &minus; 3<i>x</i> + 2 = 0</span> <span class="t"><span class="ar">&rarr;</span>(<i>x</i> &minus; 1)(<i>x</i> &minus; 2) = 0</span> <b class="t"><span class="ar">&rarr;</span><i>x</i> = 1 or <i>x</i> = 2</b></div>
+      <div class="key" aria-hidden="true">
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#E3B34C" stroke-width="3" stroke-linecap="round"/></svg>the left side</span>
+        <span><svg viewBox="0 0 30 12"><line x1="1" y1="6" x2="29" y2="6" stroke="#F2EBDD" stroke-width="2" stroke-linecap="round"/></svg>the right side</span>
+        <span><svg viewBox="0 0 30 12"><circle cx="15" cy="6" r="4.6" fill="none" stroke="#9DB2FF" stroke-width="2"/></svg>they meet</span>
+      </div>
+      <p class="needs-js">These charts draw themselves &mdash; <b>open the page in Chrome or Safari</b> to use them.<br>A file preview shows the words but doesn&rsquo;t run the page.</p>
+      <div class="pair">
+        <div class="half">
+          <div class="h">As written</div>
+          <svg class="chart" id="i-a" role="img" aria-label="The two sides of the equation as written."></svg>
+          <p class="read" id="i-ra" aria-live="polite"></p>
+        </div>
+        <div class="half">
+          <div class="h">After multiplying by (x − 1)</div>
+          <svg class="chart" id="i-b" role="img" aria-label="The two sides after multiplying by x minus 1."></svg>
+          <p class="read" id="i-rb"></p>
+        </div>
+      </div>
+      <div class="controls">
+        <label for="i-range">Slide x</label>
+        <div class="slider">
+          <input type="range" id="i-range" min="-2.5" max="4.5" step="0.01" value="-1" aria-valuetext="x = −1">
+          <div class="ticks" aria-hidden="true"><span style="--p:0">−2.5</span><span style="--p:.5">1</span><span style="--p:.6429">2</span><span style="--p:1">4.5</span></div>
+        </div>
+      </div>
+      <div class="checks">
+        <div class="checks-k">The two answers, checked</div>
+        <div class="grid" id="i-grid"></div>
+      </div>
+    </div>
+
+    <p class="nudge" id="i-nudge" aria-live="polite"></p>
+    <button class="reveal" type="button">Done noticing? See what we saw</button>
+
+    <div class="insight"><span class="tag">What you just saw</span>
+      <p>Multiplying both sides of an equation by <span class="math t">(<i>x</i> &minus; 1)</span> is safe everywhere except one place: <span class="math t"><i>x</i> = 1</span>, where <span class="math t">(<i>x</i> &minus; 1)</span> is zero. Anything times zero is zero, so at <span class="math t"><i>x</i> = 1</span> the two new sides agree no matter what the old ones were doing &mdash; and the new equation picks up a solution the old one never had. You can see it: on the right, the line and the curve really do meet at <span class="math t"><i>x</i> = 1</span>. On the left there&rsquo;s nothing there to meet. Both sides run up and down the same wall, never touching. Only <span class="math t"><i>x</i> = 2</span> is real.</p>
+    </div>
+    <p class="notation">The names for this: an answer the algebra hands you that doesn&rsquo;t solve the original equation is an <b>extraneous solution</b>. Multiplying by a bottom can only ever add one where that bottom is zero &mdash; at a break &mdash; so the check is short: put every answer back into the bottoms of the original, and throw out any that make one zero. <span class="name">Two curves can only meet where both of them exist.</span></p>
+  </div>
+</section>
+
+<!-- ════════ THE CLAIM — left open ════════ -->
+<section class="act" id="claim">
+  <div class="wrap">
+    <div class="act-eyebrow"><b>Then</b> The Claim</div>
+    <h2 class="ask">One more, and the page won&rsquo;t answer this one for you.</h2>
+    <blockquote class="ticket"><span class="from">The whole week, in one sentence</span>&ldquo;A graph can only switch sides of the x&#8209;axis at a zero or a break.&rdquo;</blockquote>
+    <p class="setup">Every inequality on this page leaned on that sentence, and so does every sign chart you&rsquo;ll ever make. <b>Is it always true? Could any graph get from above the axis to below it without a zero or a break? Say what you think, and why.</b></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="thesis">Above or below, a graph can only change sides at a zero or a break. Find the doors, test once between each, and <em>check every answer</em> against the bottoms.</p>
+    <div class="colophon">Pre-Calc &middot; Unit 2 &middot; Module 4 &middot; <span>Solving Equations and Inequalities</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GOLD = "#E3B34C", LEAD = "#9DB2FF", NIGHT = "#0B1526", CREAM = "#F2EBDD", PANEL = "#101E33";
+  var MINUS = String.fromCharCode(8722), INF = String.fromCharCode(8734), CUP = " " + String.fromCharCode(8746) + " ";
+
+  function el(tag, attrs, parent, text){
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id){ return document.getElementById(id); }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+  /* numbers: n significant figures, a real minus sign, no trailing zeros */
+  function fmt(v, n){
+    if (v === null || !isFinite(v)) return "—";
+    if (Math.abs(v) < 1e-9) return "0";
+    var a = Math.abs(v), s = a.toPrecision(n || 3);
+    if (s.indexOf("e") >= 0) s = String(+s);
+    if (s.indexOf(".") >= 0) s = s.replace(/0+$/, "").replace(/\.$/, "");
+    return (v < 0 ? MINUS : "") + s;
+  }
+  function num(v){ return (v < 0 ? MINUS : "") + Math.abs(v); }
+
+  /* reveal buttons, and what each act adds when its reveal is pressed */
+  var onReveal = {}, onResize = [];
+  Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function(btn){
+    btn.addEventListener("click", function(){
+      var act = btn.closest(".act"), saw = act.querySelector(".insight");
+      act.classList.add("revealed");
+      if (onReveal[act.id]) onReveal[act.id]();
+      saw.setAttribute("tabindex", "-1");
+      saw.focus({preventScroll: true});
+    });
+  });
+
+  /* ── a chart, measured at the width it's shown ─────────────────
+     win {x0, x1, y0, y1}; opt.strip leaves room under the plot for a
+     sign strip, with the x labels below it. */
+  function frame(svg, win, opt){
+    opt = opt || {};
+    clear(svg);
+    var W = Math.max(240, Math.round(svg.getBoundingClientRect().width)), narrow = W < 560;
+    var m = narrow ? {l: 34, r: 10, t: 12} : {l: 44, r: 16, t: 14};
+    var plot = opt.plot ? (narrow ? opt.plot[0] : opt.plot[1]) : (narrow ? 220 : 280);
+    var strip = opt.strip ? (narrow ? 28 : 32) : 0;
+    var y1 = m.t + plot, stripTop = y1 + (strip ? 10 : 0);
+    var labY = stripTop + strip + (narrow ? 17 : 20), H = labY + 8;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var C = {W: W, H: H, narrow: narrow, x0: m.l, x1: W - m.r, y0: m.t, y1: y1, stripTop: stripTop, strip: strip, labY: labY, win: win};
+    C.X = function(v){ return C.x0 + (v - win.x0) * (C.x1 - C.x0) / (win.x1 - win.x0); };
+    C.Y = function(v){ return C.y1 - (v - win.y0) * (C.y1 - C.y0) / (win.y1 - win.y0); };
+    C.xAt = function(px){ return win.x0 + (px - C.x0) * (win.x1 - win.x0) / (C.x1 - C.x0); };
+    C.defs = el("defs", {}, svg);
+    var clip = el("clipPath", {id: svg.id + "-clip"}, C.defs);
+    el("rect", {x: C.x0, y: C.y0, width: C.x1 - C.x0, height: plot}, clip);
+    C.clip = "url(#" + svg.id + "-clip)";
+    C.grid = el("g", {}, svg);
+    C.fog = el("g", {}, svg);
+    C.guides = el("g", {}, svg);
+    C.curve = el("g", {"clip-path": C.clip}, svg);
+    C.answer = el("g", {}, svg);
+    C.marks = el("g", {}, svg);
+    C.band = el("g", {}, svg);
+    C.top = el("g", {}, svg);
+    return C;
+  }
+  function grid(C, xstep, ystep){
+    var w = C.win, v;
+    clear(C.grid);
+    for (v = Math.ceil(w.x0 / xstep) * xstep; v <= w.x1 + 1e-9; v += xstep){
+      var xv = +v.toPrecision(10);
+      el("line", {x1: C.X(xv), x2: C.X(xv), y1: C.y0, y2: C.y1, "class": "gridline"}, C.grid);
+      el("text", {x: C.X(xv), y: C.labY, "text-anchor": "middle", "class": "ticktext"}, C.grid, num(xv));
+    }
+    for (v = Math.ceil(w.y0 / ystep) * ystep; v <= w.y1 + 1e-9; v += ystep){
+      var yv = +v.toPrecision(10);
+      el("line", {x1: C.x0, x2: C.x1, y1: C.Y(yv), y2: C.Y(yv), "class": "gridline"}, C.grid);
+      el("text", {x: C.x0 - 7, y: C.Y(yv) + 4, "text-anchor": "end", "class": "ticktext"}, C.grid, num(yv));
+    }
+    el("line", {x1: C.x0, x2: C.x1, y1: C.Y(0), y2: C.Y(0), "class": "axis"}, C.grid);
+    if (w.x0 < 0 && w.x1 > 0) el("line", {x1: C.X(0), x2: C.X(0), y1: C.y0, y2: C.y1, "class": "axis", opacity: .5}, C.grid);
+  }
+  /* a curve, broken wherever it crosses one of the breaks */
+  function curve(C, f, breaks, attrs, parent){
+    var segs = [[]], lim = C.H * 3, prev = null;
+    for (var px = C.x0; px <= C.x1 + 0.5; px += 1){
+      var x = C.xAt(px), piece = 0;
+      for (var i = 0; i < breaks.length; i++) if (x > breaks[i]) piece++;
+      if (prev !== null && piece !== prev) segs.push([]);
+      prev = piece;
+      var y = f(x);
+      if (!isFinite(y)) continue;
+      segs[segs.length - 1].push(px.toFixed(1) + "," + Math.max(-lim, Math.min(lim, C.Y(y))).toFixed(1));
+    }
+    segs.forEach(function(s){
+      if (s.length < 2) return;
+      var a = {points: s.join(" "), fill: "none", stroke: GOLD, "stroke-width": 3.2, "stroke-linejoin": "round"};
+      for (var k in attrs || {}) a[k] = attrs[k];
+      el("polyline", a, parent || C.curve);
+    });
+  }
+  /* the doors: hollow circles where the top is zero, dashed lines where the bottom is */
+  function doors(C, zeros, breaks){
+    breaks.forEach(function(b){
+      el("line", {x1: C.X(b), x2: C.X(b), y1: C.y0, y2: C.y1, stroke: LEAD, "stroke-width": 2, "stroke-dasharray": "6 5"}, C.guides);
+    });
+    zeros.forEach(function(z){
+      el("circle", {cx: C.X(z), cy: C.Y(0), r: 5.5, fill: PANEL, stroke: CREAM, "stroke-width": 1.8}, C.marks);
+    });
+  }
+  /* a dot pinned to the frame's edge, with an arrow, when the value is off it */
+  function dot(C, x, y, r, parent, color){
+    var px = C.X(x), py = C.Y(y), fill = color || GOLD;
+    if (py < C.y0 || py > C.y1){
+      var up = py < C.y0, tip = up ? C.y0 - 1 : C.y1 + 1, base = up ? C.y0 + 8 : C.y1 - 8;
+      el("path", {d: "M" + px + " " + tip + "L" + (px - 6) + " " + base + "L" + (px + 6) + " " + base + "Z", fill: fill}, parent);
+      return up ? C.y0 + 10 : C.y1 - 10;
+    }
+    el("circle", {cx: px, cy: py, r: r, fill: fill}, parent);
+    return py;
+  }
+
+  /* the function of Acts I and II: (x + 3)^k (x - 1) / ((x + 1)(x - 4)) */
+  var ZEROS = [-3, 1], BREAKS = [-1, 4], DOORS = [-3, -1, 1, 4];
+  function F(k){ return function(x){ return Math.pow(x + 3, k) * (x - 1) / ((x + 1) * (x - 4)); }; }
+  function pieceOf(x){ var p = 0; for (var i = 0; i < DOORS.length; i++) if (x > DOORS[i]) p++; return p; }
+  function onDoor(x){ return DOORS.indexOf(x) >= 0; }
+  var WIN = {x0: -7, x1: 7.5, y0: -3, y1: 3};
+  var EDGES = [WIN.x0].concat(DOORS).concat([WIN.x1]);
+
+  /* ── header sky: Act I's graph, faint, with its doors ───────── */
+  function drawSky(){
+    var sky = $("sky"), r = sky.getBoundingClientRect();
+    var W = Math.max(300, Math.round(r.width)), H = Math.max(200, Math.round(r.height));
+    sky.setAttribute("viewBox", "0 0 " + W + " " + H);
+    clear(sky);
+    var X = function(v){ return (v - WIN.x0) / (WIN.x1 - WIN.x0) * W; }, Y = function(v){ return H * 0.55 - v * H * 0.16; };
+    BREAKS.forEach(function(b){ el("line", {x1: X(b), x2: X(b), y1: 0, y2: H, stroke: LEAD, "stroke-width": 1.4, "stroke-dasharray": "6 6", opacity: .6}, sky); });
+    el("line", {x1: 0, x2: W, y1: Y(0), y2: Y(0), stroke: CREAM, "stroke-width": 1, opacity: .25}, sky);
+    var f = F(1), seg = [], prev = null;
+    for (var i = 0; i <= 600; i++){
+      var x = WIN.x0 + (WIN.x1 - WIN.x0) * i / 600, p = pieceOf(x);
+      if (prev !== null && p !== prev){ if (seg.length > 1) el("polyline", {points: seg.join(" "), fill: "none", stroke: GOLD, "stroke-width": 1.6, opacity: .55}, sky); seg = []; }
+      prev = p;
+      seg.push(X(x).toFixed(1) + "," + Math.max(-H, Math.min(2 * H, Y(f(x)))).toFixed(1));
+    }
+    if (seg.length > 1) el("polyline", {points: seg.join(" "), fill: "none", stroke: GOLD, "stroke-width": 1.6, opacity: .55}, sky);
+    ZEROS.forEach(function(z){ el("circle", {cx: X(z), cy: Y(0), r: 6, fill: "none", stroke: CREAM, "stroke-width": 1.4, opacity: .6}, sky); });
+  }
+
+  /* ════ Act I: in the dark ═══════════════════════════════════
+     The curve is drawn, but clipped to narrow beams around the numbers
+     you've tested, under a hatched fog -- a test shows a sliver of the
+     graph and a + or - on the strip, never the shape. Lifting the fog
+     waits until every piece has a test and one piece has two: the
+     second test in a piece is where "same side" gets noticed. */
+  (function(){
+    var svg = $("d-svg"), range = $("d-range"), act = $("dark"), lift = $("d-lift");
+    var f = F(1), tests = [], lifted = false, C = null, aim = 0;
+
+    function value(x){ return onDoor(x) ? (BREAKS.indexOf(x) >= 0 ? null : 0) : f(x); }
+    function counts(){
+      var per = [0, 0, 0, 0, 0];
+      tests.forEach(function(t){ if (!onDoor(t.x)) per[pieceOf(t.x)]++; });
+      return per;
+    }
+    function build(){ C = frame(svg, WIN, {strip: true}); draw(); }
+    function draw(){
+      grid(C, C.narrow ? 2 : 1, 1);
+      clear(C.fog); clear(C.guides); clear(C.curve); clear(C.marks); clear(C.band); clear(C.top);
+      var hw = 0.2;
+      if (!lifted){
+        var pat = C.defs.querySelector("pattern") || (function(){
+          var p = el("pattern", {id: "d-hatch", width: 9, height: 9, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)"}, C.defs);
+          el("line", {x1: 0, y1: 0, x2: 0, y2: 9, stroke: "#1B2D47", "stroke-width": 3.5}, p);
+          return p;
+        })();
+        el("rect", {x: C.x0, y: C.y0, width: C.x1 - C.x0, height: C.y1 - C.y0, fill: "url(#d-hatch)"}, C.fog);
+        var beams = C.defs.querySelector("#d-beams") || el("clipPath", {id: "d-beams"}, C.defs);
+        clear(beams);
+        tests.forEach(function(t){
+          var a = {x: C.X(t.x - hw), y: C.y0, width: C.X(t.x + hw) - C.X(t.x - hw), height: C.y1 - C.y0};
+          el("rect", {x: a.x, y: a.y, width: a.width, height: a.height, fill: PANEL}, C.fog);
+          el("rect", a, beams);
+        });
+        C.curve.setAttribute("clip-path", "url(#d-beams)");
+        if (!tests.length) el("text", {x: (C.x0 + C.x1) / 2, y: C.Y(1.6), "text-anchor": "middle", "class": "fogtext"}, C.top, "The graph is hidden — tap to test a number");
+      } else {
+        C.curve.setAttribute("clip-path", C.clip);
+      }
+      el("line", {x1: C.x0, x2: C.x1, y1: C.Y(0), y2: C.Y(0), "class": "axis"}, C.fog);
+      curve(C, f, BREAKS);
+      doors(C, ZEROS, BREAKS);
+      /* where the slider is aiming, before it's a test */
+      el("line", {x1: C.X(aim), x2: C.X(aim), y1: C.y0, y2: C.y1, stroke: GOLD, "stroke-width": 1.2, "stroke-dasharray": "3 4", opacity: .55}, C.guides);
+      /* the tests */
+      tests.forEach(function(t, i){
+        if (t.v === null) return;
+        var last = i === tests.length - 1, y = dot(C, t.x, t.v, last ? 6.5 : 4.5, C.top);
+        if (last){
+          var right = C.X(t.x) < (C.x0 + C.x1) / 2;
+          el("text", {x: C.X(t.x) + (right ? 11 : -11), y: Math.max(C.y0 + 14, Math.min(C.y1 - 6, y - 10)), "text-anchor": right ? "start" : "end", "class": "measure"},
+             C.top, "f(" + num(t.x) + ") = " + fmt(t.v));
+        }
+      });
+      /* the strip: a flag for every test, and once the fog is gone, the sign of every piece */
+      var per = counts();
+      for (var i = 0; i < EDGES.length - 1; i++){
+        var a = C.X(EDGES[i]), b = C.X(EDGES[i + 1]), s = f((EDGES[i] + EDGES[i + 1]) / 2) > 0 ? 1 : -1;
+        el("rect", {x: a + 1.5, y: C.stripTop, width: Math.max(2, b - a - 3), height: C.strip, rx: 4,
+                    fill: lifted ? "rgba(157,178,255,.16)" : "rgba(157,178,255,.04)", stroke: lifted ? LEAD : (per[i] ? "#3A5272" : "#2A3F5A"),
+                    "stroke-dasharray": lifted ? "" : "3 3"}, C.band);
+        if (lifted) el("text", {x: (a + b) / 2, y: C.stripTop + C.strip / 2 + 7, "text-anchor": "middle", fill: LEAD, "font-family": "Palatino, Georgia, serif", "font-size": "22px"}, C.band, s > 0 ? "+" : MINUS);
+      }
+      if (!lifted) tests.forEach(function(t){
+        var mark = t.v === null ? "×" : t.v === 0 ? "0" : t.v > 0 ? "+" : MINUS;
+        el("text", {x: C.X(t.x), y: C.stripTop + C.strip / 2 + 6, "text-anchor": "middle", "class": "flag"}, C.band, mark);
+      });
+      readouts();
+    }
+    function readouts(){
+      var per = counts(), have = per.filter(function(n){ return n > 0; }).length, two = per.some(function(n){ return n > 1; });
+      var t = tests[tests.length - 1];
+      $("d-n").textContent = String(tests.length);
+      $("d-pieces").textContent = have + " of 5";
+      $("d-last").textContent = !t ? "—" : t.v === null ? "x = " + num(t.x) + ": no value" :
+        "f(" + num(t.x) + ") = " + fmt(t.v) + (t.v > 0 ? ", above" : t.v < 0 ? ", below" : ", on the axis");
+      var ready = have === 5 && two;
+      lift.setAttribute("aria-disabled", ready && !lifted ? "false" : "true");
+      if (lifted){ lift.setAttribute("aria-pressed", "true"); lift.textContent = "Fog lifted"; }
+      $("d-nudge").textContent =
+        !tests.length ? "Tap anywhere on the chart to test a number." :
+        have < 5 ? "Test a number in every piece between the doors — " + (5 - have) + " to go." :
+        !two ? "Now test a second number in a piece you've already tested." :
+        !lifted ? "Every piece has a test. Lift the fog." : "";
+      if (lifted) act.classList.add("touched");
+      svg.setAttribute("aria-label", lifted ? "The graph of f, with the sign of every piece under it." :
+        "A hidden graph. " + tests.length + " numbers tested; " + have + " of 5 pieces have a test.");
+    }
+    function test(x){
+      x = Math.round(x * 10) / 10;
+      x = Math.max(WIN.x0, Math.min(WIN.x1, x));
+      tests.push({x: x, v: value(x)});
+      aim = x; range.value = String(x);
+      $("d-test").textContent = "Test x = " + num(x);
+      draw();
+    }
+    svg.addEventListener("click", function(e){
+      var r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * (C.W / r.width), py = (e.clientY - r.top) * (C.H / r.height);
+      if (px < C.x0 || px > C.x1 || py > C.stripTop + C.strip + 4) return;
+      test(C.xAt(px));
+    });
+    range.addEventListener("input", function(){
+      aim = parseFloat(range.value);
+      range.classList.add("used");
+      range.setAttribute("aria-valuetext", "x = " + num(aim));
+      $("d-test").textContent = "Test x = " + num(aim);
+      draw();
+    });
+    $("d-test").addEventListener("click", function(){ test(parseFloat(range.value)); });
+    lift.addEventListener("click", function(){
+      if (lift.getAttribute("aria-disabled") === "true") return;
+      lifted = true;
+      draw();
+    });
+    build();
+    onResize.push(build);
+  })();
+
+  /* ════ Act II: the door that stays shut ═════════════════════
+     The answer is built the same way a sign chart is read: walk the
+     pieces and the doors left to right, keep each piece whose sign the
+     inequality wants, keep a ZERO only when it says "or equal", never
+     keep a break, and join whatever sits next to each other. That gives
+     {-3} for (x + 3) twice with >=, a skipped -3 with <, and one unbroken
+     run through -3 with <= -- all checked against Python. */
+  (function(){
+    var svg = $("s-svg"), act = $("shut");
+    var kBtns = Array.prototype.slice.call(act.querySelectorAll(".seg button[data-k]"));
+    var sBtns = Array.prototype.slice.call(act.querySelectorAll(".seg button[data-s]"));
+    var k = 1, sym = ">", C = null, seen = {}, moved = false;
+
+    function signs(){
+      var f = F(k), out = [];
+      for (var i = 0; i < EDGES.length - 1; i++){
+        var a = i === 0 ? DOORS[0] - 1 : EDGES[i], b = i === EDGES.length - 2 ? DOORS[DOORS.length - 1] + 1 : EDGES[i + 1];
+        out.push(f((a + b) / 2) > 0 ? 1 : -1);
+      }
+      return out;
+    }
+    /* the answer as runs of elements: piece0, door0, piece1, door1, ... */
+    function solve(){
+      var sg = signs(), want = (sym === ">" || sym === "≥") ? 1 : -1, eq = sym === "≥" || sym === "≤";
+      var els = [];
+      for (var i = 0; i < sg.length; i++){
+        els.push({kind: "piece", i: i, inc: sg[i] === want});
+        if (i < DOORS.length) els.push({kind: "door", x: DOORS[i], inc: eq && ZEROS.indexOf(DOORS[i]) >= 0});
+      }
+      var runs = [], cur = null;
+      els.forEach(function(e, j){
+        if (e.inc){ if (!cur) cur = {a: j, b: j}; else cur.b = j; }
+        else if (cur){ runs.push(cur); cur = null; }
+      });
+      if (cur) runs.push(cur);
+      return runs.map(function(r){
+        var A = els[r.a], B = els[r.b];
+        if (r.a === r.b && A.kind === "door") return {point: A.x};
+        return {
+          lo: A.kind === "door" ? A.x : (A.i === 0 ? -Infinity : DOORS[A.i - 1]), loIn: A.kind === "door",
+          hi: B.kind === "door" ? B.x : (B.i === DOORS.length ? Infinity : DOORS[B.i]), hiIn: B.kind === "door",
+          skips: els.slice(r.a, r.b + 1).filter(function(e){ return e.kind === "door"; }).map(function(e){ return e.x; })
+        };
+      });
+    }
+    function words(runs){
+      if (!runs.length) return "no x at all";
+      return runs.map(function(r){
+        if (r.point !== undefined) return "{" + num(r.point) + "}";
+        return (r.loIn ? "[" : "(") + (r.lo === -Infinity ? MINUS + INF : num(r.lo)) + ", " +
+               (r.hi === Infinity ? INF : num(r.hi)) + (r.hiIn ? "]" : ")");
+      }).join(CUP);
+    }
+    function formula(){
+      $("s-formula").innerHTML = '<span class="fx"><i>f</i>(<i>x</i>) =</span><span class="frac"><span>' +
+        (k === 2 ? '<span class="sq">(<i>x</i> + 3)<sup>2</sup></span>' : "(<i>x</i> + 3)") +
+        '(<i>x</i> &minus; 1)</span><span>(<i>x</i> + 1)(<i>x</i> &minus; 4)</span></span>';
+    }
+    function build(){ C = frame(svg, WIN, {strip: true}); draw(); }
+    function draw(){
+      var runs = solve(), sg = signs(), f = F(k);
+      grid(C, C.narrow ? 2 : 1, 1);
+      clear(C.guides); clear(C.curve); clear(C.answer); clear(C.marks); clear(C.band); clear(C.top);
+      curve(C, f, BREAKS);
+      doors(C, ZEROS, BREAKS);
+      /* a piece whose whole graph is off the chart still needs to be seen to be
+         somewhere: an arrow says which way it went (with (x + 3) twice, every
+         value right of 4 is above 20) */
+      for (var q = 0; q < EDGES.length - 1; q++){
+        var lo = EDGES[q], hi = EDGES[q + 1], above = true, below = true;
+        for (var t = 1; t < 40; t++){
+          var v = f(lo + (hi - lo) * t / 40);
+          if (v <= WIN.y1) above = false;
+          if (v >= WIN.y0) below = false;
+        }
+        if (above || below){
+          var cx = (C.X(lo) + C.X(hi)) / 2, edge = above ? C.y0 : C.y1, dir = above ? 1 : -1;
+          el("path", {d: "M" + cx + " " + (edge - dir * 1) + "l-7 " + (dir * 10) + "h14z", fill: GOLD}, C.top);
+          var hint = C.narrow ? (above ? "up here" : "down here") : (above ? "the graph is up here" : "the graph is down here");
+          var half = hint.length * (C.narrow ? 3.9 : 4.4), tx = Math.max(C.x0 + half, Math.min(C.x1 - half, cx));
+          el("text", {x: tx, y: edge + dir * 26, "text-anchor": "middle", "class": "measure"}, C.top, hint);
+        }
+      }
+      /* the answer, on the axis itself */
+      var y0 = C.Y(0);
+      runs.forEach(function(r){
+        if (r.point !== undefined) return;
+        var a = r.lo === -Infinity ? C.x0 : C.X(r.lo), b = r.hi === Infinity ? C.x1 : C.X(r.hi);
+        el("line", {x1: a, x2: b, y1: y0, y2: y0, stroke: LEAD, "stroke-width": 5.5, "stroke-linecap": "butt", opacity: .9}, C.answer);
+        if (r.lo === -Infinity) el("path", {d: "M" + (C.x0 - 2) + " " + y0 + "l10 -7v14z", fill: LEAD}, C.answer);
+        if (r.hi === Infinity) el("path", {d: "M" + (C.x1 + 2) + " " + y0 + "l-10 -7v14z", fill: LEAD}, C.answer);
+      });
+      /* every door gets a verdict: filled if it's in the answer, hollow blue if the answer
+         runs right up to it, and the plain cream circle if the answer never gets near */
+      DOORS.forEach(function(d){
+        var inside = runs.some(function(r){ return r.point === d || (r.point === undefined && ((r.lo === d && r.loIn) || (r.hi === d && r.hiIn) || (r.lo < d && d < r.hi))); });
+        var touching = runs.some(function(r){ return r.point === undefined && (r.lo === d || r.hi === d); });
+        var isZero = ZEROS.indexOf(d) >= 0;
+        if (isZero && inside) el("circle", {cx: C.X(d), cy: y0, r: 6.5, fill: LEAD}, C.top);
+        else if (touching || runs.some(function(r){ return r.skips && r.skips.indexOf(d) >= 0; }))
+          el("circle", {cx: C.X(d), cy: y0, r: 6.5, fill: PANEL, stroke: LEAD, "stroke-width": 2.2}, C.top);
+      });
+      /* the strip: every piece's sign, the ones in the answer lit */
+      var want = (sym === ">" || sym === "≥") ? 1 : -1;
+      for (var i = 0; i < EDGES.length - 1; i++){
+        var a = C.X(EDGES[i]), b = C.X(EDGES[i + 1]), on = sg[i] === want;
+        el("rect", {x: a + 1.5, y: C.stripTop, width: Math.max(2, b - a - 3), height: C.strip, rx: 4,
+                    fill: on ? "rgba(157,178,255,.2)" : "rgba(157,178,255,.03)", stroke: on ? LEAD : "#2A3F5A"}, C.band);
+        el("text", {x: (a + b) / 2, y: C.stripTop + C.strip / 2 + 7, "text-anchor": "middle", fill: on ? LEAD : "#5C6E85",
+                    "font-family": "Palatino, Georgia, serif", "font-size": "22px"}, C.band, sg[i] > 0 ? "+" : MINUS);
+      }
+      var w = words(runs);
+      $("s-answer").innerHTML = '<span class="k">The answer</span><span class="math"><i>f</i>(<i>x</i>) ' + sym +
+        ' 0</span>&ensp;when <span class="math"><i>x</i></span> is in&ensp;<b class="math">' + w + "</b>";
+      svg.setAttribute("aria-label", "The graph of f. f(x) " + sym + " 0 when x is in " + w + ".");
+      progress();
+    }
+    /* The button needs the shut door seen where it matters: (x + 3) twice
+       with >=, where -3 stands alone -- and enough other cases to compare. */
+    function progress(){
+      var n = Object.keys(seen).length;
+      $("s-nudge").textContent =
+        !moved ? "Pick another inequality. Watch the blue on the axis." :
+        !(seen["2>"] || seen["2≥"] || seen["2<"] || seen["2≤"]) ? "Now write (x + 3) twice." :
+        !seen["2≥"] ? "With (x + 3) written twice, try ≥." :
+        n < 5 ? "Try the others too — watch x = −3 each time." : "";
+      if (seen["2≥"] && n >= 5) act.classList.add("touched");
+    }
+    function press(btns, attr, val){ btns.forEach(function(b){ b.setAttribute("aria-pressed", b.getAttribute(attr) === val ? "true" : "false"); }); }
+    kBtns.forEach(function(b){ b.addEventListener("click", function(){ k = +b.dataset.k; moved = true; seen[k + sym] = true; press(kBtns, "data-k", String(k)); formula(); draw(); }); });
+    sBtns.forEach(function(b){ b.addEventListener("click", function(){ sym = b.dataset.s; moved = true; seen[k + sym] = true; press(sBtns, "data-s", sym); draw(); }); });
+    seen["1>"] = true;
+    formula(); build();
+    onResize.push(build);
+  })();
+
+  /* ════ Act III: the answer that isn't ══════════════════════
+     2x/(x - 1) = 2/(x - 1) + x, and the same equation multiplied by
+     (x - 1): 2x = 2 + x(x - 1). One slider moves a line across both
+     charts. It snaps onto 1 and 2, the two answers the algebra gives,
+     and each one you land on is checked against both versions. */
+  (function(){
+    var range = $("i-range"), act = $("isnt");
+    var A = {svg: $("i-a"), L: function(x){ return 2 * x / (x - 1); }, R: function(x){ return 2 / (x - 1) + x; }, wall: true};
+    var B = {svg: $("i-b"), L: function(x){ return 2 * x; }, R: function(x){ return 2 + x * (x - 1); }, wall: false};
+    var W3 = {x0: -2.5, x1: 4.5, y0: -6, y1: 10};
+    var x = -1, landed = {}, moved = false;
+
+    function build(){ [A, B].forEach(function(V){ V.C = frame(V.svg, W3, {plot: [200, 250]}); }); draw(); }
+    function drawOne(V){
+      var C = V.C;
+      grid(C, 1, C.narrow ? 4 : 2);
+      clear(C.guides); clear(C.curve); clear(C.marks); clear(C.top);
+      if (V.wall) el("line", {x1: C.X(1), x2: C.X(1), y1: C.y0, y2: C.y1, stroke: LEAD, "stroke-width": 2, "stroke-dasharray": "6 5"}, C.guides);
+      curve(C, V.R, V.wall ? [1] : [], {stroke: CREAM, "stroke-width": 2.2});
+      curve(C, V.L, V.wall ? [1] : []);
+      el("line", {x1: C.X(x), x2: C.X(x), y1: C.y0, y2: C.y1, stroke: GOLD, "stroke-width": 1.4, opacity: .55}, C.guides);
+      var none = V.wall && x === 1;
+      if (none){
+        /* low and right of the wall: the one corner both curves stay out of */
+        el("text", {x: C.X(1) + 9, y: C.Y(-3.6), "class": "measure lead"}, C.top, "x = 1: no value");
+        return {none: true};
+      }
+      var l = V.L(x), r = V.R(x), meet = Math.abs(l - r) < 1e-9;
+      dot(C, x, r, 5, C.top, CREAM);
+      var yl = dot(C, x, l, 5.5, C.top);
+      if (meet){
+        el("circle", {cx: C.X(x), cy: yl, r: 12, fill: "none", stroke: LEAD, "stroke-width": 2.4}, C.top);
+        el("text", {x: C.X(x) + 16, y: yl + 5, "class": "measure lead"}, C.top, "they meet");
+      }
+      return {l: l, r: r, meet: meet};
+    }
+    function draw(){
+      var a = drawOne(A), b = drawOne(B);
+      $("i-ra").innerHTML = a.none ? "x = 1: <b>no value</b> — both sides divide by 0" :
+        'left side <span class="g">' + fmt(a.l) + '</span> · right side <span class="c">' + fmt(a.r) + "</span>" + (a.meet ? " — <b>they meet</b>" : "");
+      $("i-rb").innerHTML = 'left side <span class="g">' + fmt(b.l) + '</span> · right side <span class="c">' + fmt(b.r) + "</span>" + (b.meet ? " — <b>they meet</b>" : "");
+      if (x === 1 || x === 2) landed[x] = true;
+      checks();
+      progress();
+    }
+    function checks(){
+      var rows = ['<div></div><div class="h">As written</div><div class="h">After multiplying</div>'];
+      [1, 2].forEach(function(c){
+        var here = x === c, got = landed[c];
+        rows.push('<div class="rk math"><i>x</i> = ' + c + "</div>");
+        if (!got){ rows.push('<div class="cell' + (here ? " here" : "") + '">—</div><div class="cell' + (here ? " here" : "") + '">—</div>'); return; }
+        rows.push(c === 1 ?
+          '<div class="cell no' + (here ? " here" : "") + '">2 ÷ 0: no value. Not an answer.</div><div class="cell yes' + (here ? " here" : "") + '">2 = 2: they meet</div>' :
+          '<div class="cell yes' + (here ? " here" : "") + '">4 = 4: they meet</div><div class="cell yes' + (here ? " here" : "") + '">4 = 4: they meet</div>');
+      });
+      $("i-grid").innerHTML = rows.join("");
+    }
+    function progress(){
+      $("i-nudge").textContent =
+        !moved ? "Slide x. Watch both sides in both charts." :
+        !landed[2] && !landed[1] ? "Land on one of the algebra's answers — x = 1 or x = 2." :
+        !landed[2] ? "Now land on x = 2." :
+        !landed[1] ? "Now land on x = 1." : "";
+      if (landed[1] && landed[2]) act.classList.add("touched");
+    }
+    range.addEventListener("input", function(){
+      var v = parseFloat(range.value);
+      [1, 2].forEach(function(c){ if (Math.abs(v - c) < 0.05) v = c; });
+      x = Math.round(v * 100) / 100;
+      range.value = String(x);
+      range.classList.add("used");
+      range.setAttribute("aria-valuetext", "x = " + num(x));
+      moved = true;
+      draw();
+    });
+    build();
+    onResize.push(build);
+  })();
+
+  drawSky();
+  onResize.push(drawSky);
+
+  /* Rebuild the charts when the width they're SHOWN at really changes -- a
+     phone rotating, a window resized, a scrollbar arriving. State lives
+     outside the drawings, so a rebuild never loses a test or a reveal.
+     Watch a PANEL, not an <svg>: an observer on an outer <svg> never fired
+     in testing, so the thing observed has to be an ordinary HTML box. A
+     rebuild changes only the charts' HEIGHT, which fires the observer again
+     with the same width, which returns -- no loop. */
+  var lastW = Math.round($("d-svg").getBoundingClientRect().width), timer = null;
+  function remeasure(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      var w = Math.round($("d-svg").getBoundingClientRect().width);
+      if (Math.abs(w - lastW) < 2) return;
+      lastW = w;
+      onResize.forEach(function(fn){ fn(); });
+    }, 120);
+  }
+  if (window.ResizeObserver) new ResizeObserver(remeasure).observe($("d-panel"));
+  window.addEventListener("resize", remeasure);
+
+  /* No scroll-triggered reveals: nothing on this page can get stuck
+     invisible. Everything that must arrive is set synchronously. */
+})();
+</script>
